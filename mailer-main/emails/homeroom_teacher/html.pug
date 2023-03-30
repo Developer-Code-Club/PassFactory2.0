@@ -1,0 +1,27 @@
+doctype html
+html
+  head
+    link(rel="text/javascript", src="https://cdn.usebootstrap.com/bootstrap/4.3.1/js/bootstrap.min.js")
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css")
+    link(rel="stylesheet",href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css",integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T",crossorigin="anonymous")
+    link(href="../public/css/pass-styles.css",rel="stylesheet") 
+  body
+    p <br>	
+    p Hello #{name},
+    p
+    p
+    p See below a list of students in your homeroom with passes for today.
+    p Please remind each student to look for it in their email.      
+    br
+    p 
+    br
+    br
+    ul
+      each val in students
+        li= val.student.name
+      else
+        li There are no values
+    br
+    br
+    p  <a href="https://www.hcrhs.org"><u>www.hcrhs.org </u></a>
+    p <img src="../public/images/HCLogo.PNG"></img>

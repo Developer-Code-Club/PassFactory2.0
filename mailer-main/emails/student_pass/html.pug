@@ -1,0 +1,40 @@
+doctype html
+html
+  head
+    link(rel="text/javascript", src="https://cdn.usebootstrap.com/bootstrap/4.3.1/js/bootstrap.min.js")
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css")
+    link(rel="stylesheet",href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css",integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T",crossorigin="anonymous")
+    link(href="../public/css/pass-styles.css",rel="stylesheet") 
+  body
+    p <br>	
+    p Hello #{fname},
+    p
+    p See below a pass for you.
+    p       
+    
+    br
+    br
+    div.container.w-100.pass-layout-email
+      div.row
+        div.col-sm-12.pass-title.p-1 PASS
+      div.row
+        div.col-sm-12.p-1
+          <label class='pass-line-l'>Name:</label> 
+          <label class='pass-line ml-2'>#{name}</label>
+      div.row
+        div.col-sm-12.p-1 
+          <label class='pass-line-l'>From:</label>
+          <label class='pass-line ml-2'>#{from}</label>
+      div.row
+        div.col-sm-12.p-1 
+          <label class='pass-line-l'>Time:</label> 
+          <label class='pass-line ml-2'>#{datetime}</label>
+      div.row
+        div.col-sm-12.p-1 
+          <label class='pass-line-l'>Note:</label> 
+          <label class='pass-line ml-2'>#{note}</label>
+      br
+    br
+    br
+    p  <a href="https://www.hcrhs.org"><u>www.hcrhs.org </u></a>
+    p <img src="./images/HCLogo.PNG"></img>
