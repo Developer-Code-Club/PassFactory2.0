@@ -1,0 +1,259 @@
+body {
+    background-color: rgb(220, 220, 220);
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+}
+
+.logo {
+    background-color: rgb(137, 0, 0);
+    width: 100%;
+    height: 250px;
+    text-align: center;
+    position: relative;
+}
+
+img {
+    width: 130px;
+    height: 130px;
+    margin: 20px;
+}
+
+.otherstuff {
+    background-color: rgb(137,0,0);
+    z-index: 3;
+    position: relative;
+    width: 100%;
+    height: 30px;
+}
+
+#userCount {
+    position: absolute;
+    right: 0;
+    padding: 10px 20px;
+}
+#displayRoomNum {
+    position: absolute;
+    right: 0;
+    padding: 30px 20px;
+}
+
+
+#config {
+    background-image: url("images/icon.png");
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: 90%;
+    background-position: center;
+    margin: 5px;
+    padding: 20px;
+    border: none;
+    cursor: pointer;
+}
+
+#configwindow {
+    display: none;
+    z-index: 4;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background-color: rgb(220,220,220);
+    width: 600px;
+    height: 450px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 50px rgb(51, 51, 51);
+}
+
+.header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 20px;
+}
+
+.body {
+    padding: 10px;
+}
+
+
+#login {
+    display: grid;
+    place-content: center;
+}
+
+#page2 {
+    display: none;
+}
+
+#roomNum {
+    padding: 5px;
+    margin: 5px;
+    border: none;
+}
+#staffName {
+    display: none;
+    padding: 5px;
+    margin: 5px;
+    border: none;
+}
+
+#setRoom {
+    margin-top: 10px;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgb(137, 0, 0);
+    color: rgb(220,220,220);
+}
+
+#clearStaff {
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgb(137, 0, 0);
+    color: rgb(220,220,220);
+}
+
+.inputs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    top: 400px;
+}
+
+.inputs form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -125%);
+}
+
+label {
+    text-align: left;
+    margin-right: auto;
+    margin-bottom: 5px;
+}
+
+#idNum {
+    border: none;
+    height: 25px;
+    width: 200px;
+}
+
+#flname {
+    border: none;
+    height: 25px;
+    width: 200px;
+}
+
+
+#start {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100px;
+    height: 45px;
+    background-color: rgb(137, 0, 0);
+    color: rgb(220,220,220);
+}
+
+#namethislater {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    z-index:1;
+    position: absolute;
+    margin-top: -325px;
+    width: 500px;
+    height: 50px;
+}
+
+#userlist {
+    border-radius: 5px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    list-style-type: none;
+    width: 500px;
+    height: 50px;
+    flex-grow: 1;
+}
+
+#checkoutwindow {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background-color: rgb(220,220,220);
+    width: 600px;
+    height: 450px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 50px rgb(51, 51, 51);
+}
+
+#info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    float: inline-start;
+}
+
+#label1 {
+    position: absolute;
+    top: 40px;
+}
+  
+#location {
+    position: absolute;
+    top: 70px;
+    width: 200px;
+}
+  
+#checkout {
+    position: absolute;
+    top: 350px;
+}
+  
+#time {
+    position: absolute;
+    top: 200px
+}
+
+.inner {
+    background-color: rgb(186, 186, 186);
+    padding: 8px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.userinfo {
+    background-color:rgb(255, 255, 255);
+    padding: 2px 10px;
+    border-radius: 3px;
+    margin: 0;
+}
+
+.resButton {
+    text-align: center;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgb(137, 0, 0);
+    color: rgb(220,220,220);
+}
+
