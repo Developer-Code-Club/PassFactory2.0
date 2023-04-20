@@ -1,5 +1,4 @@
-//scan in
-var id; //moving this somehow breaks everything
+var id; //dont move
 var name;
 const startButton = document.getElementById("start");
 const userlist = document.getElementById("userlist");
@@ -63,7 +62,7 @@ function loadUsers() {
 
 }
 
-//remove user from list of currentUsers and localstorage
+
 function removeUser(user) {
     var index = currentUsers.indexOf(user);
     currentUsers.splice(index,1);
@@ -84,7 +83,7 @@ function addUser(id, name) {
     loadUsers();
 }
 
-//staff to staffList
+
 function addStaff(n) {
     staffList.push(n);
     localStorage.setItem("staffList", JSON.stringify(staffList));
