@@ -39,7 +39,7 @@ img {
 
 
 #config {
-    background-image: url("images/icon.png");
+    background-image: url("/images/icon.png");
     background-color: transparent;
     background-repeat: no-repeat;
     background-size: 90%;
