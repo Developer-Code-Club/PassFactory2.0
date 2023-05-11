@@ -222,6 +222,18 @@ if ( s[i].courseView == "554-11" ) {
 		}
 		return theRooms;
 	}
+	static async getTransactionData()
+	{
+		var theTransactions = new Map();
+		var t =  await ProdDataReader.getData(url + "transactions");
+		for (var i=0; i < t.length; i++ )
+		{
+			var tr=new Transaction(t[i].location, t[i].studentID);
+			theTransactions.set(i,tr);  
+		}
+		return theTransactions;
+
+	}
 	
 } //end class ProdDataReader
 

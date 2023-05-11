@@ -26,6 +26,13 @@ class Transaction {
             DataIntegrity.addIssue("ERROR", "Location","constructor","Location Contructor adding empty location for->" + JSON.stringify(this));
         }		
     }
+
+    getLocation() {
+		return this.location;
+	}
+    getStudentID() {
+        return this.studentID;
+    }
     
     
     

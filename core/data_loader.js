@@ -82,5 +82,16 @@ class DataLoader {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
+	static async getTransactionData() {
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.getLocation();
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.getStudentID();
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
+
+	
 }
 module.exports = DataLoader;
