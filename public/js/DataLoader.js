@@ -132,4 +132,3 @@ class DataLoader {
 		return ret;
 	}
 }
-modules.exports = DataLoader;

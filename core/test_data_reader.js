@@ -76,6 +76,11 @@ class TestDataReader {
 		console.log("loaded thePasses->" + JSON.stringify(Array.from(thePasses)));
 		return thePasses;
 	}
+	static async getTransitData() {
+		var theTransits=new Map();
+		//Insert code here to read from mysql server.
+		return theTransits;
+	}
 
 }
 module.exports = TestDataReader;

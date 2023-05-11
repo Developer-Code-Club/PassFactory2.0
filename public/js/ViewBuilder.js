@@ -217,5 +217,17 @@ class ViewBuilder {
 			tr.appendChild(td);
 		}
 	}
+	addStudent(studentId,timeEnter) {
+		var tab = document.getElementById("ci-rows");
+		var tr = document.createElement("tr");
+		tab.appendChild(tr);
+		var td = document.createElement("td");
+		td.innerHTML=studentId;
+		tr.appendChild(td);
+		
+		td = document.createElement("td");
+		td.innerHTML=timeEnter;
+		tr.appendChild(td);
+	}
 		
 }

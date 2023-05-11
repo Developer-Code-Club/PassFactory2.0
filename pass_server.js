@@ -8,14 +8,19 @@ const PassFactory = require("./core/pass_factory");
 const DataIntegrity = require("./core/data_integrity");
 const RTManager = require("./core/rt_manager");
 const BlockCalculator = require("./core/block_calculator");
-
+const TransitHandler = require("./core/transit_handler");
 /*
  * These are the only 2 lines of code that are needed
  * to start up the websocket server.
  */
 var theRTManager = new RTManager(1337);
 theRTManager.initialize();
-
+/* Initializing the transithandler. */
+console.log("Initializing the Transit Handler...");
+var theTransitHandler=new TransitHandler();
+theTransitHandler.initialize();
+console.log("Done initializing TransitHandler.");
+theRTManager.setTransitHandler(theTransitHandler);
 
 console.log("starting server...");
 

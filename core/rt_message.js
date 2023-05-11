@@ -8,25 +8,39 @@
 
 class RTMessage {
 	
-	static messageFuncs=["signin", "sendMessage"];
+	static messageFuncs=["signin", "sendMessage","scannedId","scanConfirmIn","scanConfirmOut"];
 	
 	constructor() {
 		this.func=null;
-		this.userName=null;
-		this.userLocation=null;
-		this.toUser=null;
-		this.toUserLocation=null;
-		this.message=null;
+		this.byUser=null;
+		this.location=null;
+		this.note = null;
+		this.studentId = null;
+		this.theDateTime = null;
 	}
 
 	initialize(message) {
 		this.func=message.func;
+		this.byUser = message.userName;
 		this.userName = message.userName;
-		this.userLocation = message.userLocation;
-		this.toUserName=message.toUserName;
-		this.toLocation=message.toLocation;
-		this.message=message.message;
-		return this.checkIntegrity();
+		this.location = message.location;
+		this.note=message.note;
+		this.studentId = message.studentId;
+//		return this.checkIntegrity();
+	}
+	initializeScanOut(byUser,location,studentId,theDateTime) {
+		this.func = "scanConfirmOut";
+		this.byUser = byUser;
+		this.location = location;
+		this.studentId = studentId;
+		this.theDateTime = theDateTime;
+	}
+	initializeScanIn(byUser,location,studentId,theDateTime) {
+		this.func = "scanConfirmIn";
+		this.byUser = byUser;
+		this.location = location;
+		this.studentId = studentId;
+		this.theDateTime = theDateTime;
 	}
 	checkIntegrity() {
 		if ( this.func == null ) {
