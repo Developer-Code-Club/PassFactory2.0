@@ -76,17 +76,17 @@ class TestDataReader {
 		console.log("loaded thePasses->" + JSON.stringify(Array.from(thePasses)));
 		return thePasses;
 	}
-	static getTransactionData() {
+	static getTransitData() {
 		var transactionRaw = fs.readFileSync('./testdata/transactions.json');
-		var theTransactions = new Map();
+		var theTransits = new Map();
 		var transactions = JSON.parse(transactionRaw);
 		for (var i=0; i < transactions.length; i++ ) {
 			var t = new Transaction(parseInt(transactions[i].id), transactions[i].location, 
 				transactions[i].studentId);
-			theTransactions.set(t.id,t);
+			theTransits.set(t.id,t);
 		}
 		console.log("loaded theTransactions->" + JSON.stringify(Array.from(theTransactions)));
-		return theTransactions;
+		return theTransits;
 	}
 
 }

@@ -82,16 +82,17 @@ class DataLoader {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
-	static async getTransactionData() {
+	/*
+	 * below here we are loading data from mysql server.
+	 */
+	 static async getTransitData() {
 		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.getLocation();
+			return await TestDataReader.getTransitData();
 		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.getStudentID();
+			return await ProdDataReader.getTransitData();
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
-
-	
 }
 module.exports = DataLoader;

@@ -6,16 +6,12 @@
 
 class TransitLeg {
 	
-	constructor(studentId,fromLocation,fromTime,toLocation,arrivalTime) {
-		this.studentId = studentId;
-		this.fromLocation = fromLocation;
-		this.fromTime = fromTime;
-		this.toLocation=toLocation;
-		this.arrivalTime = arrivalTime;
+	constructor(id,inLocation,byUser,inEvent,inDateTime) {
+		this.id=id;
+		this.theLocation=inLocation;
+		this.byUser = byUser;
+		this.theEvent=inEvent;
+		this.theDateTime = inDateTime;
 	}	
-	setArrivalTime() {
-		this.arrivalTime=new Date();
-	}
-	
 }
 module.exports = TransitLeg;

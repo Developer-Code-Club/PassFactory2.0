@@ -16,6 +16,8 @@ const MasterScheduleHandler = require('./master_schedule_handler');
 const BlockCalculator = require('./block_calculator');
 const DataLoader = require('./data_loader');
 const SchoolFactory = require('./school_factory');
+const TransitHandler = require('./transit_handler');
+
 
 class PassFactory {
 	
@@ -38,6 +40,8 @@ class PassFactory {
 
 		await this.thePassHandler.initialize(forDate);
 		console.log("\tFinished initializing thePassHandler for " + forDate + "...");
+		
+	
 		/*
 		 * Decorating the data means, that we lookup instances of objects
 		 * and put them with the containers that refernce them.
