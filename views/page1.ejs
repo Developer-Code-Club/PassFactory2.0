@@ -10,34 +10,22 @@
 </head>
 <body>
     <div class="otherstuff">
-        <button id="config" onclick="showElement('configwindow', 'block'); showElement('login', 'grid');
-        hideElement('page2');"></button>
+        <button id="config" onclick="showElement('configwindow', 'block');"></button>
         <label id="displayRoomNum">Room: 000</label>
         <label id="userCount"><b>Students out: 0</b></label>
     </div>
     <div id="configwindow">
-        <div class="header">
+        <div class="header1">
             <h3>Room Settings</h3>
             <button id="close" onclick="hideElement('configwindow')"><b>x</b></button>
         </div>
         <div class="body">
-            <div id ="login">
-                <label>Pin:</label>
-                <input type="password" id="pin" placeholder = "0000"><br>
-                <button type="submit" id="loginButton"><b>Log in</b></button>
-            </div>
-            <div id ="page2">
-                <label>Room Number</label><br>
-                <input type="number" id="roomNum" placeholder = "000"><br>
-                <label>Add Staff</label>
-                <button type="buttom" id="addStaff" onclick= "showElement('staffName','block');"><b>+</b></button>
-                <input type="text" id="staffName"><br>
-                <button type = "submit" id="setRoom" onclick="hideElement('staffName');"><b>Update Settings</b></button>
-                <button type = "submit" id="clearStaff"><b>Clear</b></button>
-                <div id="staffList">
-                    <ul></ul>
-                </div>
-            </div>
+            <label>Room Number</label><br>
+            <input type="number" id="roomNum" placeholder = "000"><br>
+            <label>Add Staff</label>
+            <button type="buttom" id="addStaff" onclick= "showElement('staffName','block');"><b>+</b></button>
+            <input type="text" id="staffName"><br>
+            <button type = "submit" id="setRoom" onclick="hideElement('staffName');"><b>Update Settings</b></button>
         </div>
     </div>
     <div class="logo">  
@@ -64,6 +52,7 @@
             <select name="location" id="location">
               <option>option 1</option>
             </select>
+            <input type="text" id="notes" placeholder = "notes"><br>
             <p id="time"></p>
             <button id="checkout">Check Out</button>
         </div>

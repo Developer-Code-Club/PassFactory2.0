@@ -62,6 +62,10 @@ app.get('/page1', (req, res)=>{
 	res.render('page1');
 });
 
+app.get('/page2', (req, res) => {
+	res.render('page2');
+});
+
 console.log("setting up get_faculty_for");
 
 app.get('/get_faculty_for', (req, res)=>{   
