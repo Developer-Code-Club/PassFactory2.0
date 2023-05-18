@@ -89,7 +89,7 @@ class Controller {
 		Controller.socket = new WebSocket('ws://localhost:1337');
 		console.log("here1");
 		Controller.socket.onopen = function () {
-			Controller.creds={func:'signin', userName:document.getElementById("ci-user-name").value,location:document.getElementById("ci-location").value};
+			Controller.creds={func:'signin', userName:document.getElementById("staffName").value,location:document.getElementById("roomNum").value};
 			Controller.socket.send(JSON.stringify(Controller.creds));
 		};
 		console.log("here2");
@@ -102,7 +102,7 @@ class Controller {
 	}
 	static receiveMessage(message) {
 		console.log("receving->" + message.data);
-		var content = document.getElementById("location-checker-content");
+		var content = document.getElementById("content1");
 
 		var msg=JSON.parse(message.data);
 		if ( msg.func =="signinsuccess" ) {

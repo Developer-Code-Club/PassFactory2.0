@@ -5,7 +5,7 @@ body {
 }
 
 .logo {
-    background-color: rgb(137, 0, 0);
+    background-color: #860b10;
     width: 100%;
     height: 250px;
     text-align: center;
@@ -19,7 +19,7 @@ img {
 }
 
 .otherstuff {
-    background-color: rgb(137,0,0);
+    background-color: #860b10;
     z-index: 3;
     position: relative;
     width: 100%;
@@ -57,11 +57,11 @@ img {
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
-    background-color: rgb(220,220,220);
+    background-color: #DBDFE6;
     width: 600px;
     height: 450px;
-    border-radius: 20px;
-    box-shadow: 0px 0px 50px rgb(51, 51, 51);
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px rgb(99, 99, 99);
 }
 
 .header1{
@@ -72,40 +72,37 @@ img {
 }
 
 .body {
-    display: block;
-    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px 20px;
 }
 
+#outer {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 5px;
+}
 
 #login {
     display: grid;
     place-content: center;
 }
 
-#page2 {
-    display: none;
-}
-
 #roomNum {
     padding: 5px;
-    margin: 5px;
+    margin: 5px 0px;
     border: none;
 }
 #staffName {
     display: none;
     padding: 5px;
-    margin: 5px;
+    margin: 5px 0px;
     border: none;
 }
 
-#setRoom {
-    margin-top: 10px;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: rgb(137, 0, 0);
-    color: rgb(220,220,220);
+#staffList {
+    list-style-type: none;
 }
 
 .inputs {
@@ -145,14 +142,14 @@ label {
 }
 
 
-#start {
+.b1 {
+    margin: 5px 0px;
+    padding: 8px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 3px;
     cursor: pointer;
-    width: 100px;
-    height: 45px;
-    background-color: rgb(137, 0, 0);
-    color: rgb(220,220,220);
+    background-color: #860b10;
+    color: #DBDFE6;
 }
 
 #namethislater {
@@ -188,11 +185,11 @@ label {
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
-    background-color: rgb(220,220,220);
+    background-color: #DBDFE6;
     width: 600px;
     height: 450px;
-    border-radius: 20px;
-    box-shadow: 0px 0px 50px rgb(51, 51, 51);
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px rgb(99, 99, 99);
 }
 
 #info {
@@ -235,8 +232,8 @@ label {
     padding: 4px 10px;
     border-radius: 5px;
     cursor: pointer;
-    background-color: rgb(137, 0, 0);
-    color: rgb(220,220,220);
+    background-color: #860b10;
+    color: #DBDFE6;
 }
 
 .header {

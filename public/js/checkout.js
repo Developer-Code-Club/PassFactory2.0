@@ -14,6 +14,15 @@ function showElement(id, display) {
     document.getElementById(id).style.display = display;
 }
 
+function addStaff() {
+    var name = document.getElementById("staffName").value;
+    var ul = document.getElementById("staffList");
+    var li = document.createElement("li");
+    li.textContent = name;
+    li.classList.add("li1");
+    ul.appendChild(li);
+}
+
 function addStudent(studentName, id) {
     studentCount++;
     var ul = document.getElementById("userlist");

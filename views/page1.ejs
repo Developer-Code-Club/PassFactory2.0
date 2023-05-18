@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <script src="js/Controller.js"></script>
     <title>Check In</title>
 </head>
 <body>
@@ -17,15 +18,27 @@
     <div id="configwindow">
         <div class="header1">
             <h3>Room Settings</h3>
-            <button id="close" onclick="hideElement('configwindow')"><b>x</b></button>
+            <button id="exit" onclick="hideElement('configwindow')"><b>x</b></button>
         </div>
         <div class="body">
-            <label>Room Number</label><br>
-            <input type="number" id="roomNum" placeholder = "000"><br>
-            <label>Add Staff</label>
-            <button type="buttom" id="addStaff" onclick= "showElement('staffName','block');"><b>+</b></button>
-            <input type="text" id="staffName"><br>
-            <button type = "submit" id="setRoom" onclick="hideElement('staffName');"><b>Update Settings</b></button>
+            <div id="outer">
+                <div id="inner1">
+                    <label>Room Number</label><br>
+                    <input type="number" id="roomNum" placeholder = "000"><br>
+                    <label>Add Staff</label>
+                    <button type="buttom" id="addStaff" onclick= "showElement('staffName','block');"><b>+</b></button>
+                    <input type="text" id="staffName"><br>
+                    <button class="b1" id="add" onclick="Controller.openTestFunc(event); addStaff();"><b>Open</b></button>
+                    <button class="b1" id="close" onclick="Controller.closeTestFunc(event); staffList.innerHTML = ''; content1.innerHTML = '';"><b>Close</b></button><br>
+                    <button class="b1" type = "submit" id="setRoom" onclick="hideElement('staffName');"><b>Update Settings</b></button>
+                </div>
+                <div id="inner2">
+                    <ul id="staffList">
+                        <li class="li1"><b>Current Users:</b></li><br>
+                    </ul>
+                </div>
+            </div>
+            <div id="content1"></div>
         </div>
     </div>
     <div class="logo">  
@@ -44,7 +57,7 @@
         <label><b>Name:</b></label>
         <input type="text" id = "flname" placeholder = "Enter your name" ><br>
         </form>
-        <button type="submit" id="start"><b>Start</b></button>
+        <button type="submit" class="b1" id="start"><b>Start</b></button>
     </div>
     <div id="checkoutwindow">
         <div id="info">
@@ -54,7 +67,7 @@
             </select>
             <input type="text" id="notes" placeholder = "notes"><br>
             <p id="time"></p>
-            <button id="checkout">Check Out</button>
+            <button id="checkout" class="b1"><b>Check Out</b></button>
         </div>
     </div>
     <script src="js/checkout.js"></script>
