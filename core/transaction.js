@@ -3,6 +3,7 @@
  */
 
 const DataIntegrity =  require('./data_integrity');
+const Leg = require('./leg');
 
 class Transaction {
 
@@ -33,7 +34,6 @@ class Transaction {
     getStudentID() {
         return this.studentID;
     }
-    
-    
-    
 }
+
+module.exports = Transaction;
