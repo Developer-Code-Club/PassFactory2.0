@@ -71,11 +71,11 @@ class Controller {
 		console.log("ret->" + JSON.stringify(ret));
 	}
 	static sendCheckInFunc(e) {
-		console.log("sendCheckInFunc->" + document.getElementById(e.srcElement.id).value);
-		var ciNote=document.getElementById("ci-note").value;
-		var ciStudentId=document.getElementById("ci-student-id").value;
-		var ciLocation=document.getElementById("ci-location").value;
-		var ciUserName=document.getElementById("ci-user-name").value;
+		//console.log("sendCheckInFunc->" + document.getElementById(e.srcElement.id).value);
+		var ciNote=document.getElementById("notes").value;
+		var ciStudentId=document.getElementById("idNum").value;
+		var ciLocation=document.getElementById("roomNum").value;
+		var ciUserName=document.getElementById("flname").value;
 		var message = {};
 		Controller.creds.note = ciNote;
 		Controller.creds.studentId = ciStudentId;

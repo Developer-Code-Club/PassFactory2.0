@@ -7,15 +7,15 @@ body {
 .logo {
     background-color: #860b10;
     width: 100%;
-    height: 250px;
+    height: 17rem;
     text-align: center;
     position: relative;
 }
 
 img {
-    width: 130px;
-    height: 130px;
-    margin: 20px;
+    width: 8rem;
+    height: 8rem;
+    margin: 1.5rem;
 }
 
 .otherstuff {
@@ -23,7 +23,7 @@ img {
     z-index: 3;
     position: relative;
     width: 100%;
-    height: 30px;
+    height: 2rem;
 }
 
 #userCount {
@@ -50,8 +50,9 @@ img {
     cursor: pointer;
 }
 
-#configwindow {
+.window {
     display: none;
+    flex-direction: column;
     z-index: 4;
     position: absolute;
     top: 50%;
@@ -72,10 +73,16 @@ img {
 }
 
 .body {
-    display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: 5px 20px;
+}
+
+input {
+    margin: 5px 0px;
+    border: none;
+    height: 25px;
+    width: 200px;
 }
 
 #outer {
@@ -84,21 +91,8 @@ img {
     margin-bottom: 5px;
 }
 
-#login {
-    display: grid;
-    place-content: center;
-}
-
-#roomNum {
-    padding: 5px;
-    margin: 5px 0px;
-    border: none;
-}
 #staffName {
     display: none;
-    padding: 5px;
-    margin: 5px 0px;
-    border: none;
 }
 
 #staffList {
@@ -110,7 +104,7 @@ img {
     flex-direction: column;
     align-items: center;
     position: relative;
-    top: 400px;
+    top: 24rem;
 }
 
 .inputs form {
@@ -126,21 +120,7 @@ img {
 label {
     text-align: left;
     margin-right: auto;
-    margin-bottom: 5px;
 }
-
-#idNum {
-    border: none;
-    height: 25px;
-    width: 200px;
-}
-
-#flname {
-    border: none;
-    height: 25px;
-    width: 200px;
-}
-
 
 .b1 {
     margin: 5px 0px;
@@ -159,7 +139,7 @@ label {
     justify-content: space-between;
     z-index:1;
     position: absolute;
-    margin-top: -325px;
+    margin-top: -22rem;
     width: 700px;
     height: 50px;
 }
@@ -174,30 +154,6 @@ label {
     width: 700px;
     height: 50px;
     flex-grow: 1;
-}
-
-#checkoutwindow {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 4;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    background-color: #DBDFE6;
-    width: 600px;
-    height: 450px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 20px rgb(99, 99, 99);
-}
-
-#info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-direction: column;
-    padding: 20px;
 }
 
 #location {

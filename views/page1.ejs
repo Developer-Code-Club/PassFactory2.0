@@ -15,7 +15,7 @@
         <label id="displayRoomNum">Room: 000</label>
         <label id="userCount"><b>Students out: 0</b></label>
     </div>
-    <div id="configwindow">
+    <div class="window" id="configwindow">
         <div class="header1">
             <h3>Room Settings</h3>
             <button id="exit" onclick="hideElement('configwindow')"><b>x</b></button>
@@ -59,15 +59,18 @@
         </form>
         <button type="submit" class="b1" id="start"><b>Start</b></button>
     </div>
-    <div id="checkoutwindow">
-        <div id="info">
-            <label id="label1">LOCATION</label>
-            <select name="location" id="location">
-              <option>option 1</option>
-            </select>
-            <input type="text" id="notes" placeholder = "notes"><br>
+    <div class="window" id="checkoutwindow">
+        <div class="header1">
+            <h3>Check Out</h3>
             <p id="time"></p>
-            <button id="checkout" class="b1"><b>Check Out</b></button>
+            <button id="exit1" onclick="hideElement('checkoutwindow')"><b>x</b></button>
+        </div>
+        <div class="body">
+            <label>Location:</label><br>
+            <input type="number" id="location" placeholder = "000"><br>
+            <label>Notes:</label><br>
+            <input type="text" id="notes"><br>
+            <button class="b1" id="co" onclick="Controller.sendCheckInFunc(event); addStudent(document.getElementById('flname').value, document.getElementById('idNum').value); document.getElementById('checkoutwindow').style.display = 'none';"><b>Check Out</b></button>
         </div>
     </div>
     <script src="js/checkout.js"></script>

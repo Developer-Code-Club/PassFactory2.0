@@ -3,7 +3,7 @@ const userlist = document.getElementById("userlist");
 const loginButton = document.getElementById("loginButton");
 const setRoom = document.getElementById("setRoom");
 const checkoutwindow = document.getElementById("checkoutwindow");
-const checkoutbutton = document.getElementById("checkout");
+const checkoutbutton = document.getElementById("co");
 var studentCount = 0;
 
 function hideElement(id) {
@@ -90,17 +90,6 @@ setRoom.addEventListener("click", function() {
     document.getElementById('staffName').value = null; 
     document.getElementById("displayRoomNum").textContent = "Room: " + document.getElementById("roomNum").value;
 });
-
-checkout.addEventListener("click", function() {
-    var id = document.getElementById("idNum").value;
-    var name = document.getElementById("flname").value;
-    addStudent(name, id);
-    document.getElementById("notes").value = "";
-    checkoutwindow.style.display = "none";
-    document.getElementById("idNum").value = '';
-    document.getElementById("flname").value = '';
-});
-
 
 
 
