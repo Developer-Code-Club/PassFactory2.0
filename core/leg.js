@@ -23,3 +23,5 @@ class Leg {
         this.timeStamp = new Date(Date.now);
     }
 }
+
+module.exports = Leg;
