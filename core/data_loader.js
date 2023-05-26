@@ -9,74 +9,74 @@ const ProdDataReader = require('./prod_data_reader');
 const ProdMode = require('./prod_mode');
 
 class DataLoader {
-	
+
 	static async getStudentData() {
-		if ( ProdMode.isProductionModeTest() ) {
+		if (ProdMode.isProductionModeTest()) {
 			return await TestDataReader.getStudentData();
-		} else if ( ProdMode.isProductionModeProd() ) {
+		} else if (ProdMode.isProductionModeProd()) {
 			return await ProdDataReader.getStudentData();
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
 	static async getFacultyData() {
-		if ( ProdMode.isProductionModeTest() ) {
+		if (ProdMode.isProductionModeTest()) {
 			return await TestDataReader.getFacultyData();
-		} else if ( ProdMode.isProductionModeProd() ) {
+		} else if (ProdMode.isProductionModeProd()) {
 			return await ProdDataReader.getFacultyData();
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
 	static async getRoomData() {
-		if ( ProdMode.isProductionModeTest() ) {
+		if (ProdMode.isProductionModeTest()) {
 			return await TestDataReader.getRoomData();
-		} else if ( ProdMode.isProductionModeProd() ) {
+		} else if (ProdMode.isProductionModeProd()) {
 			return await ProdDataReader.getRoomData();
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
 	static async getCourseData() {
-		if ( ProdMode.isProductionModeTest() ) {
+		if (ProdMode.isProductionModeTest()) {
 			return await TestDataReader.getCourseData();
-		} else if ( ProdMode.isProductionModeProd() ) {
+		} else if (ProdMode.isProductionModeProd()) {
 			return await ProdDataReader.getCourseData();
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
 	static async getMasterScheduleData() {
-		if ( ProdMode.isProductionModeTest() ) {
+		if (ProdMode.isProductionModeTest()) {
 			return await TestDataReader.getMasterScheduleData();
-		} else if ( ProdMode.isProductionModeProd() ) {
+		} else if (ProdMode.isProductionModeProd()) {
 			return await ProdDataReader.getMasterScheduleData();
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
 	static async getPassData(forDate) {
-		if ( ProdMode.isProductionModeTest() ) {
+		if (ProdMode.isProductionModeTest()) {
 			return await TestDataReader.getPassData(forDate);
-		} else if ( ProdMode.isProductionModeProd() ) {
+		} else if (ProdMode.isProductionModeProd()) {
 			return await ProdDataReader.getPassData(forDate);
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
 	static async getStudentBlockData() {
-		if ( ProdMode.isProductionModeTest() ) {
+		if (ProdMode.isProductionModeTest()) {
 			return await TestDataReader.getStudentBlockData();
-		} else if ( ProdMode.isProductionModeProd() ) {
+		} else if (ProdMode.isProductionModeProd()) {
 			return await ProdDataReader.getStudentBlockData();
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
 	static async getABDay(dt) {
-		if ( ProdMode.isProductionModeTest() ) {
+		if (ProdMode.isProductionModeTest()) {
 			return await TestDataReader.getABDay(dt);
-		} else if ( ProdMode.isProductionModeProd() ) {
+		} else if (ProdMode.isProductionModeProd()) {
 			return await ProdDataReader.getABDay(dt);
 		} else {
 			throw Error("Unknown Production Mode!!!");
@@ -85,10 +85,10 @@ class DataLoader {
 	/*
 	 * below here we are loading data from mysql server.
 	 */
-	 static async getTransitData() {
-		if ( ProdMode.isProductionModeTest() ) {
+	static async getTransitData() {
+		if (ProdMode.isProductionModeTest()) {
 			return await TestDataReader.getTransitData();
-		} else if ( ProdMode.isProductionModeProd() ) {
+		} else if (ProdMode.isProductionModeProd()) {
 			return await ProdDataReader.getTransitData();
 		} else {
 			throw Error("Unknown Production Mode!!!");

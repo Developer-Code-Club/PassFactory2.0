@@ -1,0 +1,8 @@
+#Mac OS Files
+.DS_Store
+
+#VS Code Workspace Files
+.vscode
+
+#Node Files
+package-lock.json
