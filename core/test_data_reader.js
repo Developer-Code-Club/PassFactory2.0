@@ -10,7 +10,6 @@ const Faculty = require('./faculty');
 const Course = require('./course');
 const Block = require('./block');
 const Pass = require('./pass');
-const Transaction = require('./transaction');
 
 
 class TestDataReader {	
@@ -77,17 +76,10 @@ class TestDataReader {
 		console.log("loaded thePasses->" + JSON.stringify(Array.from(thePasses)));
 		return thePasses;
 	}
-	static getTransitData() {
-		var transactionRaw = fs.readFileSync('./testdata/transactions.json');
-		var theTransactions = new Map();
-		var transactions = JSON.parse(transactionRaw);
-		for (var i=0; i < transactions.length; i++ ) {
-			var t = new Transaction(parseInt(transactions[i].id), transactions[i].location, 
-				transactions[i].studentId);
-			theTransactions.set(t.id,t);
-		}
-		console.log("loaded theTransactions->" + JSON.stringify(Array.from(theTransactions)));
-		return theTransactions;
+	static async getTransitData() {
+		var theTransits=new Map();
+		//Insert code here to read from mysql server.
+		return theTransits;
 	}
 
 }

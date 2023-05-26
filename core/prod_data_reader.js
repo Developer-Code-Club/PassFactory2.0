@@ -2,7 +2,6 @@ const Student = require('./student');
 const Faculty = require('./faculty');
 const Course = require('./course');
 const Room = require('./room');
-const DBHandler = require('./db_handler');
 
 const Schedule = require('./schedule');
 const MasterSchedule = require('./master_schedule');
@@ -12,10 +11,12 @@ const qs = require('qs');
 const fs = require('fs');
 const url = "https://nj-hcrhs.myfollett.com/query/rest/api/";
 
-class ProdDataReader {
+class ProdDataReader 
+{
 	static key = null;
 	static tempFacultyId = 9000000;
-	static getKey = async () => {
+	static getKey = async () => 
+	{
 		/* commenting out because running multiple days problem.
 		if (this.key != null)
 			return this.key;
@@ -25,22 +26,22 @@ class ProdDataReader {
 			client_id: 'dailyAbsences',
 			client_secret: 'whosOnFirst22!'
 		};
-		var config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
+		var config = {headers: {'Content-Type': 'application/x-www-form-urlencoded' }};  
 		const request = await axios.post(url, qs.stringify(data), config);
-		this.key = request.data.access_token;
+		this.key = request.data.access_token;  
 		return this.key;
 	} //End getKey
 
-
-	static async getData(url) {
-		console.log("urlll->" + url);
+  
+	static async getData(url){
+console.log("urlll->" + url);
 		var secretKey = await ProdDataReader.getKey();
-		var options = { headers: { Authorization: ' Bearer ' + secretKey } };
+		var options = { headers:{ Authorization: ' Bearer ' + secretKey }};
 		try {
 			const res = await axios.get(url, options);
-			//console.log("res->" + JSON.stringify(res));
+//console.log("res->" + JSON.stringify(res));
 			const d = await res.data;
-			//console.log("d->" + JSON.stringify(d));
+//console.log("d->" + JSON.stringify(d));
 			return d;
 		} catch (e) {
 			console.log("e.message->" + e.message);
@@ -49,37 +50,43 @@ class ProdDataReader {
 		return null;
 	} //end getData
 
-
-	static async getPassData(forDate) {
+  
+	static async getPassData(forDate)
+	{
 		var d = forDate;
 		var thePasses = new Map();
 		var thePasses = new Map();
 		console.log("Date is " + d);
-		var p = await ProdDataReader.getData(url + "passes?type=Passes&date=" + d);
-		for (var i = 0; i < p.length; i++) {
+		var p =  await ProdDataReader.getData(url + "passes?type=Passes&date=" + d);
+		for (var i=0; i < p.length; i++ ) 
+		{
 			var dt = new Date(d + " " + p[i].fieldA002);
-			var pass = new Pass(i + 1, parseInt(p[i].student.localId), dt, p[i].comment);
-			thePasses.set(i + 1, pass);
+			var pass = new Pass(i+1,parseInt(p[i].student.localId),dt, p[i].comment);
+			thePasses.set(i+1, pass);
 		}
 		return thePasses;
-	}
+	}	
 
 
-	static async getStudentData() {
+	static async getStudentData() 
+	{
 		var theStudents = new Map();
-		var std = await ProdDataReader.getData(url + "students2?status=Active");
+		var std =  await ProdDataReader.getData(url + "students2?status=Active");
 
-		for (var i = 0; i < std.length; i++) {
+		for (var i=0; i < std.length; i++ ) 
+		{
 			//1's are OUT.
-			if (std[i].fieldB017 != "1") {
-				var s = new Student(parseInt(std[i].localId), std[i].nameView, std[i].person.firstName, std[i].person.lastName, std[i].person.email01, std[i]);
-				theStudents.set(s.id, s);
-			}
+			if (std[i].fieldB017 != "1")
+			{
+				var s=new Student(parseInt(std[i].localId), std[i].nameView, std[i].person.firstName, std[i].person.lastName, std[i].person.email01,std[i]);
+				theStudents.set(s.id,s);
+			} 
 		}
 		return theStudents;
 	}
-
-	static async getStudentBlockData() {
+	
+	static async getStudentBlockData()
+	{
 		var prevId = "";
 		var stdSched = new Map();
 		var stdCourses = new Array();
@@ -88,68 +95,73 @@ class ProdDataReader {
 		var month = d.getMonth() + 1;
 		var year = d.getFullYear()
 		if (month > 6)
-			year = year + 1;
+		year = year + 1;
 
-		var ss = await ProdDataReader.getData(url + "stdSched2?year=" + year);
-		/*
-				for (var i=0; i < ss.length; i++ )
-					{
-					var std = stdSched.get(ss[i].student.localId);
-					if (std == null)
-					{
-						stdCourses = new Array();
-						stdCourses.push(ss[i].section.courseView);
-						stdSched.set(ss[i].student.localId, stdCourses)
-					}
-					else
-					{
-						std.push(ss[i].section.courseView);
-					}
-				}
-		 */
+		var ss =  await ProdDataReader.getData(url + "stdSched2?year=" + year);
+/*
+		for (var i=0; i < ss.length; i++ )
+			{
+			var std = stdSched.get(ss[i].student.localId);
+			if (std == null)
+			{
+				stdCourses = new Array();
+				stdCourses.push(ss[i].section.courseView);
+				stdSched.set(ss[i].student.localId, stdCourses)
+			}
+			else
+			{
+				std.push(ss[i].section.courseView);
+			}
+		}
+ */            
 		return ss;
 	}
-
-	static async getFacultyData() {
+  
+	static async getFacultyData()
+	{
 		var theFaculty = new Map();
-		var f = await ProdDataReader.getData(url + "staff?status=Active");
-		for (var i = 0; i < f.length; i++) {
+		var f =  await ProdDataReader.getData(url + "staff?status=Active");
+		for (var i=0; i < f.length; i++ )
+		{  
 			var fac = new Faculty(parseInt(f[i].stateId), f[i].nameView, f[i].person.firstName, f[i].person.lastName, f[i].person.email01, f[i].departmentCode);
-			theFaculty.set(fac.id, fac);
-		}
+			theFaculty.set(fac.id,fac);
+		} 
 		return theFaculty;
 	}
-
-	static async getCourseData() {
+  
+	static async getCourseData() 
+	{
 		var theCourses = new Map();
 		var d = new Date();
 		var month = d.getMonth() + 1;
-		var year = d.getFullYear()
+		var year = d.getFullYear() 
 		if (month > 6) {
 			year = year + 1;
 		}
-		var c = await ProdDataReader.getData(url + "course?year=" + year);
-
-		for (var i = 0; i < c.length; i++) {
-			var crs = new Course(parseInt(c[i].number), c[i].description, c[i].departmentCode, c[i]);
+		var c =  await ProdDataReader.getData(url + "course?year=" + year);
+		
+		for (var i=0; i < c.length; i++ ) 
+		{
+			var crs = new Course(parseInt(c[i].number), c[i].description, c[i].departmentCode,c[i]);
 			theCourses.set(crs.id, crs);
 		}
 		return theCourses;
 	}
 
-
-	static async getMasterScheduleData() {
+  
+	static async getMasterScheduleData() 
+	{
 		var d = new Date();
 		var month = d.getMonth() + 1;
 		//var year = d.getYear() + 1900;
-		var year = d.getFullYear()
+		var year = d.getFullYear() 
 		if (month > 6)
 			year = year + 1;
-		var s = await ProdDataReader.getData(url + "schedMaster?year=" + year);
+		var s =  await ProdDataReader.getData(url + "schedMaster?year=" + year);
 		var theSched = new Map();
-		for (var i = 0; i < s.length; i++) {
-			var b = new MasterSchedule(s[i].courseView, s[i].primaryRoom.roomNumber, s[i].description, s[i].scheduleDisplay, s[i].termView, s[i].primaryStaff.person.email01, s[i]);
-			if (theSched.has(s[i].courseView)) {
+		for (var i=0; i < s.length; i++ ) {
+			var b=new MasterSchedule(s[i].courseView,s[i].primaryRoom.roomNumber, s[i].description, s[i].scheduleDisplay, s[i].termView, s[i].primaryStaff.person.email01,s[i]);
+			if ( theSched.has(s[i].courseView) ) {
 				//console.log("DUPLICATE COURSE->" + JSON.stringify(s[i]) + "<- and ->" + JSON.stringify(theSched.get(s[i].courseView)));
 			} else {
 				theSched.set(s[i].courseView, b);
@@ -159,26 +171,29 @@ class ProdDataReader {
 	}
 
 
-	static jsonToFile(fName, data) {
-		fs.writeFile(fName, JSON.stringify(data),
-			function (err) {
-				if (err) return console.log(err);
-			});
+	static jsonToFile(fName, data)
+	{
+		fs.writeFile(fName, JSON.stringify(data), 
+         function (err) {
+             if (err) return console.log(err);
+		});
+  
+	}  
 
+	static async getDayBellSched(d) 
+	{
+		var db =  await ProdDataReader.getData(url + "daybell?date=" + d);
 	}
-
-	static async getDayBellSched(d) {
-		var db = await ProdDataReader.getData(url + "daybell?date=" + d);
-	}
-
-	static async getABDay(d) {
-		var day = "";
+	static async getABDay(d)
+	{
+		var day="";
 		console.log("date is " + d);
-		var db = await ProdDataReader.getData(url + "dateToAB?date=" + d);
+		var db =  await ProdDataReader.getData(url + "dateToAB?date=" + d);
 		console.log("db is " + JSON.stringify(db));
 
 		console.log("schedule day number is " + db[0].scheduleDayNumber);
-		switch (db[0].scheduleDayNumber) {
+		switch (db[0].scheduleDayNumber)
+		{
 			case 1:
 				day = "A";
 				break;
@@ -186,62 +201,25 @@ class ProdDataReader {
 				day = "B";
 				break;
 		}
-		return (day);
+		return(day);
 	}
-
-	static async getRoomData() {
+	static async getRoomData()
+	{
 		var theRooms = new Map();
-		var rm = await ProdDataReader.getData(url + "rooms"); // Unaware of what this line actually does, will need to be changed.
-
-		try {
-			var conn = await DBHandler.connection();
-			await conn.query("START TRANSACTION");
-
-			// No clue what the DB actually looks like, will need to be changed.
-			var sql = "SELECT * FROM rooms";
-			var rm = await conn.query(sql);
-
-		} catch (err) {
-			console.log("Caught an error: " + err.message);
-			console.log("Stacktrace: " + err.stack);
-			throw err;
-		} finally {
-			await conn.releaseit();
-		}
-
-		for (var i = 0; i < rm.length; i++) {
-			var r = new Room(rm[i].roomNumber, rm[i].departmentCode, rm[i].roomTypeCode, rm[i].buildingCode, rm[i].fieldC001, rm[i].locationCode, rm[i].maxCapacity);
-			theRooms.set(rm[i].roomNumber, r);
+		var rm =  await ProdDataReader.getData(url + "rooms");
+		for (var i=0; i < rm.length; i++ )
+		{
+			var r=new Room(rm[i].roomNumber, rm[i].departmentCode, rm[i].roomTypeCode, rm[i].buildingCode, rm[i].fieldC001, rm[i].locationCode, rm[i].maxCapacity);
+			theRooms.set(rm[i].roomNumber,r);  
 		}
 		return theRooms;
 	}
 	static async getTransitData() {
-		var theTransits = new Map();
-		var t = await ProdDataReader.getData(url + "transactions"); // Unaware of what this line actually does, will need to be changed.
-		try {
-			var conn = await DBHandler.connection();
-			await conn.query("START TRANSACTION");
-
-			// No clue what the DB actually looks like, will need to be changed.
-			var sql = "SELECT * FROM transit";
-			var t = await conn.query(sql);
-
-		} catch (err) {
-			console.log("Caught an error: " + err.message);
-			console.log("Stacktrace: " + err.stack);
-			throw err;
-		} finally {
-			await conn.releaseit();
-		}
-
-		for (var i = 0; i < t.length; i++) {
-			var tr = new Transaction(t[i].location, t[i].studentID);
-			theTransits.set(i, tr);
-		}
+		var theTransits=new Map();
+		//Insert code here to read from mysql server.
 		return theTransits;
-
 	}
-
+	
 } //end class ProdDataReader
 
 module.exports = ProdDataReader;
