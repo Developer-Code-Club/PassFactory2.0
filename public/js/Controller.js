@@ -72,9 +72,9 @@ class Controller {
 	}
 	static sendCheckInFunc(e) {
 		//console.log("sendCheckInFunc->" + document.getElementById(e.srcElement.id).value);
-		var ciNote=document.getElementById("notes").value;
+		var ciNote=document.getElementById("notes").textContent;
 		var ciStudentId=document.getElementById("idNum").value;
-		var ciLocation=document.getElementById("roomNum").value;
+		var ciLocation=document.getElementById("displayRoomNum").textContent;
 		var ciUserName=document.getElementById("flname").value;
 		var message = {};
 		Controller.creds.note = ciNote;

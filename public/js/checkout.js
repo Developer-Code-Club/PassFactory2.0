@@ -5,6 +5,7 @@ const setRoom = document.getElementById("setRoom");
 const checkoutwindow = document.getElementById("checkoutwindow");
 const checkoutbutton = document.getElementById("co");
 var studentCount = 0;
+var names = [];
 
 function hideElement(id) {
     document.getElementById(id).style.display = "none";
@@ -25,42 +26,48 @@ function addStaff() {
 
 function addStudent(studentName, id) {
     studentCount++;
-    var ul = document.getElementById("userlist");
-    var li = document.createElement("li");
-    var resolveButton = document.createElement("button");
-    var userID = document.createElement("label");
-    var userName = document.createElement("label");
-    var timeIn = document.createElement("label");
-    var status = document.createElement("label");
-    resolveButton.textContent = "Resolve";
-    timeIn.textContent = getTime();
-    userID.textContent = id;
-    status.textContent = "pending";
-    status.style.color = "green";
-    userName.textContent = studentName;
-    resolveButton.onclick = function() {
-        removeStudent(id);
-    }
-    li.classList.add("inner");
-    li.setAttribute("data-id", id); 
-    userID.classList.add("userinfo");
-    userName.classList.add("userinfo");
-    timeIn.classList.add("userinfo");
-    status.classList.add("userinfo");
-    resolveButton.classList.add("resButton");
-    li.appendChild(userName);
-    li.appendChild(userID);
-    li.appendChild(timeIn);
-    li.appendChild(status);
-    li.appendChild(resolveButton);
-    ul.appendChild(li);
-    document.getElementById("userCount").textContent = "Students out: " + studentCount;
+    if(names.includes(studentName)) {
+        removeStudent(studentName);
+    } else {
+        names.push(studentName);
+        var ul = document.getElementById("userlist");
+        var li = document.createElement("li");
+        var resolveButton = document.createElement("button");
+        var userID = document.createElement("label");
+        var userName = document.createElement("label");
+        var timeIn = document.createElement("label");
+        var status = document.createElement("label");
+        resolveButton.textContent = "Resolve";
+        timeIn.textContent = getTime();
+        userID.textContent = id;
+        status.textContent = "pending";
+        status.style.color = "green";
+        userName.textContent = studentName;
+        resolveButton.onclick = function() {
+            removeStudent(studentName);
+        }
+        li.classList.add("inner");
+        li.setAttribute("data-id", studentName); 
+        userID.classList.add("userinfo");
+        userName.classList.add("userinfo");
+        timeIn.classList.add("userinfo");
+        status.classList.add("userinfo");
+        resolveButton.classList.add("resButton");
+        li.appendChild(userName);
+        li.appendChild(userID);
+        li.appendChild(timeIn);
+        li.appendChild(status);
+        li.appendChild(resolveButton);
+        ul.appendChild(li);
+        document.getElementById("userCount").textContent = "Students out: " + studentCount;
+    }   
 }
 
-function removeStudent(id) {
+function removeStudent(studentName) {
     studentCount--;
+    names.splice(names.indexOf(studentName), 1);
     var ul = document.getElementById("userlist");
-    var li = ul.querySelector(`li[data-id="${id}"]`);
+    var li = ul.querySelector(`li[data-id="${studentName}"]`);
     ul.removeChild(li);
     document.getElementById("userCount").textContent = "Students out: " + studentCount;
 }
@@ -88,7 +95,7 @@ startButton.addEventListener("click",  function() {
 
 setRoom.addEventListener("click", function() {
     document.getElementById('staffName').value = null; 
-    document.getElementById("displayRoomNum").textContent = "Room: " + document.getElementById("roomNum").value;
+    document.getElementById("displayRoomNum").textContent = document.getElementById("roomNum").value;
 });
 
 

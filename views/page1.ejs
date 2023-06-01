@@ -10,9 +10,14 @@
     <title>Check In</title>
 </head>
 <body>
+    <script>
+        window.addEventListener("beforeunload", function(event) {
+            Controller.closeTextFunc(e);
+        });
+    </script>
     <div class="otherstuff">
         <button id="config" onclick="showElement('configwindow', 'block');"></button>
-        <label id="displayRoomNum">Room: 000</label>
+        <label id="displayRoomNum">000</label>
         <label id="userCount"><b>Students out: 0</b></label>
     </div>
     <div class="window" id="configwindow">
@@ -28,7 +33,7 @@
                     <label>Add Staff</label>
                     <button type="buttom" id="addStaff" onclick= "showElement('staffName','block');"><b>+</b></button>
                     <input type="text" id="staffName"><br>
-                    <button class="b1" id="add" onclick="Controller.openTestFunc(event); addStaff();"><b>Open</b></button>
+                    <button class="b1" id="add" onclick="document.getElementById('displayRoomNum').innerHTML = document.getElementById('roomNum').value; Controller.openTestFunc(event); addStaff();"><b>Open</b></button>
                     <button class="b1" id="close" onclick="Controller.closeTestFunc(event); staffList.innerHTML = ''; content1.innerHTML = '';"><b>Close</b></button><br>
                     <button class="b1" type = "submit" id="setRoom" onclick="hideElement('staffName');"><b>Update Settings</b></button>
                 </div>
