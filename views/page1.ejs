@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -53,11 +54,14 @@
         </div>
         <form>
         <label><b>ID:</b></label>
-        <input type="number" id = "idNum" placeholder = "Enter your ID" ><br>
+        <input type="number" id = "idNum"  placeholder = "Enter your ID" ><br>
         <label><b>Name:</b></label>
         <input type="text" id = "flname" placeholder = "Enter your name" ><br>
-        </form>
-        <button type="submit" class="b1" id="start"><b>Start</b></button>
+       
+		</form>
+        <button type="submit" class="b1"  onclick="Controller.sendCheckInFunc(event)" id="start"><b>Start</b></button>
+	    <button class="b1" id="getStudentId" onclick="Controller.sendGetStudentList(event);">GetStudents</button>
+
     </div>
     <div class="window" id="checkoutwindow">
         <div class="header1">
@@ -72,7 +76,12 @@
             <input type="text" id="notes"><br>
             <button class="b1" id="co" onclick="Controller.sendCheckInFunc(event); addStudent(document.getElementById('flname').value, document.getElementById('idNum').value); document.getElementById('checkoutwindow').style.display = 'none';"><b>Check Out</b></button>
         </div>
+		
     </div>
+	<div id="location-checker-content">
+	</div>
     <script src="js/checkout.js"></script>
 </body>
+
+
 </html>

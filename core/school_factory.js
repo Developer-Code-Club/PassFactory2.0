@@ -33,7 +33,7 @@ class SchoolFactory {
 	}	
 	
 	async initialize(forDate) {
-		console.log("in SchoolFactory.initialize()");
+		console.log("in SchoolFactory.initialize("  + forDate + ")");
 		this.theProdMode = new ProdMode();
 		var abDay = await DataLoader.getABDay(forDate);
 		console.log("ABDAY----->" + abDay);

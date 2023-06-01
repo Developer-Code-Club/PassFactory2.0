@@ -3,6 +3,7 @@
  * exchanges via sockets on the server side.
  */
 const RTMessage = require('./rt_message');
+const SchoolFactory = require('./school_factory');
 
 
 class RTManager {
@@ -11,12 +12,23 @@ class RTManager {
 	static userMap=new Map();
 	static theTransitHandler=null;
 	static roomMap=new Map();
+	static schoolFactory=null;
 	
 	constructor(port) {
 		this.port=port;
 		this.theTransitHandler=null;
 	}	
 	async initialize() {
+		if ( RTManager.schoolFactory == null ) {
+			var x = new Date();
+			var y = x.getFullYear();
+			var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
+			var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
+			var dtStr = y + "-" + m + "-" + d ;	
+			console.log("x->" + x + " dtStr->" + dtStr);
+			RTManager.schoolFactory = new SchoolFactory();
+			await RTManager.schoolFactory.initialize(dtStr);
+		}
 		//WEBSOCKETS START
 		var server = require('websocket').server, http = require('http');
 		var socket = new server({  
@@ -49,6 +61,7 @@ class RTManager {
 				}
 				
 				if ( msg.func == "signin") {
+					console.log("in signin->" + JSON.stringify(msg));
 					var userAt = RTManager.userMap.get(msg.userName);
 					if ( userAt != null ) {
 						RTManager.userMap.delete(msg.userName);
@@ -103,6 +116,18 @@ class RTManager {
 							console.log("sending->" + JSON.stringify(ret));
 							toUser.send(JSON.stringify(ret));
 						}
+					} else {
+						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
+					}
+				} else if ( msg.func == "getStudentList" ) {
+					console.log("in getStudentList with->" + JSON.stringify(msg));
+					var userAt = RTManager.userMap.get(msg.userName);
+					var ret = Array.from(RTManager.schoolFactory.theStudentHandler.theStudents);
+					if ( userAt != null ) {
+						console.log("sending->" + JSON.stringify(ret));
+						msg.func="studentList";
+						msg.message=ret;
+						userAt.send(JSON.stringify(msg));
 					} else {
 						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}

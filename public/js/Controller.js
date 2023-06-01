@@ -91,30 +91,29 @@ class Controller {
 		var ciNote=document.getElementById("notes").value;
 		var ciStudentId=document.getElementById("idNum").value;
 		var ciLocation=document.getElementById("roomNum").value;
-		var ciUserName=document.getElementById("flname").value;
+		alert(Controller.studentList.get(parseInt(ciStudentId)).name);
+		document.getElementById("flname").value=Controller.studentList.get(parseInt(ciStudentId)).name;	
 		var message = {};
 		Controller.creds.note = ciNote;
 		Controller.creds.studentId = ciStudentId;
-		Controller.creds.location = ciLocation;
-		Controller.creds.userName = ciUserName;
 		Controller.creds.func='scannedId';
 		Controller.socket.send(JSON.stringify(Controller.creds));
 	}
+	static sendGetStudentList() {
+		Controller.creds.func='getStudentList';
+		Controller.socket.send(JSON.stringify(Controller.creds));
+	}
 	static openTestFunc(e) {
-		console.log("in open test func");
 		Controller.socket = new WebSocket('ws://localhost:1337');
-		console.log("here1");
 		Controller.socket.onopen = function () {
-			Controller.creds={func:'signin', userName:document.getElementById("ci-user-name").value,location:document.getElementById("ci-location").value};
+			Controller.creds={func:'signin', userName:document.getElementById("staffName").value,location:document.getElementById("roomNum").value};
 			Controller.socket.send(JSON.stringify(Controller.creds));
+			Controller.sendGetStudentList();
 		};
-		console.log("here2");
 		Controller.socket.onmessage = Controller.receiveMessage;
-		console.log("here3");
 		Controller.socket.onerror = function (error) {
 			console.log('WebSocket error: ' + error);
 		};
-		console.log("here4");
 	}
 	static receiveMessage(message) {
 		console.log("receving->" + message.data);
@@ -137,9 +136,14 @@ class Controller {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->OUT" + msg.studentId  + " dt->"  + dtS + '<br />';			
+		} else if ( msg.func == "studentList" ) {
+			Controller.studentList = new Map(msg.message);
 		} else {
 			content.innerHTML += "Unknown message->"  + JSON.stringify(msg) + '<br>';
 		}
+	}
+	static myFunction(e) {
+		alert("init");
 	}
 	static closeTestFunc(e) {
 		console.log("in close test func");
