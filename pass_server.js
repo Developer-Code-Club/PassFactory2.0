@@ -9,6 +9,7 @@ const DataIntegrity = require("./core/data_integrity");
 const RTManager = require("./core/rt_manager");
 const BlockCalculator = require("./core/block_calculator");
 const TransitHandler = require("./core/transit_handler");
+const ProdMode = require('./core/prod_mode');
 /*
  * These are the only 2 lines of code that are needed
  * to start up the websocket server.
@@ -17,6 +18,7 @@ var theRTManager = new RTManager(1337);
 theRTManager.initialize();
 /* Initializing the transithandler. */
 console.log("Initializing the Transit Handler...");
+var pm = new ProdMode();
 var theTransitHandler=new TransitHandler();
 theTransitHandler.initialize();
 console.log("Done initializing TransitHandler.");
@@ -24,6 +26,9 @@ theRTManager.setTransitHandler(theTransitHandler);
 
 console.log("starting server...");
 
+const DBHandler = require("./core/db_handler");
+var x = new DBHandler();
+x.initialize();
 //Middle ware
 
 app.use(bodyparser.json());
@@ -106,6 +111,13 @@ app.get("/mail_pases", (req, res)=>{
 	
 });
 
+app.get('/page1', (req, res)=>{
+	res.render('page1');
+});
+
+app.get('/page2', (req, res) => {
+	res.render('page2');
+});
 console.log("initialize_data");
 app.post("/initialize_data", (req, res)=>{   
 	(async() =>  { 

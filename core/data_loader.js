@@ -86,10 +86,51 @@ class DataLoader {
 	 * below here we are loading data from mysql server.
 	 */
 	 static async getTransitData() {
+		 console.log("in data_loader.getTransitData");
 		if ( ProdMode.isProductionModeTest() ) {
 			return await TestDataReader.getTransitData();
 		} else if ( ProdMode.isProductionModeProd() ) {
 			return await ProdDataReader.getTransitData();
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
+	static async addTransitDB(studentId,isOpen) {
+		 console.log("in data_loader.getTransitData");
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.addTransitDB(studentId,isOpen);
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.addTransitDB(studentId,isOpen);
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
+	static async addTransitLegDB(transitId,byUserId,locationId,theEvent) {
+		 console.log("in data_loader.getTransitData");
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.addTransitLegDB(transitId,byUserId,locationId,theEvent);
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.addTransitLegDB(transitId,byUserId,locationId,theEvent);
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
+	static async addTransitAndLegDB(studentId,byUserId,locationId,theEvent) {
+		 console.log("in data_loader.getTransitData");
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.addTransitAndLegDB(studentId,byUserId,locationId,theEvent);
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.addTransitAndLegDB(studentId,byUserId,locationId,theEvent);
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
+	static async closeTransitDB(transitId) {
+		 console.log("in data_loader.closeTransitDB");
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.closeTransitDB(transitID);
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.closeTransitDB(transitId);
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}

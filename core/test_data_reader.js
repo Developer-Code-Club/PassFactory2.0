@@ -77,6 +77,7 @@ class TestDataReader {
 		return thePasses;
 	}
 	static async getTransitData() {
+		console.log("in testdatareader");
 		var theTransits=new Map();
 		//Insert code here to read from mysql server.
 		return theTransits;

@@ -22,12 +22,9 @@ class Transit {
 	isTransitOpen() { 
 		return this.isOpen;
 	}
-	addTransitLeg(inId,inLocation,byUser,inEvent,inDateTime) {
-		var tl = new TransitLeg(inId,inLocation,byUser,inEvent,inDateTime);
+	addTransitLeg(inId,byUserId,inLocationId,inEvent,inDateTime) {
+		var tl = new TransitLeg(inId,byUserId,inLocationId,inEvent,inDateTime);
 		this.theTransitLegs.push(tl);
-	}
-	hello() {
-		console.log("hello");
 	}
 	
 }

@@ -6,7 +6,7 @@
 
 class TransitLeg {
 	
-	constructor(id,inLocation,byUser,inEvent,inDateTime) {
+	constructor(id,byUser,inLocation,inEvent,inDateTime) {
 		this.id=id;
 		this.theLocation=inLocation;
 		this.byUser = byUser;

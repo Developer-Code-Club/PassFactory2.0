@@ -10,11 +10,20 @@ const axios = require('axios');
 const qs = require('qs');
 const fs = require('fs');
 const url = "https://nj-hcrhs.myfollett.com/query/rest/api/";
+const DBHandler = require('./db_handler');
 
 class ProdDataReader 
 {
 	static key = null;
 	static tempFacultyId = 9000000;
+	static theDBHandler = null;
+	
+	static async initialize() {
+		if ( ProdDataReader.theDBHander == null ) {
+			ProdDataReader.theDBHandler = new DBHandler();
+			await ProdDataReader.theDBHandler.initialize();
+		}
+	}
 	static getKey = async () => 
 	{
 		/* commenting out because running multiple days problem.
@@ -215,11 +224,117 @@ console.log("urlll->" + url);
 		return theRooms;
 	}
 	static async getTransitData() {
+		await ProdDataReader.initialize();
+		console.log("in proddatareader.getTransitData");
 		var theTransits=new Map();
 		//Insert code here to read from mysql server.
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			//await conn.query("START TRANSACTION");
+		
+			/* DB Code */
+			//var sql="Call CreateUser(?,?,?,?,?,?,?,?,?,?,?,?,?,?,@rowkey); select @rowkey";
+			var sql="Call GetTransits()";
+			var info = await conn.query(sql);
+			console.log("GGGGGG->" + JSON.stringify(info));
+	
+			//await conn.query("COMMIT");
+
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			//await conn.query("ROLLBACK");
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
 		return theTransits;
 	}
-	
+	static async addTransitDB(studentId,isOpen) {
+		await ProdDataReader.initialize();
+		//Insert code here to read from mysql server.
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			await conn.query("START TRANSACTION");
+			/* DB Code */
+			var sql="Call CreateTransit(?,?,@rowkey); select @rowkey";
+			var info = await conn.query(sql,[studentId,isOpen]);
+			var id = info[1][0]["@rowkey"];
+			await conn.query("COMMIT");
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			await conn.query("ROLLBACK");
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
+		return id;
+	}
+	static async addTransitLegDB(transitId,byUserId,locationId,theEvent) {
+		await ProdDataReader.initialize();
+		//Insert code here to read from mysql server.
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			await conn.query("START TRANSACTION");
+			/* DB Code */
+			var sql="Call CreateTransitLeg(?,?,?,?,@rowkey); select @rowkey";
+			var info = await conn.query(sql,[transitId,locationId,byUserId,theEvent]);
+			var id = info[1][0]["@rowkey"];
+			await conn.query("COMMIT");
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			await conn.query("ROLLBACK");
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
+		return id;
+	}
+	static async addTransitAndLegDB(studentId,byUserId,locationId,theEvent) {
+		await ProdDataReader.initialize();
+		//Insert code here to read from mysql server.
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			await conn.query("START TRANSACTION");
+			/* DB Code */
+			var sql="Call CreateTransit(?,?,@rowkey); select @rowkey";
+			var info = await conn.query(sql,[studentId,true]);
+			var id = info[1][0]["@rowkey"];
+			
+			var sql="Call CreateTransitLeg(?,?,?,?,@rowkey); select @rowkey";
+			var info = await conn.query(sql,[id,locationId,byUserId,theEvent]);
+			var tid = info[1][0]["@rowkey"];
+			
+			await conn.query("COMMIT");
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			await conn.query("ROLLBACK");
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
+		return { transitId:id, transitLegId:tid};
+	}
+	static async closeTransitDB(transitId) {
+		await ProdDataReader.initialize();
+		//Insert code here to read from mysql server.
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			await conn.query("START TRANSACTION");
+			/* DB Code */
+			var sql="Call CloseTransit(?);";
+			var info = await conn.query(sql,[transitId]);
+			
+			await conn.query("COMMIT");
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			await conn.query("ROLLBACK");
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
+		return;
+	}
 } //end class ProdDataReader
 
 module.exports = ProdDataReader;
+
