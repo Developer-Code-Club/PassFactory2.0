@@ -215,7 +215,7 @@ label {
 #extras {
     margin: 50px auto 10px;
     width: 80%;
-    height: 250px;
+    height: 18rem;
     display: flex;
     align-items: center;
     flex-direction: row;
@@ -225,8 +225,8 @@ label {
 }
 
 .box {
-    margin: 50px;
-    height: 175px;
+    margin: 3.2rem;
+    height: 13rem;
     padding: 10px;
     background-color: #DBDFE6;
     box-shadow: 0 4px 6px #ABB4C4;
@@ -281,7 +281,7 @@ label {
     padding: 20px 25px;  
 }
 
-.name, .id, .timein, .timer, .timeout, .status {
+.name, .id, .timein, .timer, .timeout {
     flex-basis: 1;
     text-align: left;
     width: 100%;
@@ -345,7 +345,7 @@ label {
     padding: 5px;
 }
 
-#scanin {
+.b2 {
     cursor: pointer;
     padding: 5px 8px;
     border-radius: 3px;
