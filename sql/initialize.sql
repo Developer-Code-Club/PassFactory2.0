@@ -88,7 +88,7 @@ DROP TABLE Transit_Leg_PIT;
 CREATE TABLE Transit_Leg_PIT (
 	Id Integer PRIMARY KEY AUTO_INCREMENT,
 	TransitId Integer,
-	Location Integer,
+	Location varchar(255),
 	ByUser Integer,
 	TheEvent varchar(255),
     CreateDate DateTime,
@@ -98,7 +98,7 @@ CREATE TABLE Transit_Leg_PIT (
 DROP PROCEDURE IF EXISTS CreateTransitLeg;
 
 DELIMITER //
-CREATE PROCEDURE CreateTransitLeg ( IN inTransitId Integer, inLocation Integer, inByUser Integer, inTheEvent varchar(255), OUT LID Integer)
+CREATE PROCEDURE CreateTransitLeg ( IN inTransitId Integer, inLocation varchar(255), inByUser Integer, inTheEvent varchar(255), OUT LID Integer)
 BEGIN
 	INSERT INTO Transit_Leg_PIT
 		( TransitId, Location, ByUser,TheEvent, CreateDate, ModifyDate )
@@ -132,7 +132,7 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS UpdateTransitLeg;
 
 DELIMITER //
-CREATE PROCEDURE UpdateTransitLeg (IN inTransitLegId Integer, inTransitId Integer, inLocation Integer, inByUser Integer, inTheEvent varchar(255))
+CREATE PROCEDURE UpdateTransitLeg (IN inTransitLegId Integer, inTransitId Integer, inLocation varchar(255), inByUser Integer, inTheEvent varchar(255))
 BEGIN
 	UPDATE 
 		Transit_Leg_PIT
@@ -149,4 +149,29 @@ END
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS GetTransitsReport;
 
+DELIMITER //
+CREATE PROCEDURE GetTransitsReport (dt1 Date,loc varchar(255))
+BEGIN
+	SELECT 
+		t.Id AS Id,
+		t.StudentId AS StudentId,
+		l.CreateDate AS CreateDate,
+		l.ModifyDate AS ModifyDate,
+		l.ByUser AS ByUser,
+		l.Location AS Location,
+		l.TheEvent AS TheEvent
+	FROM 
+		Transit_Leg_PIT AS l, 
+		Transit_PIT AS t 
+	WHERE  
+		l.TransitId = t.Id 
+	AND 
+		l.Location = loc
+	AND 
+		l.CreateDate >= dt1 
+	AND 
+		l.CreateDate < DATE_ADD(dt1,INTERVAL 1 DAY);
+END//
+DELIMITER ;	

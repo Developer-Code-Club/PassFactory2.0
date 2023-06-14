@@ -2,6 +2,7 @@ const Student = require('./student');
 const Faculty = require('./faculty');
 const Course = require('./course');
 const Room = require('./room');
+const BlockCalculator = require('./block_calculator');
 
 const Schedule = require('./schedule');
 const MasterSchedule = require('./master_schedule');
@@ -221,6 +222,7 @@ console.log("urlll->" + url);
 			var r=new Room(rm[i].roomNumber, rm[i].departmentCode, rm[i].roomTypeCode, rm[i].buildingCode, rm[i].fieldC001, rm[i].locationCode, rm[i].maxCapacity);
 			theRooms.set(rm[i].roomNumber,r);  
 		}
+		console.log("theROOOOOMS->" + JSON.stringify(Array.from(theRooms)));
 		return theRooms;
 	}
 	static async getTransitData() {
@@ -288,6 +290,69 @@ console.log("urlll->" + url);
 			await ProdDataReader.theDBHandler.releaseit(conn);	
 		}
 		return id;
+	}
+	static async getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing) {
+		
+		await ProdDataReader.initialize();
+		//Insert code here to read from mysql server.
+		var m=new Map();
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			/* DB Code */
+			var sql="Call GetTransitsReport(?,?);";
+			var info = await conn.query(sql,[dt,locationId]);
+			info = info[0];
+			console.log("got->" + JSON.stringify(info));
+			for ( var i=0; i < info.length; i++ ) {
+				var r = m.get(parseInt(info[i].Id));
+				if ( r == null ) {
+					if ( info[i].TheEvent == "checkIn" ) {
+						m.set(parseInt(info[i].Id),{id: info[i].Id, studentId: info[i].StudentId, location: info[i].Location, checkIn: new Date(info[i].CreateDate)});
+					} else if (info[i].TheEvent == "checkOut" ) {
+						m.set(parseInt(info[i].Id),{id: info[i].Id, studentId: info[i].StudentId, location: info[i].Location, checkOut: new Date(info[i].CreateDate)});
+					}
+				} else {
+					if ( info[i].TheEvent == "checkIn" ) {
+						r.checkIn = new Date(info[i].CreateDate);
+						m.set(r.id,r);
+					} else if ( info[i].TheEvent == "checkOut" ) {
+						r.checkOut = new Date(info[i].CreateDate);
+						m.set(r.id,r);
+					}
+				}
+			}		
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
+		var ret = Array.from(m.values());
+		console.log("ret->" + JSON.stringify(ret));
+		var filtered = [];
+		for ( var i=0; i < ret.length; i++ ) {
+			console.log("time->" + ret[i].checkIn.getHours() + " ->" + ret[i].checkIn.getMinutes());
+			var bNum = BlockCalculator.checkBlockStdDayPassing(ret[i].checkIn);
+			if ( bNum == 0 ) {
+			} else if ( bNum == 1 ) {
+				if ( block1 ) { ret[i].block="1"; filtered.push(ret[i]); } 
+			} else if ( bNum == 1.75 ) {
+				if ( (block1 || block2) && includePassing ) { ret[i].block="2 Passing"; filtered.push(ret[i]); }
+			} else if ( bNum == 2 ) {
+				if ( block2 ) { ret[i].block="2"; filtered.push(ret[i]); }
+			} else if ( bNum == 2.5 ) {
+				if ( blockLunch ) { ret[i].block="UL"; filtered.push(ret[i]); }
+			} else if ( bNum == 3 ) {
+				if ( block3 ) { ret[i].block="3"; filtered.push(ret[i]); }
+			} else if ( bNum == 3.75 ) {
+				if ( (block3 || block4 ) && includePassing ) {ret[i].block="4 Passing";  filtered.push(ret[i]); }
+			} else if ( bNum == 4 ) {
+				if ( block4 ) { ret[i].block="4"; filtered.push(ret[i]); }
+			} else if ( bNum == 5 ) {
+				if ( block5 ) { ret[i].block="5"; filtered.push(ret[i]); }
+			}
+		}
+		return filtered;
 	}
 	static async addTransitAndLegDB(studentId,byUserId,locationId,theEvent) {
 		await ProdDataReader.initialize();

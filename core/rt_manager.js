@@ -131,6 +131,18 @@ class RTManager {
 					} else {
 						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}
+				} else if ( msg.func == "getFacultyList" ) {
+					console.log("in getFacultyList with->" + JSON.stringify(msg));
+					var userAt = RTManager.userMap.get(msg.userName);
+					var ret = Array.from(RTManager.schoolFactory.theFacultyHandler.theFaculty);
+					if ( userAt != null ) {
+						console.log("sending->" + JSON.stringify(ret));
+						msg.func="facultyList";
+						msg.message=ret;
+						userAt.send(JSON.stringify(msg));
+					} else {
+						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
+					}
 				} else { 
 					connection.send("Sorry, I don't understand what you are asking for.");
 				}	

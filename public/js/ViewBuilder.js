@@ -193,7 +193,6 @@ class ViewBuilder {
 		}
 		var vv = Array.from(oCount.keys());
 		var vv2 = Array.from(oCount.values());
-		console.log("vv->" + vv + " ->" + vv2);
 		var vv3=[];
 		for ( var i=0; i < vv.length; i++ ) {
 			var mMapA=Array.from(vv2[i]);
@@ -228,6 +227,138 @@ class ViewBuilder {
 		td = document.createElement("td");
 		td.innerHTML=timeEnter;
 		tr.appendChild(td);
+	}
+	static buildFacultyList(list) {
+		var dl = document.getElementById("ci_faculty_list");
+		for ( var i=0; i < list.length; i++ ) {
+			var o = document.createElement("option");
+			o.value = list[i][1].name
+			o.setAttribute("facultyId",list[i][1].id);
+			o.id = "faculty-" + list[i][1].id;
+			o.rr = list[i][1].id
+			dl.appendChild(o);
+		}
+	}
+	static buildRoomsList(list) {
+		var dl = document.getElementById("ci_rooms_list");
+		var drl = document.getElementById("ci_rep_rooms_list");
+		for ( var i=0; i < list.length; i++ ) {
+			var o = document.createElement("option");
+			o.value = list[i][1].num
+			o.setAttribute("roomId",list[i][1].num);
+			o.id = "rooms-" + list[i][1].num;
+			o.rr = list[i][1].num;
+			dl.appendChild(o);
+			var o2 = document.createElement("option");
+			o2.value = list[i][1].num
+			o2.setAttribute("roomId",list[i][1].num);
+			o2.id = "rooms-" + list[i][1].num;
+			o2.rr = list[i][1].num;
+			drl.appendChild(o2);
+		}
+	}
+	static buildStudentsList(list) {
+		var dl = document.getElementById("ci_students_list");
+		for ( var i=0; i < list.length; i++ ) {
+			var o = document.createElement("option");
+			o.value = list[i][1].name
+			o.setAttribute("studentId",list[i][1].id);
+			o.id = "students-" + list[i][1].id;
+			o.rr = list[i][1].id;
+			dl.appendChild(o);
+		}
+	}
+	
+	static is_valid_datalist_value(idDataList, inputValue) {
+		var option = document.querySelector("#" + idDataList + " option[value='" + inputValue + "']");
+		return option.rr;
+	}
+	static getStudentId() {
+		var x = ViewBuilder.is_valid_datalist_value('ci_students_list', document.getElementById('ci_students_id').value);		
+		return x;
+	}
+	static getFacultyId() {
+		var x = ViewBuilder.is_valid_datalist_value('ci_faculty_list', document.getElementById('ci_faculty_id').value);		
+		return x;
+	}
+	static getRepLocation() {
+		var x = ViewBuilder.is_valid_datalist_value('ci_rep_rooms_list', document.getElementById('ci_rep_rooms_id').value);		
+		return x;
+	}
+	static getLocation() {
+		var x = ViewBuilder.is_valid_datalist_value('ci_rooms_list', document.getElementById('ci_rooms_id').value);		
+		return x;
+	}
+	static inStudentToTable(studentId,atTime) {
+		var tab = document.getElementById("ci-rows");
+		var tr = document.createElement("tr");
+		tab.appendChild(tr);
+		var td = document.createElement("td");
+		td.innerHTML=studentId;
+		tr.id = "studentrow-" + studentId;
+		tr.appendChild(td);
+		td = document.createElement("td");
+		td.innerHTML=atTime;
+		tr.appendChild(td);
+		td = document.createElement("td");
+		td.innerHTML="";
+		td.id="outcol-" + studentId;
+		tr.appendChild(td);
+	}
+	static outStudentToTable(studentId,atTime) {
+		var tab = document.getElementById("ci-out-rows");
+		var tr = document.getElementById("studentrow-" + studentId);
+		
+		var td = document.getElementById("outcol-" + studentId);
+		td.innerHTML=atTime;
+		tab.appendChild(tr);
+	
+	}
+	static async getKeyUpTest(e) {
+		if (e.key === "Enter") {
+			var id = parseInt(document.getElementById("ci_faculty_id_scan").value);
+			var f = Controller.facultyList.get(id);
+			var cb= await DataLoader.getRTCurrBlock();
+			document.getElementById("ci_curr_block").innerHTML = cb.ABDay + " Day, Block " + cb.block;
+		}
+    }
+	static enterStudentIdNum(e) {
+		if (e.key === "Enter") {
+			var id = parseInt(document.getElementById("ci_students_id_scan").value);
+			var f = Controller.studentsList.get(id);
+			document.getElementById("ci_students_id").value=f.name;
+		}
+    }
+	static async getReport(e) {
+		var dt=document.getElementById("ci_rep_date");
+		var loc=ViewBuilder.getRepLocation();
+		var b1=document.getElementById("ci_rep_b1").checked;
+		var b2=document.getElementById("ci_rep_b2").checked;
+		var blunch=document.getElementById("ci_rep_blunch").checked;
+		var b3=document.getElementById("ci_rep_b3").checked;
+		var b4=document.getElementById("ci_rep_b4").checked;
+		var b5=document.getElementById("ci_rep_b5").checked;
+		var binclude=document.getElementById("ci_rep_include_passing").checked;
+		var rep=await DataLoader.getReportData(dt.value,loc,b1,b2,blunch,b3,b4,b5,binclude);
+		
+		$('#room-block-rows').empty();
+		var tab = document.getElementById("room-block-rows");
+		for (var i=0; i < rep.length; i++ ) {
+			var tr = document.createElement("tr");
+			tab.appendChild(tr);
+			var td = document.createElement("td");
+			td.innerHTML=Controller.studentsList.get(parseInt(rep[i].studentId)).name;
+			tr.appendChild(td);
+			td = document.createElement("td");
+			td.innerHTML=rep[i].block;
+			tr.appendChild(td);
+			td = document.createElement("td");
+			td.innerHTML=new Date(rep[i].checkIn).toLocaleTimeString('en-US');
+			tr.appendChild(td);
+			td = document.createElement("td");
+			td.innerHTML=new Date(rep[i].checkOut).toLocaleTimeString('en-US');
+			tr.appendChild(td);
+		}
 	}
 		
 }

@@ -14,7 +14,6 @@ class FacultyHandler {
 
 	}
 	getIt() {
-		console.log("Suzzane->" + JSON.stringify(this.theFacultyByEmail.get('svrancke@hcrhs.org')));
 		var x = Array.from(this.theFaculty.values());
 		for ( var i=0; i < x.length; i++ ) {
 			var s = x[i].theSchedule;

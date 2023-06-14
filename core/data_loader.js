@@ -135,5 +135,15 @@ class DataLoader {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
+	static async getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing) {
+		 console.log("in data_loader.getReportData");
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing);
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing);
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
 }
 module.exports = DataLoader;

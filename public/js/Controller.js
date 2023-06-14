@@ -43,6 +43,39 @@ class Controller {
 		vb.buildPassesTab(pp);
 		var dp = await x.getDecoratedPasses();
 		vb.buildDecoratePassesTab(dp);
+
+	}
+	async initializeRTData() {
+		
+		if ( Controller.isProcessing ) { 
+			alert("already processing.  Please wait...");
+			return;
+		}
+		Controller.isProcessing = true;
+		console.log("in initializeData");
+		var x = new DataLoader();
+		var vb = new ViewBuilder();
+	
+		Controller.isProcessing = false;
+
+		var f = await x.getRTFacultyList();
+		console.log("f->" + JSON.stringify(f));
+		Controller.facultyList = new Map(f);
+		ViewBuilder.buildFacultyList(f);
+		
+		var r = await x.getRTRoomsList();
+		console.log("r->" + JSON.stringify(r));
+		Controller.roomsList = new Map(r);
+		ViewBuilder.buildRoomsList(r);
+		
+		var s = await x.getRTStudentsList();
+		console.log("s->" + JSON.stringify(s));
+		Controller.studentsList = new Map(s);
+		ViewBuilder.buildStudentsList(s);
+		
+		Controller.isProcessing = false;
+
+
 	}
 	async emailPasses() {
 		var dateFor = document.getElementById("for-date").value;
@@ -88,14 +121,15 @@ class Controller {
 */
 	static sendCheckInFunc(e) {
 		//console.log("sendCheckInFunc->" + document.getElementById(e.srcElement.id).value);
-		var ciNote=document.getElementById("notes").value;
-		var ciStudentId=document.getElementById("idNum").value;
-		var ciLocation=document.getElementById("roomNum").value;
-		alert(Controller.studentList.get(parseInt(ciStudentId)).name);
-		document.getElementById("flname").value=Controller.studentList.get(parseInt(ciStudentId)).name;	
+//		var ciNote=document.getElementById("notes").value;
+//		var ciStudentId=document.getElementById("idNum").value;
+//		var ciLocation=document.getElementById("roomNum").value;
+//		document.getElementById("flname").value=Controller.studentList.get(parseInt(ciStudentId)).name;	
+		var i = ViewBuilder.getStudentId();
+
 		var message = {};
-		Controller.creds.note = ciNote;
-		Controller.creds.studentId = ciStudentId;
+//		Controller.creds.note = ciNote;
+		Controller.creds.studentId = i;
 		Controller.creds.func='scannedId';
 		Controller.socket.send(JSON.stringify(Controller.creds));
 	}
@@ -103,12 +137,26 @@ class Controller {
 		Controller.creds.func='getStudentList';
 		Controller.socket.send(JSON.stringify(Controller.creds));
 	}
+	static sendGetFacultyList() {
+		Controller.creds.func='getFacultyList';
+		Controller.socket.send(JSON.stringify(Controller.creds));
+	}
+	
 	static openTestFunc(e) {
-		Controller.socket = new WebSocket('ws://localhost:1337');
+		var i = ViewBuilder.getFacultyId();
+		var l = ViewBuilder.getLocation();
+		
+		alert("opening->" + i + " ->" + l);
+//		var server="ws://localhost:1337";
+		var server="ws://192.168.11.135:1337";
+		Controller.socket = new WebSocket(server);
 		Controller.socket.onopen = function () {
-			Controller.creds={func:'signin', userName:document.getElementById("staffName").value,location:document.getElementById("roomNum").value};
+			var sel = document.getElementById("ci_faculty_id")
+			var id = i;
+	//		alert(id);
+			Controller.creds={func:'signin', userName:i,location:l};
 			Controller.socket.send(JSON.stringify(Controller.creds));
-			Controller.sendGetStudentList();
+	
 		};
 		Controller.socket.onmessage = Controller.receiveMessage;
 		Controller.socket.onerror = function (error) {
@@ -132,12 +180,17 @@ class Controller {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->IN" + msg.studentId  + " dt->"  + dtS + '<br />';			
+			ViewBuilder.inStudentToTable(msg.studentId,dtS);
 		} else if ( msg.func == "scanConfirmOut" ) {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->OUT" + msg.studentId  + " dt->"  + dtS + '<br />';			
+			ViewBuilder.outStudentToTable(msg.studentId, dtS);
 		} else if ( msg.func == "studentList" ) {
 			Controller.studentList = new Map(msg.message);
+		} else if ( msg.func == "facultyList" ) {
+//			Controller.facultyList = new Map(msg.message);
+//			ViewBuilder.buildFacultyList(msg.message);
 		} else {
 			content.innerHTML += "Unknown message->"  + JSON.stringify(msg) + '<br>';
 		}
@@ -160,6 +213,7 @@ class Controller {
 		Controller.creds.func='sendMessage';
 		Controller.creds.message=message;
 		Controller.creds.toUserName=document.getElementById("to-user").value;
+		console.log("SENDING->" + JSON.stringify(creds));
 		Controller.socket.send(JSON.stringify(creds));
 	}
 }

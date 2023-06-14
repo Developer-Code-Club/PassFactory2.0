@@ -10,8 +10,9 @@ class RoomHandler {
 		this.theRooms=null;	
 	}
 
-	initialize() {
-		this.theRooms = DataLoader.getRoomData();
+	async initialize() {
+		this.theRooms = await DataLoader.getRoomData();
+		console.log("THEROOMS->" + JSON.stringify(Array.from(this.theRooms)));
 	}
 
 }

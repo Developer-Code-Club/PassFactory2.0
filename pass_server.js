@@ -10,6 +10,8 @@ const RTManager = require("./core/rt_manager");
 const BlockCalculator = require("./core/block_calculator");
 const TransitHandler = require("./core/transit_handler");
 const ProdMode = require('./core/prod_mode');
+const DataLoader = require('./core/data_loader');
+
 /*
  * These are the only 2 lines of code that are needed
  * to start up the websocket server.
@@ -115,6 +117,10 @@ app.get('/page1', (req, res)=>{
 	res.render('page1');
 });
 
+app.get('/scanhome', (req, res)=>{
+	res.render('scanhome');
+});
+
 app.get('/page2', (req, res) => {
 	res.render('page2');
 });
@@ -197,6 +203,51 @@ app.post("/get_decorated_passes", (req, res)=>{
 		var data = JSON.parse(j);
 		var rr=await thePassFactory.getDecoratedPasses(); 	
 		res.status(200).send(JSON.stringify(rr)); 	
+	} )();
+});
+app.post("/get_rt_faculty", (req, res)=>{   
+	console.log("get_rt_faculty");
+	(async() =>  { 
+		var j = JSON.stringify(req.body);
+		var rr = Array.from(RTManager.schoolFactory.theFacultyHandler.theFaculty);
+		res.status(200).send(JSON.stringify(rr)); 	
+	} )();
+});
+app.post("/get_rt_students", (req, res)=>{   
+	console.log("get_rt_students");
+	(async() =>  { 
+		var j = JSON.stringify(req.body);
+		var rr = Array.from(RTManager.schoolFactory.theStudentHandler.theStudents);
+		res.status(200).send(JSON.stringify(rr)); 	
+	} )();
+});
+app.post("/get_rt_rooms", (req, res)=>{   
+	console.log("get_rt_rooms");
+	(async() =>  { 
+		var j = JSON.stringify(req.body);
+		var rr = Array.from(RTManager.schoolFactory.theRoomHandler.theRooms);
+		console.log("rrrrrrrrrr->" + JSON.stringify(rr));
+		res.status(200).send(JSON.stringify(rr)); 	
+	} )();
+});
+app.post("/get_rt_curr_block", (req, res)=>{   
+	console.log("get_rt_curr_block");
+	(async() =>  { 
+		var now = new Date();
+		var ab = "A";
+		if ( BlockCalculator.isBDay() ) { ab="B"; }
+		var b = BlockCalculator.getCurrBlockString(now);
+		res.status(200).send(JSON.stringify({ block:b, ABDay: ab })); 	
+	} )();
+});
+app.post("/get_report_data", (req, res)=>{   
+	console.log("in get_report_data");
+	(async() =>  { 
+		var j = JSON.stringify(req.body);
+		console.log("data->" + j);
+		var data = JSON.parse(j);
+		var ret = await DataLoader.getReportData(data.repDate,data.location,data.block1,data.block2,data.blockLunch,data.block3,data.block4,data.block5, data.includePassing);
+		res.status(200).send(ret); 	
 	} )();
 });
 app.get("/send_test_email", (req, res)=>{   
