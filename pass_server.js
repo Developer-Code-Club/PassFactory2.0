@@ -16,21 +16,39 @@ const DataLoader = require('./core/data_loader');
  * These are the only 2 lines of code that are needed
  * to start up the websocket server.
  */
-var theRTManager = new RTManager(1337);
-theRTManager.initialize();
-/* Initializing the transithandler. */
-console.log("Initializing the Transit Handler...");
-var pm = new ProdMode();
-var theTransitHandler=new TransitHandler();
-theTransitHandler.initialize();
-console.log("Done initializing TransitHandler.");
-theRTManager.setTransitHandler(theTransitHandler);
+var theRTManager;
+var pm;
+var theTransitHandler;
+const DBHandler = require("./core/db_handler");
+var x;
 
+
+async function foo() { 
+try {
+	theRTManager = new RTManager(1337);
+	await theRTManager.initialize();
+	/* Initializing the transithandler. */
+	console.log("Initializing the Transit Handler...");
+	pm = new ProdMode();
+	
+	theTransitHandler=new TransitHandler();
+	console.log("HERE");
+	await theTransitHandler.initialize();
+	console.log("Done initializing TransitHandler.");
+	theRTManager.setTransitHandler(theTransitHandler);
+	 x = new DBHandler();
+	 x.initialize();
+} catch (e) { 
+	console.log("eeee->" + e.stack);
+}
+}
+
+console.log("before foo");
+foo();
 console.log("starting server...");
 
-const DBHandler = require("./core/db_handler");
-var x = new DBHandler();
-x.initialize();
+
+
 //Middle ware
 
 app.use(bodyparser.json());
@@ -210,6 +228,23 @@ app.post("/get_rt_faculty", (req, res)=>{
 	(async() =>  { 
 		var j = JSON.stringify(req.body);
 		var rr = Array.from(RTManager.schoolFactory.theFacultyHandler.theFaculty);
+		res.status(200).send(JSON.stringify(rr)); 	
+	} )();
+});
+app.post("/get_rt_temp_users", (req, res)=>{   
+	console.log("get_rt_temp_users");
+	(async() =>  { 
+		var j = JSON.stringify(req.body);
+		var rr = await DataLoader.getTempUserData();
+		res.status(200).send(JSON.stringify(rr)); 	
+	} )();
+});
+app.post("/add_rt_temp_user", (req, res)=>{   
+	console.log("add_rt_temp_user");
+	(async() =>  { 
+		var j = JSON.stringify(req.body);
+		var data=JSON.parse(j);
+		var rr = await DataLoader.addTempUser(data.name);
 		res.status(200).send(JSON.stringify(rr)); 	
 	} )();
 });

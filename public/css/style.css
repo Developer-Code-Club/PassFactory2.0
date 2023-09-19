@@ -353,3 +353,11 @@ label {
     color:#DBDFE6;
     background-color: #282A3E;
 }
+
+.pprInfo { 
+	color: blue;
+	font-size: 12px;
+}
+.pprTooltip:hover .pprTooltipText {
+   visibility: visible;
+ }

@@ -28,6 +28,24 @@ class DataLoader {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
+	static async getTempUserData() {
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.getTempUserData();
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.getTempUserData();
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
+	static async addTempUser(name) {
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.addTempUser(name);
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.addTempUser(name);
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
 	static async getRoomData() {
 		if ( ProdMode.isProductionModeTest() ) {
 			return await TestDataReader.getRoomData();
@@ -95,12 +113,32 @@ class DataLoader {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
-	static async addTransitDB(studentId,isOpen) {
+	static async getTransitsByDate() {
+		 console.log("in data_loader.getTransitsByDate");
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.getTransitsByDate();
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.getTransitsByDate();
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
+	static async addTransitDB(studentId,isOpen,note) {
 		 console.log("in data_loader.getTransitData");
 		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.addTransitDB(studentId,isOpen);
+			return await TestDataReader.addTransitDB(studentId,isOpen,note);
 		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.addTransitDB(studentId,isOpen);
+			return await ProdDataReader.addTransitDB(studentId,isOpen,note);
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
+	static async updateTransitDB(transitId,studentId,isOpen,note) {
+		 console.log("in data_loader.updateTransitDB");
+		if ( ProdMode.isProductionModeTest() ) {
+			throw Error("test mode for this not implemented");
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.updateTransitDB(transitId,studentId,isOpen,note);
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}
@@ -115,12 +153,12 @@ class DataLoader {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
-	static async addTransitAndLegDB(studentId,byUserId,locationId,theEvent) {
+	static async addTransitAndLegDB(studentId,byUserId,locationId,theEvent,note) {
 		 console.log("in data_loader.getTransitData");
 		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.addTransitAndLegDB(studentId,byUserId,locationId,theEvent);
+			return await TestDataReader.addTransitAndLegDB(studentId,byUserId,locationId,theEvent,note);
 		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.addTransitAndLegDB(studentId,byUserId,locationId,theEvent);
+			return await ProdDataReader.addTransitAndLegDB(studentId,byUserId,locationId,theEvent,note);
 		} else {
 			throw Error("Unknown Production Mode!!!");
 		}

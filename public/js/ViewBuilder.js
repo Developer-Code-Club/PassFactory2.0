@@ -227,15 +227,35 @@ class ViewBuilder {
 		td = document.createElement("td");
 		td.innerHTML=timeEnter;
 		tr.appendChild(td);
+		
+		td = document.createElement("td");
+		td.innerHTML="Fix Later";
+		tr.appendChild(td);
 	}
 	static buildFacultyList(list) {
 		var dl = document.getElementById("ci_faculty_list");
 		for ( var i=0; i < list.length; i++ ) {
+			if ( list[i][1].id == null || list[i][1].id.length == 0 ) {
+				console.log("SKIPPING FACULTY->" + JSON.stringify(list[i][1]));
+			} else {
+				var o = document.createElement("option");
+				o.value = list[i][1].name
+				o.setAttribute("facultyId",list[i][1].id);
+				o.id = "faculty-" + list[i][1].id;
+				o.rr = list[i][1].id
+				dl.appendChild(o);
+			}
+		}
+	}
+	static buildTempUserList(list) {
+		/* SHORT TERM HACK TO ADD TEMP USERS TO DROPDOWN */
+		var dl = document.getElementById("ci_faculty_list");
+		for ( var i=0; i < list.length; i++ ) {
 			var o = document.createElement("option");
-			o.value = list[i][1].name
-			o.setAttribute("facultyId",list[i][1].id);
-			o.id = "faculty-" + list[i][1].id;
-			o.rr = list[i][1].id
+			o.value = list[i].name
+			o.setAttribute("tempUserId",list[i].id);
+			o.id = "temp-user-" + list[i].id;
+			o.rr = 0 - list[i].id
 			dl.appendChild(o);
 		}
 	}
@@ -271,14 +291,82 @@ class ViewBuilder {
 	
 	static is_valid_datalist_value(idDataList, inputValue) {
 		var option = document.querySelector("#" + idDataList + " option[value='" + inputValue + "']");
+		if ( option == null ) { return null; }
+		console.log("ooooo->" + option.getAttribute("tempUserId") + " ->" + option.getAttribute("facultyId"));
 		return option.rr;
 	}
+	/* 
+	 * First it assumes field is a student number from scan.  If not it sees if it is a name.
+	 *
+	 */
 	static getStudentId() {
+		
+		var studentId = document.getElementById("ci_students_id").value;
+		if ( studentId == null ) {
+			return null;
+		}
+		if ( Controller.studentsList.get(parseInt(studentId)) != null ) {
+			return studentId;
+		}
 		var x = ViewBuilder.is_valid_datalist_value('ci_students_list', document.getElementById('ci_students_id').value);		
 		return x;
 	}
+	static clearStudentId() {
+		document.getElementById("ci_students_id").value="";
+	}
+	static getNoteForTransit(id) {
+		var iNote=document.getElementById("note-input-" + id);
+		if ( iNote != null ) { 
+			return iNote.value;
+		}
+		return "";
+	}
 	static getFacultyId() {
 		var x = ViewBuilder.is_valid_datalist_value('ci_faculty_list', document.getElementById('ci_faculty_id').value);		
+		return x;
+	}
+	static getUserId() {
+		var inputValue = document.getElementById('ci_faculty_id').value;
+		console.log("inputValue->" + inputValue);
+		var option = document.querySelector("#" + 'ci_faculty_list' + " option[value='" + inputValue + "']");
+		if ( option == null ) { return null; }
+		console.log("ooooo->" + option.rr + "->" + option.getAttribute("tempUserId") + " ->" + option.getAttribute("facultyId"));
+		return option.rr;
+	}
+	static isUserTemp() {
+		var inputValue = document.getElementById('ci_faculty_id').value;
+		var option = document.querySelector("#" + 'ci_faculty_list' + " option[value='" + inputValue + "']");
+		if ( option == null ) { return null; }
+		if ( option.getAttribute("tempUserId") != null ) {
+			return true;
+		}
+		return false;
+	}
+	static isUserFaculty() {
+		var inputValue = document.getElementById('ci_faculty_id').value;
+		var option = document.querySelector("#" + 'ci_faculty_list' + " option[value='" + inputValue + "']");
+		if ( option == null ) { return false; }
+		if ( option.getAttribute("facultyId") != null ) {
+			return true;
+		}
+		return false;
+	}
+	static signOutCleanUp() { 
+		document.getElementById("ci-logged-in-header").classList.add("d-none");
+		document.getElementById("ci-open-test").classList.remove("d-none");
+		document.getElementById("ci_faculty_id").value="";
+		document.getElementById("ci_rooms_id").value="";
+		document.getElementById("signin-tab-item").classList.remove("d-none");
+		document.getElementById("scan-tab-item").classList.add("d-none");
+		document.getElementById("report-tab-item").classList.add("d-none");
+		document.getElementById("ci-user-header").innerHTML="";
+		document.getElementById("ci-location-header").innerHTML="";
+		document.getElementById("signin-tab").click();
+	}
+		
+	
+	static getTempUserId(name) {
+		var x = ViewBuilder.is_valid_datalist_value('ci_temp_user_list', name);		
 		return x;
 	}
 	static getRepLocation() {
@@ -289,30 +377,63 @@ class ViewBuilder {
 		var x = ViewBuilder.is_valid_datalist_value('ci_rooms_list', document.getElementById('ci_rooms_id').value);		
 		return x;
 	}
-	static inStudentToTable(studentId,atTime) {
+	static inStudentToTable(studentId,atTime,transitId) {
+		console.log("adding student to table->" + studentId);
 		var tab = document.getElementById("ci-rows");
 		var tr = document.createElement("tr");
 		tab.appendChild(tr);
 		var td = document.createElement("td");
-		td.innerHTML=studentId;
+		console.log("looking for->" + studentId);
+		td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
 		tr.id = "studentrow-" + studentId;
 		tr.appendChild(td);
 		td = document.createElement("td");
-		td.innerHTML=atTime;
+		td.innerHTML=new Date(atTime).toLocaleTimeString('en-US');
 		tr.appendChild(td);
 		td = document.createElement("td");
 		td.innerHTML="";
 		td.id="outcol-" + studentId;
 		tr.appendChild(td);
+		td = document.createElement("td");
+		var iNote = document.createElement("input");
+		iNote.type="text";
+		iNote.id="note-input-" + transitId;
+		iNote.addEventListener("change",ViewBuilder.noteChange);
+		iNote.setAttribute("studentId",studentId);
+		iNote.setAttribute("transitId",transitId);
+		td.appendChild(iNote);		
+		td.id="note-col-" + transitId;
+		tr.appendChild(td);
+		
+		td = document.createElement("td");
+		var b = document.createElement("button");
+		b.innerHTML="click";
+		b.id = "force-out-" + studentId;
+		td.appendChild(b);
+		b.addEventListener("click",Controller.sendForceOutFunc);
+		b.setAttribute("studentId", studentId);
+		console.log("setting TRANSITID->" + transitId);
+		b.setAttribute("transitId", transitId);
+		tr.appendChild(td);
+	}
+	static async noteChange(e) {
+		var iNote=document.getElementById(e.srcElement.id);
+		var note=iNote.value;
+		var studentId=iNote.getAttribute("studentId");
+		var transitId=iNote.getAttribute("transitId");
+		
+		alert("note change->" + studentId + " ->" + transitId + " ->" + note);
+		Controller.sendNoteUpdate(transitId,studentId,note);
+		
 	}
 	static outStudentToTable(studentId,atTime) {
+		console.log("student->" + studentId);
 		var tab = document.getElementById("ci-out-rows");
 		var tr = document.getElementById("studentrow-" + studentId);
-		
+		document.getElementById("force-out-" + studentId).classList.add("d-none");
 		var td = document.getElementById("outcol-" + studentId);
-		td.innerHTML=atTime;
+		td.innerHTML=new Date(atTime).toLocaleTimeString('en-US');
 		tab.appendChild(tr);
-	
 	}
 	static async getKeyUpTest(e) {
 		if (e.key === "Enter") {
@@ -322,7 +443,11 @@ class ViewBuilder {
 			document.getElementById("ci_curr_block").innerHTML = cb.ABDay + " Day, Block " + cb.block;
 		}
     }
+	static enterStudentName(e) {
+		alert("enter name");
+	}
 	static enterStudentIdNum(e) {
+		console.log("in enterstudentidnum");
 		if (e.key === "Enter") {
 			var id = parseInt(document.getElementById("ci_students_id_scan").value);
 			var f = Controller.studentsList.get(id);
@@ -339,6 +464,7 @@ class ViewBuilder {
 		var b4=document.getElementById("ci_rep_b4").checked;
 		var b5=document.getElementById("ci_rep_b5").checked;
 		var binclude=document.getElementById("ci_rep_include_passing").checked;
+
 		var rep=await DataLoader.getReportData(dt.value,loc,b1,b2,blunch,b3,b4,b5,binclude);
 		
 		$('#room-block-rows').empty();
@@ -356,9 +482,22 @@ class ViewBuilder {
 			td.innerHTML=new Date(rep[i].checkIn).toLocaleTimeString('en-US');
 			tr.appendChild(td);
 			td = document.createElement("td");
-			td.innerHTML=new Date(rep[i].checkOut).toLocaleTimeString('en-US');
+			if ( rep[i].checkOut != null ) {
+				td.innerHTML=new Date(rep[i].checkOut).toLocaleTimeString('en-US');
+			} else {
+				td.innerHTML="";
+			}
 			tr.appendChild(td);
 		}
+	}
+	static openScanning() {
+		document.getElementById("scan-tab-item").classList.remove("d-none");
+	}
+	static toggleOutTable(e) {
+		document.getElementById("ci-out-area").classList.toggle("d-none");
+	}
+	static toggleLogs(e) {
+		document.getElementById("ci-logs").classList.toggle("d-none");
 	}
 		
 }

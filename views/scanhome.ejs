@@ -20,28 +20,31 @@ table, th, td {
 	<script src="js/DataLoader.js"></script>
 	<script src="js/ViewBuilder.js"></script>
 	<script src="js/Controller.js"></script>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> 
+	<link href="css/pass-styles.css" rel="stylesheet"> 
 </head>
 <body>
-	<div class="w-95">
-		<img src="./images/HCLogo.PNG"></img>
-		<br>
-		<h1>Welcome to CheckIn.</h1>
-		<br>
-		
-		
-		<ul class="nav nav-tabs" id="myTab" role="tablist">
-			<li class="nav-item">
-				<a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
+	<div class="w-100">
+		<div class="w-100">
+			<img src="./images/HCLogo.PNG"></img>
+		</div>		
+		<div id="ci-logged-in-header" class="d-none">
+			<label class="ml-4 center"><b>User:</b></label><label id="ci-user-header" class="ml-2"></label>
+			<label class="ml-4"><b>Location:</b></label><label id="ci-location-header" class="ml-2"></label>
+			<label id="ci-close-test" class="menu-btn float-right mr-4" onclick="Controller.closeTestFunc(event)">Sign Out</label>
+		</div>
+		<ul class="nav nav-tabs" id="menu-tabs" role="tablist">
+			<li id="signin-tab-item" class="nav-item">
+				<a class="nav-link active" id="signin-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Location Sign In</a>
 			</li>
 			
-			<li class="nav-item">
+			<li id="scan-tab-item" class="nav-item d-none">
 				<a class="nav-link" id="location-checker-tab" data-toggle="tab" href="#locationChecker" role="tab" aria-controls="locationChecker" aria-selected="false">Location Checker</a>
 			</li>
-			<li class="nav-item">
+			<li id="report-tab-item" class="nav-item d-none">
 				<a class="nav-link" id="room-block-report-tab" data-toggle="tab" href="#roomBlockReport" role="tab" aria-controls="roomBlockReport" aria-selected="false">Report</a>
 			</li>
 		</ul>
@@ -49,98 +52,68 @@ table, th, td {
 			<div class="tab-pane fade" id="locationChecker" role="tabpanel" aria-labelledby="location-checker-tab">
 				<section id="location-checker-sec">
 				<div>
-					<label>Current Block: </label> <label class="ml-3" id="ci_curr_block"></label>
-					
-					<br>
-					<label>UserName:</label>
-					<input id="ci_faculty_id" list="ci_faculty_list" name="ci_faculty_id">
-					<datalist id="ci_faculty_list">
-					</datalist>
-					<label class="ml-4">Id: </label>
-					<input id="ci_faculty_id_scan" class="ml-4" onkeyup="ViewBuilder.getKeyUpTest(event)" type="text" id="ci-guest-faculty-name"></input>
-					<br>
-					
-					<label>Location:</label>
-					<input id="ci_rooms_id" list="ci_rooms_list" name="ci_rooms_id">
-					<datalist id="ci_rooms_list">
-					</datalist>
-					
-					<br>
-					<label>Student Id:</label>
-					<input type="text" id="ci_students_id_scan" onkeyup="ViewBuilder.enterStudentIdNum(event)"></input>
 					<label class="ml-4">Name: </label>
-					<input id="ci_students_id" class="ml-2" list="ci_students_list" name="ci_students_id">
+					<input id="ci_students_id" class="ml-2" list="ci_students_list" name="ci_students_id" onchange="Controller.sendCheckInFunc(event)">
 					<datalist id="ci_students_list">
 					</datalist>
 					<br>
-					<label>Note:</label>
-					<input type="text" id="ci-note"></input>
-					<br>
-					<button id="ci-close-test" onclick="Controller.closeTestFunc(event)">close</button>
-					<button id="ci-open-test" onclick="Controller.openTestFunc(event)">open</button>
-					<button id="ci-open-send" onclick="Controller.sendCheckInFunc(event)">send</button>
-
+			
 					<div id="location-checker-content">
 						<label>In Table</label>
 						<br>
 						<table id="ci-status" style="width=75%">
 							<thead>
 								<tr>
-									<th style="width:40%">Student</th>
-									<th style="width:40%">TimeIn</th>
+									<th style="width:30%">Student</th>
+									<th style="width:20%">TimeIn</th>
 									<th style="width:20%">TimeOut</th>
+									<th style="width:30%">Note</th>
 								</tr>
 							</thead>
 							<tbody id="ci-rows">
 							</tbody>
 						</table>
 						<br>
-						<label>Out Table</label>
-						<br>
-						<table id="ci-out-status" style="width=75%">
-							<thead>
-								<tr>
-									<th style="width:40%">Student</th>
-									<th style="width:40%">TimeIn</th>
-									<th style="width:20%">TimeOut</th>
-								</tr>
-							</thead>
-							<tbody id="ci-out-rows">
-							</tbody>
-						</table>
+						<label class="pit-link" onclick="ViewBuilder.toggleOutTable(event)">Toggle Out Table</label>
+						<div id="ci-out-area">
+							<label>Out Table</label>
+							<br>
+							<table id="ci-out-status" style="width=75%">
+								<thead>
+									<tr>
+										<th style="width:30%">Student</th>
+										<th style="width:20%">TimeIn</th>
+										<th style="width:20%">TimeOut</th>
+										<th style="width:30%">Note</th>
+									</tr>
+								</thead>
+								<tbody id="ci-out-rows">
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<label class="pit-link" onclick="ViewBuilder.toggleLogs(event)">Toggle Logs</label>
+					<div id="ci-logs">
 					</div>
 				</div>
 				</section>
 			</div>
-			<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-				<section id="Integrity">
-				<div id="integrity-div">
-					<table style="width=50%">
-						<thead>
-							<tr>
-								<th style="width:40%"> Class</th>
-								<th style="width:40%"> Method</th>
-								<th style="width:20%"> Count</th>
-							</tr>
-						</thead>
-						<tbody id="integrity-tab-totals">
-						</tbody>
-					</table>
-					<br>
-					<table style="width:100%">
-						<thead>
-							<tr>
-								<th style="width:10%">Type</th>
-								<th style="width:10%"> Class</th>
-								<th style="width:10%"> Method</th>
-								<th style="width:70%"> Message</th>
-							</tr>
-						</thead>
-						<tbody id="integrity-tab-body">
-						</tbody>
-					</table>
-				</div>
-				</section>
+			<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">					
+				<label>Logged By:</label>
+				<input id="ci_faculty_id" list="ci_faculty_list" name="ci_faculty_id">
+				<datalist id="ci_faculty_list">
+				</datalist>
+				<i class="fa fa-info-circle pitInfo pitTooltip">
+					<span class="pitTooltipText">Login by selecting who you are.  It will search the Faculty and Guest User List for you.</span>
+				</i>
+				<br>
+				<label>Location:</label>
+				<input id="ci_rooms_id" list="ci_rooms_list" name="ci_rooms_id">
+				<datalist id="ci_rooms_list">
+				</datalist>
+				<br>
+				<button id="ci-open-test" onclick="Controller.loginAttempt(event)">Sign In</button>
+
 			</div>
 			<div class="tab-pane fade" id="roomBlockReport" role="tabpanel" aria-labelledby="room-block-report-tab">
 				<section id="room-block-report-sec">
@@ -153,12 +126,12 @@ table, th, td {
 					</datalist>
 					<br>
 					<label>Blocks - </label>
-					<label>1:</label><input id="ci_rep_b1" class="ml-1" type="checkbox"></input>
-					<label>2:</label><input id="ci_rep_b2" class="ml-1" type="checkbox"></input>
-					<label>Lunch:</label><input id="ci_rep_blunch" class="ml-1" type="checkbox"></input>
-					<label>3:</label><input id="ci_rep_b3" class="ml-1" type="checkbox"></input>
-					<label>4:</label><input id="ci_rep_b4" class="ml-1" type="checkbox"></input>
-					<label>5:</label><input id="ci_rep_b5" class="ml-1" id="ci_rep_b5" type="checkbox"></input>
+					<label>1:</label><input id="ci_rep_b1" class="ml-1" type="checkbox" checked></input>
+					<label>2:</label><input id="ci_rep_b2" class="ml-1" type="checkbox" checked></input>
+					<label>Lunch:</label><input id="ci_rep_blunch" class="ml-1" type="checkbox" checked></input>
+					<label>3:</label><input id="ci_rep_b3" class="ml-1" type="checkbox" checked></input>
+					<label>4:</label><input id="ci_rep_b4" class="ml-1" type="checkbox" checked></input>
+					<label>5:</label><input id="ci_rep_b5" class="ml-1" id="ci_rep_b5" type="checkbox" checked></input>
 					
 					<label class="ml-4">Include Passing:</label>
 					<input id="ci_rep_include_passing" class="ml-2" checked type="checkbox"></input>
@@ -167,10 +140,11 @@ table, th, td {
 						<table id="room-block-report" >
 							<thead>
 								<tr>
-									<th style="width:40%">Student</th>
+									<th style="width:30%">Student</th>
 									<th style="width:20%">Block</th>
 									<th style="width:20%">TimeIn</th>
 									<th style="width:20%">TimeOut</th>
+									<th style="width:10%">ForceOut</th>
 								</tr>
 							</thead>
 							<tbody id="room-block-rows">
@@ -183,6 +157,7 @@ table, th, td {
 			
 		</div>
 	</div>
+	<%- include('partials/Login') %>
  </body>
  <footer> 
  </footer>

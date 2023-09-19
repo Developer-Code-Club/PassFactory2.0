@@ -1,4 +1,12 @@
 /* CSS Variables */
+
+.menu-btn {
+	color:blue;
+}
+.menu-btn:hover {
+	color: grey;
+  cursor:pointer;
+}
 .pass-layout-email {
   background-color: yellow;
   color:black;
@@ -22,4 +30,52 @@
 	font-size:22px;
 	text-align:center;
 	font-weight:bold;
+}
+
+
+.pitInfo { 
+	color: blue;
+	font-size: 12px;
+}
+.pitTooltip:hover .pitTooltipText {
+   visibility: visible;
+ }
+ .pitTooltip { 
+  position: relative;
+  display: inline-block;
+}
+
+.pitTooltip .pitTooltipText {
+  visibility: hidden;
+  width: 250px;
+  background-color: #E2E4E6;
+  font-size: 12px;
+  color: blue;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 0;
+  position: absolute;
+  z-index: 1;
+  top: -40px;
+  left: 115%;
+ }
+ 
+ /* makes hover of a nav-link blue. */
+.pit-link:hover {
+   color: blue;
+  background-color: #E1E0E7;
+
+}
+/* this is for all sub-menu items. */
+.pit-link {
+    border-radius: 2rem;    
+    padding: .35rem 1rem;
+    margin-left: 0.5rem;
+	color: #8e8e8e;
+}
+/* this is for when a sub-menu item is picked. */
+.pit-link.active{
+    color:  orange;
+    background-color: #E1E0E7; 
+	font-weight: bold;
 }

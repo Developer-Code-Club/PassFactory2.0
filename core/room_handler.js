@@ -12,7 +12,6 @@ class RoomHandler {
 
 	async initialize() {
 		this.theRooms = await DataLoader.getRoomData();
-		console.log("THEROOMS->" + JSON.stringify(Array.from(this.theRooms)));
 	}
 
 }

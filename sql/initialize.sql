@@ -10,6 +10,7 @@ CREATE TABLE Transit_PIT (
 	Id Integer PRIMARY KEY AUTO_INCREMENT,
 	StudentId Integer,
 	IsOpen Boolean,
+	Note Text,
     CreateDate DateTime,
 	ModifyDate DateTime
 );
@@ -18,12 +19,12 @@ CREATE TABLE Transit_PIT (
 DROP PROCEDURE IF EXISTS CreateTransit;
 
 DELIMITER //
-CREATE PROCEDURE CreateTransit ( IN inStudentId Integer, inIsOpen Boolean, OUT LID Integer)
+CREATE PROCEDURE CreateTransit ( IN inStudentId Integer, inIsOpen Boolean, inNote Text, OUT LID Integer)
 BEGIN
 	INSERT INTO Transit_PIT
-		( StudentId, IsOpen, CreateDate, ModifyDate)
+		( StudentId, IsOpen, Note, CreateDate, ModifyDate)
 	VALUES
-		 ( inStudentId, inIsOpen,Now(),Now());
+		 ( inStudentId, inIsOpen,inNote, Now(),Now());
 	SELECT LAST_INSERT_ID() INTO LID;
 END
 //
@@ -40,6 +41,34 @@ END
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS GetTransitsByDate;
+
+DELIMITER //
+CREATE PROCEDURE GetTransitsByDate (dt Date)
+BEGIN
+
+SELECT 
+		t.Id AS Id,
+		l.Id AS LegId,
+		t.isOpen AS IsOpen,
+		t.Note AS Note,
+		t.StudentId AS StudentId,
+		l.CreateDate AS CreateDate,
+		l.ModifyDate AS ModifyDate,
+		l.ByUser AS ByUser,
+		l.Location AS Location,
+		l.TheEvent AS TheEvent
+	FROM 
+		Transit_Leg_PIT AS l, 
+		Transit_PIT AS t 
+	WHERE  
+		l.TransitId = t.Id
+	AND
+		t.CreateDate >= dt ;
+END
+//
+DELIMITER ;
+
 DROP PROCEDURE IF EXISTS DeleteTransit;
 
 DELIMITER //
@@ -53,13 +82,14 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS UpdateTransit;
 
 DELIMITER //
-CREATE PROCEDURE UpdateTransit (IN inTransitId Integer, inStudentId Integer, inIsOpen Boolean)
+CREATE PROCEDURE UpdateTransit (IN inTransitId Integer, inStudentId Integer, inIsOpen Boolean, inNote Text)
 BEGIN
 	UPDATE 
 		Transit_PIT
 	SET
 	    StudentId = inStudentId,
 		IsOpen = inIsOpen,
+		Note = inNote,
 		ModifyDate = Now()
 		WHERE 
 			Transit_PIT.Id = inTransitId;
@@ -175,3 +205,63 @@ BEGIN
 		l.CreateDate < DATE_ADD(dt1,INTERVAL 1 DAY);
 END//
 DELIMITER ;	
+
+
+DROP TABLE Temp_User_PIT;
+
+CREATE TABLE Temp_User_PIT (
+	Id Integer PRIMARY KEY AUTO_INCREMENT,
+	Name varchar(255),
+    CreateDate DateTime,
+	ModifyDate DateTime
+);
+
+DROP PROCEDURE IF EXISTS CreateTempUser;
+
+DELIMITER //
+CREATE PROCEDURE CreateTempUser ( IN inName varchar(255),  OUT LID Integer)
+BEGIN
+	INSERT INTO Temp_User_PIT
+		( Name, CreateDate, ModifyDate )
+	VALUES
+		 ( inName, Now(),Now());
+	SELECT LAST_INSERT_ID() INTO LID;
+END
+//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS GetTempUsers;
+
+DELIMITER //
+CREATE PROCEDURE GetTempUsers ()
+BEGIN
+	SELECT * FROM Temp_User_PIT;
+END
+//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS DeleteTempUser;
+
+DELIMITER //
+CREATE PROCEDURE DeleteTempUser (IN inId Integer)
+BEGIN
+	DELETE FROM Temp_User_PIT WHERE Temp_User_PIT.Id = inId;
+END
+//
+DELIMITER ;
+DROP PROCEDURE IF EXISTS UpdateTempUser;
+
+DELIMITER //
+CREATE PROCEDURE UpdateTempUser (IN inId Integer, inName varchar(255))
+BEGIN
+	UPDATE 
+		Temp_User_PIT
+	SET
+	    Name = inName,
+		ModifyDate = Now()
+		WHERE 
+			Temp_User_PIT.Id = inId;
+END
+//
+DELIMITER ;

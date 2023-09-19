@@ -4,27 +4,28 @@
 
 const mysql = require("mysql2");
  
-/*
+
   var connection_prod = mysql.createConnection({
     host     : 'localhost',
     user     : 'root',
     password : 'password',
     database : 'passit'
-});*/
+});
+/*
  var connection_prod = mysql.createConnection({
     host     : '192.168.11.121',
     user     : 'passu',
     password : 'passu',
     database : 'passit'
 });
-
+*/
     class DBHandler {
 
     constructor() {
         this.thePool = "";
-        this.host = "192.168.11.121";
-        this.user="passu";
-        this.password="passu";
+        this.host = "localhost";
+        this.user="root";
+        this.password="password";
         this.database="passit";
     }
     initialize() {

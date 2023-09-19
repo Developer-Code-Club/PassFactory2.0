@@ -86,10 +86,10 @@ class BlockCalculator {
 	static checkBlockStdDayPassing(passTime) {
 		var h=passTime.getHours();
 		var m=passTime.getMinutes();
-		
+		console.log("passTime->" + passTime + " ->" + h + " ->" + m);
 		// passing doesn't impact these 2 scenarios.
 		//
-		if ( h <=7 && m < 35 ) {
+		if ( h <=6  || ( h == 7 && m < 35 )) {
 			return 0;
 		} else if ( h >= 2 && m >= 3 ) {
 			return 5;

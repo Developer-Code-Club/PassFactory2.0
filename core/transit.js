@@ -8,7 +8,8 @@ const TransitLeg = require('./transit_leg');
 class Transit {
 	
 	constructor(id) {
-		this.id=id;
+		this.id=null;
+		this.studentId=id;
 //		this.theStudent=student;
 		this.isOpen=false;
 		this.theTransitLegs=[];   //we may want to change this to a map later.

@@ -11,7 +11,7 @@ class TransitLeg {
 		this.theLocation=inLocation;
 		this.byUser = byUser;
 		this.theEvent=inEvent;
-		this.theDateTime = inDateTime;
+		this.theDateTime = new Date(inDateTime);
 	}	
 }
 module.exports = TransitLeg;
