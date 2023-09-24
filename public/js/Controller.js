@@ -6,6 +6,8 @@ class Controller {
 	static  creds = null;
 	static  socket = null;
 	static studentsList = null;
+	static heartbeats=0;
+	static heartbeatFunc=null;
 	constructor() {
 		
 	}
@@ -44,7 +46,16 @@ class Controller {
 		vb.buildPassesTab(pp);
 		var dp = await x.getDecoratedPasses();
 		vb.buildDecoratePassesTab(dp);
+		
+		window.onbeforeunload = Controller.closeIt;
 
+	}
+	static async closeIt(e) {
+		e.preventDefault();
+		if ( Controller.socket != null ) {
+			await Controller.sendClose();
+		}
+		return null;
 	}
 	async initializeRTData() {
 		
@@ -146,7 +157,7 @@ class Controller {
 	 * the person logging in. They can create a temporary faculty ID but
 	 * they must select a valid location.
 	 */
-	static loginAttempt(e) {
+	static async loginAttempt(e) {
 		console.log("in loginAttempt");
 		var i = ViewBuilder.getUserId();
 		var l = ViewBuilder.getLocation();
@@ -178,41 +189,34 @@ class Controller {
 		} else {
 			alert("junknown");
 		}
-		
 	}
 	
 	/* 
 	 * Finalize Login comes after we confirm username and location are what we want to go with for login.
 	 */
 	static finalizeFacultyLogin(user,loc) {
-		var server="ws://localhost:1337";
-//		var server="ws://192.168.11.135:1337";
-		if ( Controller.socket != null ) {
-			Controller.closeTestFunc(null);
-			alert("Closed existing Connection");
-		}
-		Controller.socket = new WebSocket(server);
-		Controller.socket.onopen = function () {
-			Controller.creds={func:'signin', userName:user,location:loc};
-			Controller.socket.send(JSON.stringify(Controller.creds));
-		};
-		Controller.socket.onmessage = Controller.receiveMessage;
-		Controller.socket.onerror = function (error) {
-			alert('WebSocket error: ' + error);
-		};
+		console.log("b4 setWS");
+		Controller.setWSLogin(user,loc);
+		console.log("after setWS");
 		ViewBuilder.openScanning();
 		Controller.buildScreenPostLogin(loc);
 	}
 	static finalizeTempLogin(user,loc) {
+		Controller.setWSLogin(user,loc);
+		ViewBuilder.openScanning();
+		Controller.buildScreenPostLogin(loc);
+	}
+	static setWSLogin(user, loc) {
 		var server="ws://localhost:1337";
-//		var server="ws://192.168.11.135:1337";
 		if ( Controller.socket != null ) {
-			Controller.closeTestFunc(null);
+			Controller.sendClose();
 			alert("Closed existing Connection");
 		}
 		Controller.socket = new WebSocket(server);
 		Controller.socket.onopen = function () {
 			Controller.creds={func:'signin',userName:user, tempUser:user,location:loc};
+			Controller.creds.user = user;
+			Controller.creds.location = loc;
 			Controller.socket.send(JSON.stringify(Controller.creds));
 		};
 		Controller.socket.onmessage = Controller.receiveMessage;
@@ -220,10 +224,27 @@ class Controller {
 			alert('WebSocket error: ' + error);
 			return;
 		};
-		ViewBuilder.openScanning();
-		Controller.buildScreenPostLogin(loc);
+		var heartbeat_msg="heartBeat";
+			Controller.heartbeatFunc = setInterval(function() {
+            try {
+                Controller.heartbeats++;
+				console.log("MMMMISED->" + Controller.heartbeats );
+                if (Controller.heartbeats >= 3)
+                    throw new Error("Too many missed heartbeats.");
+                Controller.socket.send(JSON.stringify({ func:heartbeat_msg}));
+            } catch(e) {
+                clearInterval(Controller.heartbeatFunc);
+                Controller.heartbeatFunc = null;
+				Controller.heartbeats = 0;
+                console.warn("Closing connection. Reason: " + e.message);
+				if ( Controller.socket != null ) {
+					Controller.socket.close();
+				}
+				alert("Lost server connection.  Please login again.  If issues continue contact support.");
+            }
+        }, 5000);
+   
 	}
-
 	
 	static receiveMessage(message) {
 		console.log("receving->" + message.data);
@@ -253,19 +274,14 @@ class Controller {
 		} else if ( msg.func == "facultyList" ) {
 //			Controller.facultyList = new Map(msg.message);
 //			ViewBuilder.buildFacultyList(msg.message);
+		} else if ( msg.func == "heartBeat" ) {
+			console.log("heartBeat->" + JSON.stringify(msg));
+			Controller.heartbeats--;
 		} else {
 			content.innerHTML += "Unknown message->"  + JSON.stringify(msg) + '<br>';
 		}
 	}
 
-	static closeTestFunc(e) {
-		console.log("in close test func");
-		Controller.socket.send (JSON.stringify({ func: 'close'} )) ;
-		Controller.socket.close(3021);
-		ViewBuilder.signOutCleanUp();
-		Controller.socket = null;
-		
-	}
 	static messageInputFunc(e) {
 		console.log("messageInputFunc" + document.getElementById(e.srcElement.id).value);
 
@@ -285,6 +301,15 @@ class Controller {
 		Controller.creds.id=transitId;
 		Controller.creds.note=note;
 		Controller.socket.send(JSON.stringify(Controller.creds));
+	}
+	static async sendClose() {
+		console.log("sending close");
+		clearInterval(Controller.heartbeatFunc);
+		Controller.creds.func="close";
+		Controller.socket.send(JSON.stringify(Controller.creds));
+		Controller.socket.close();
+		ViewBuilder.signOutCleanUp();
+		Controller.socket = null;    
 	}
 	/*
 	 * Here are callback from the login process.  They are called from login modals.

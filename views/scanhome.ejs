@@ -34,7 +34,7 @@ table, th, td {
 		<div id="ci-logged-in-header" class="d-none">
 			<label class="ml-4 center"><b>User:</b></label><label id="ci-user-header" class="ml-2"></label>
 			<label class="ml-4"><b>Location:</b></label><label id="ci-location-header" class="ml-2"></label>
-			<label id="ci-close-test" class="menu-btn float-right mr-4" onclick="Controller.closeTestFunc(event)">Sign Out</label>
+			<label id="ci-close-test" class="menu-btn float-right mr-4" onclick="Controller.sendClose()">Sign Out</label>
 		</div>
 		<ul class="nav nav-tabs" id="menu-tabs" role="tablist">
 			<li id="signin-tab-item" class="nav-item">
@@ -113,6 +113,7 @@ table, th, td {
 				</datalist>
 				<br>
 				<button id="ci-open-test" onclick="Controller.loginAttempt(event)">Sign In</button>
+		
 
 			</div>
 			<div class="tab-pane fade" id="roomBlockReport" role="tabpanel" aria-labelledby="room-block-report-tab">
@@ -167,9 +168,7 @@ table, th, td {
 <script>
 var theController = new Controller();
 theController.initializeRTData();
-//var content = document.getElementById('content');
-//var socket=null;
-//var creds=null;
+
 
 
  /*

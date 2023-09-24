@@ -8,7 +8,7 @@ const mysql = require("mysql2");
   var connection_prod = mysql.createConnection({
     host     : 'localhost',
     user     : 'root',
-    password : 'password',
+    password : 'MikeCole1',
     database : 'passit'
 });
 /*
@@ -24,8 +24,8 @@ const mysql = require("mysql2");
     constructor() {
         this.thePool = "";
         this.host = "localhost";
-        this.user="root";
-        this.password="password";
+        this.user="passit";
+        this.password="passit";
         this.database="passit";
     }
     initialize() {

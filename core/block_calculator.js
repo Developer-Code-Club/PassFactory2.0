@@ -33,7 +33,7 @@ class BlockCalculator {
 		return false;
 	}
 	static getCurrentTerm() {
-		return "S2";
+		return "S1";
 	}
 	
 	/*

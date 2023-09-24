@@ -261,7 +261,6 @@ app.post("/get_rt_rooms", (req, res)=>{
 	(async() =>  { 
 		var j = JSON.stringify(req.body);
 		var rr = Array.from(RTManager.schoolFactory.theRoomHandler.theRooms);
-		console.log("rrrrrrrrrr->" + JSON.stringify(rr));
 		res.status(200).send(JSON.stringify(rr)); 	
 	} )();
 });
