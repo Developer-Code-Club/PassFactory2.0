@@ -65,8 +65,8 @@ class RTManager {
 					console.log("ERROR:" + e.message);
 				}
 				
-				connection.lastUsedTimeStamp=new Date();
 				if ( msg.func == "signin" ) {
+					connection.lastUsedTimeStamp=new Date();
 					if ( msg.userName != null ) {							//only sign in if username is there.
 						console.log("in signin->" + JSON.stringify(msg));
 						var userAt = RTManager.userMap.get(msg.userName);	//find the user to see if signed in already.
@@ -123,6 +123,7 @@ console.log("found user->" + msg.userName);
 						console.log("EMPTY USERNAME->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "sendMessage" ) {
+					connection.lastUsedTimeStamp=new Date();
 					console.log("insendmessage ->" + msg.toUserName);
 					var toUser = RTManager.userMap.get(msg.toUserName);
 					console.log("sizeuu->" + RTManager.userMap.size);
@@ -136,6 +137,7 @@ console.log("found user->" + msg.userName);
 						connection.send( JSON.stringify({func:"successSendMessage", message: "message was sent to->" + msg.toUserName}));
 					}
 				} else if ( msg.func == "scannedId" ) {
+					connection.lastUsedTimeStamp=new Date();
 					try {
 						console.log("in scannedId with->" + JSON.stringify(msg));
 						var ret = await RTManager.theTransitHandler.processMessage(msg);
@@ -155,6 +157,7 @@ console.log("found user->" + msg.userName);
 						console.log(e);
 					}
 				} else if ( msg.func == "forceOut" ) {
+					connection.lastUsedTimeStamp=new Date();
 					console.log("in forceOut with->" + JSON.stringify(msg));
 					var ret = await RTManager.theTransitHandler.forceOut(msg);
 					var roomList = RTManager.roomMap.get(msg.location);
@@ -167,6 +170,7 @@ console.log("found user->" + msg.userName);
 						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "getStudentList" ) {
+					connection.lastUsedTimeStamp=new Date();
 					console.log("in getStudentList with->" + JSON.stringify(msg));
 					var userAt = RTManager.userMap.get(msg.userName);
 					var ret = Array.from(RTManager.schoolFactory.theStudentHandler.theStudents);
@@ -179,6 +183,7 @@ console.log("found user->" + msg.userName);
 						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "getFacultyList" ) {
+					connection.lastUsedTimeStamp=new Date();
 					console.log("in getFacultyList with->" + JSON.stringify(msg));
 					var userAt = RTManager.userMap.get(msg.userName);
 					var ret = Array.from(RTManager.schoolFactory.theFacultyHandler.theFaculty);
@@ -225,11 +230,12 @@ console.log("found user->" + msg.userName);
 	}
 	static startConnectionCleanupProcess() {
 		var x = setInterval(function() { RTManager.checkConnections(); },5000);
-		
 	}
 	static checkConnections() {
+		var now=new Date();
 		for (let [key, value] of RTManager.userMap) {
-			console.log("checkConnection->" + value.lastUsedTimeStamp);
+			var diff = (now - value.lastUsedTimeStamp)/1000;
+			console.log("checkConnection->" + now + " ->" + value.lastUsedTimeStamp + " ->" + diff);
 		}
 	}
 	setTransitHandler(t) { 

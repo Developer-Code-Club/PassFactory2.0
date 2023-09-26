@@ -37,6 +37,15 @@ class DataLoader {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
+	static async getRoomInfoData() {
+		if ( ProdMode.isProductionModeTest() ) {
+			return await TestDataReader.getRoomInfoData();
+		} else if ( ProdMode.isProductionModeProd() ) {
+			return await ProdDataReader.getRoomInfoData();
+		} else {
+			throw Error("Unknown Production Mode!!!");
+		}
+	}
 	static async addTempUser(name) {
 		if ( ProdMode.isProductionModeTest() ) {
 			return await TestDataReader.addTempUser(name);

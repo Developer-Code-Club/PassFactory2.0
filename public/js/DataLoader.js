@@ -151,7 +151,7 @@ class DataLoader {
 	}
 	async getRTRoomsList() {	
 		const rr = async()=> { 
-			const response = await fetch('/get_rt_rooms', {
+			const response = await fetch('/get_rt_room_info', {
 				method : 'POST' ,
 				headers: {'Content-Type': 'application/json'}
 			});
@@ -218,7 +218,6 @@ class DataLoader {
 			}
 		}
 		var ret= await rr();
-		alert("got->" + JSON.stringify(ret));
 		return ret;
 	}
 	static async getRTCurrBlock() {	

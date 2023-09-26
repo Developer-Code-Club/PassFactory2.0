@@ -88,7 +88,7 @@ console.log("emailingPasses");
 				console.log("send student email number->" + studentCt + " to->" + passAt.student.email);
 				await this.theEmailHandler.sendPassToStudent(passAt);
 				console.log("sleeping...");
-				await sleep(3000);
+				await sleep(5000);
 				console.log("woke up...");
 			}
 			if ( passAt.homeRoomTeacher != null ) {
@@ -143,7 +143,7 @@ console.log("emailingPasses");
 		//	console.log("##->" + JSON.stringify(tt[i]));
 			var teacherAt = this.theSchoolFactory.theFacultyHandler.theFaculty.get(parseInt(tt[i][0]));
 			await this.theEmailHandler.sendTeacherEmail(teacherAt,tt[i][1]);
-			await sleep(3000);
+			await sleep(5000);
 		}
 		console.log("#########################");
 		console.log("sent emails to teachers->" + tt.length);
@@ -210,7 +210,7 @@ console.log("emailingPassesWithRetry");
 						console.log("send student email number->" + studentCt + " to->" + passAt.student.email);
 						await this.theEmailHandler.sendPassToStudent(passAt);
 						console.log("sleeping...");
-						await sleep(3000);
+						await sleep(5000);
 						console.log("woke up...");
 						keepTrying = false;
 						studentCt++;
@@ -284,7 +284,7 @@ console.log("emailingPassesWithRetry");
 					var teacherAt = this.theSchoolFactory.theFacultyHandler.theFaculty.get(parseInt(tt[i][0]));
 
 					await this.theEmailHandler.sendTeacherEmail(teacherAt,tt[i][1]);
-					await sleep(3000);
+					await sleep(5000);
 					keepTrying=false;
 					tCount++;
 				} catch (e) {

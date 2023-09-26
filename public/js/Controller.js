@@ -6,6 +6,7 @@ class Controller {
 	static  creds = null;
 	static  socket = null;
 	static studentsList = null;
+	static roomList = null;
 	static heartbeats=0;
 	static heartbeatFunc=null;
 	constructor() {
@@ -75,8 +76,11 @@ class Controller {
 		ViewBuilder.buildFacultyList(f);
 		
 		var r = await x.getRTRoomsList();
+		Controller.roomList = new Map();
+		for ( var i=0; i< r.length; i++ ) {
+			Controller.roomList.set(r[i].id, r[i]);
+		}
 		console.log("r->" + JSON.stringify(r));
-		Controller.roomsList = new Map(r);
 		ViewBuilder.buildRoomsList(r);
 		
 		var s = await x.getRTStudentsList();
@@ -124,10 +128,16 @@ class Controller {
 			alert("Unknown Student");
 			return;
 		}
+		var room=Controller.roomList.get(ViewBuilder.getLocation());
+		var roomSupp="xxx";
+		if ( room.type == "LAV-DUAL" ) {
+			roomSupp="B";
+		}
 		var message = {};
 		Controller.creds.note = "";
 		Controller.creds.studentId = i;
 		Controller.creds.func='scannedId';
+		Controller.creds.roomSupp=roomSupp;
 //		Controller.creds.userName = ViewBuilder.getUserId();
 		Controller.socket.send(JSON.stringify(Controller.creds));
 		ViewBuilder.clearStudentId();
@@ -161,7 +171,7 @@ class Controller {
 		console.log("in loginAttempt");
 		var i = ViewBuilder.getUserId();
 		var l = ViewBuilder.getLocation();
-		
+		var r=Controller.roomList.get(l);
 		var isFaculty = ViewBuilder.isUserFaculty();
 		var isTemp = ViewBuilder.isUserTemp();
 		/* check location first. */
@@ -240,6 +250,7 @@ class Controller {
 				if ( Controller.socket != null ) {
 					Controller.socket.close();
 				}
+				ViewBuilder.signOutCleanUp();
 				alert("Lost server connection.  Please login again.  If issues continue contact support.");
             }
         }, 5000);
@@ -263,6 +274,7 @@ class Controller {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->IN" + msg.studentId  + " dt->"  + dtS +  " id->" + msg.id+ '<br />';			
+			ViewBuilder.checkRoomCapacity();
 			ViewBuilder.inStudentToTable(msg.studentId,dtS,msg.id);
 		} else if ( msg.func == "scanConfirmOut" ) {
 			var dt=new Date(msg.theDateTime);
@@ -357,7 +369,14 @@ class Controller {
 		document.getElementById("ci-user-header").innerHTML=document.getElementById("ci_faculty_id").value;
 		document.getElementById("ci-location-header").innerHTML=document.getElementById("ci_rooms_id").value;
 		document.getElementById("location-checker-tab").click();
-		
-
+		var room=Controller.roomList.get(l);
+		document.getElementById("boys-capacity").innerHTML=room.maleCapacity;
+		document.getElementById("girls-capacity").innerHTML=room.femaleCapacity;
+		if ( room.type == "LAV-DUAL" ) {
+			document.getElementById("std-room-in-header").classList.add("d-none");
+			document.getElementById("dual-room-in-header").classList.remove("d-none");
+			document.getElementById("std-room-out-header").classList.add("d-none");
+			document.getElementById("dual-room-out-header").classList.remove("d-none");
+		}
 	}
 }

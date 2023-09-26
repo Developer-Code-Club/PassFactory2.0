@@ -5,12 +5,13 @@
 const mysql = require("mysql2");
  
 
-  var connection_prod = mysql.createConnection({
+/*  var connection_prod = mysql.createConnection({
     host     : 'localhost',
     user     : 'root',
     password : 'MikeCole1',
     database : 'passit'
 });
+*/
 /*
  var connection_prod = mysql.createConnection({
     host     : '192.168.11.121',

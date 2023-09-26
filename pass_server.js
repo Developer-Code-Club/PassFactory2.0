@@ -239,6 +239,14 @@ app.post("/get_rt_temp_users", (req, res)=>{
 		res.status(200).send(JSON.stringify(rr)); 	
 	} )();
 });
+app.post("/get_rt_room_info", (req, res)=>{   
+	console.log("get_rt_room_info");
+	(async() =>  { 
+		var j = JSON.stringify(req.body);
+		var rr = await DataLoader.getRoomInfoData();
+		res.status(200).send(JSON.stringify(rr)); 	
+	} )();
+});
 app.post("/add_rt_temp_user", (req, res)=>{   
 	console.log("add_rt_temp_user");
 	(async() =>  { 

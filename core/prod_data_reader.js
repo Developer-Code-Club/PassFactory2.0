@@ -51,9 +51,9 @@ console.log("urlll->" + url);
 		var options = { headers:{ Authorization: ' Bearer ' + secretKey }};
 		try {
 			const res = await axios.get(url, options);
-console.log("res->" + (res));
+//console.log("res->" + (res));
 			const d = await res.data;
-console.log("d->" + JSON.stringify(d));
+//console.log("d->" + JSON.stringify(d));
 			return d;
 		} catch (e) {
 			console.log("e.message->" + e.message);
@@ -320,6 +320,26 @@ console.log("d->" + JSON.stringify(d));
 		}
 		return users;
 	}
+	static async getRoomInfoData() {
+		await ProdDataReader.initialize();
+		console.log("in proddatareader.getTempUserData");
+			var rooms=[];
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			var sql="Call GetRoomInfo()";
+			var info = await conn.query(sql);
+			info=info[0];
+			for ( var i=0; i < info.length; i++ ) {
+				rooms.push({id: info[i].Id, type: info[i].RoomType, dual: info[i].DualRoom, capacity: info[i].Capacity, maleCapacity : info[i].MaleCapacity, femaleCapacity: info[i].FemaleCapacity });
+			}
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
+		return rooms;
+	}
 	static async addTempUser(name) {
 		await ProdDataReader.initialize();
 		//Insert code here to read from mysql server.
@@ -410,6 +430,7 @@ console.log("d->" + JSON.stringify(d));
 		try {
 			var conn= await ProdDataReader.theDBHandler.connection();
 			/* DB Code */
+			console.log("calling get transits->" + dt + " ->" + locationId);
 			var sql="Call GetTransitsReport(?,?);";
 			var info = await conn.query(sql,[dt,locationId]);
 			info = info[0];

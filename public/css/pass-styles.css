@@ -57,7 +57,7 @@
   position: absolute;
   z-index: 1;
   top: -40px;
-  left: 115%;
+  right: 115%;
  }
  
  /* makes hover of a nav-link blue. */

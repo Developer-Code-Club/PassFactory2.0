@@ -264,16 +264,18 @@ class ViewBuilder {
 		var drl = document.getElementById("ci_rep_rooms_list");
 		for ( var i=0; i < list.length; i++ ) {
 			var o = document.createElement("option");
-			o.value = list[i][1].num
-			o.setAttribute("roomId",list[i][1].num);
-			o.id = "rooms-" + list[i][1].num;
-			o.rr = list[i][1].num;
+			o.value = list[i].id
+			o.setAttribute("roomId",list[i].id);
+			o.setAttribute("room",JSON.stringify(list[i]));
+			o.id = "rooms-" + list[i].id;
+			o.rr = list[i].id;
 			dl.appendChild(o);
 			var o2 = document.createElement("option");
-			o2.value = list[i][1].num
-			o2.setAttribute("roomId",list[i][1].num);
-			o2.id = "rooms-" + list[i][1].num;
-			o2.rr = list[i][1].num;
+			o2.value = list[i].id
+			o2.setAttribute("roomId",list[i].id);
+			o2.setAttribute("room",JSON.stringify(list[i]));
+			o2.id = "rep-rooms-" + list[i].id;
+			o2.rr = list[i].id;
 			drl.appendChild(o2);
 		}
 	}
@@ -361,7 +363,13 @@ class ViewBuilder {
 		document.getElementById("report-tab-item").classList.add("d-none");
 		document.getElementById("ci-user-header").innerHTML="";
 		document.getElementById("ci-location-header").innerHTML="";
+		document.getElementById("std-room-in-header").classList.remove("d-none");
+		document.getElementById("dual-room-in-header").classList.add("d-none");
+		document.getElementById("std-room-out-header").classList.remove("d-none");
+		document.getElementById("dual-room-out-header").classList.add("d-none");
+		
 		document.getElementById("signin-tab").click();
+		
 	}
 		
 	
@@ -377,23 +385,42 @@ class ViewBuilder {
 		var x = ViewBuilder.is_valid_datalist_value('ci_rooms_list', document.getElementById('ci_rooms_id').value);		
 		return x;
 	}
+	static checkRoomCapacity() {
+		var rows=document.getElementById("ci-rows");
+		for ( var i=0; i < rows.children.length; i++ ) {
+			console.log("id=-->" + rows.children[i].id);
+			var s=Jrows.children[i].getAttribute("student");
+			alert("there student->" + s);
+		}
+	}
 	static inStudentToTable(studentId,atTime,transitId) {
-		console.log("adding student to table->" + studentId);
+		var room = Controller.roomList.get(ViewBuilder.getLocation());
+		var dualRoom=false;
+		if ( room.type == "LAV-DUAL" ) { dualRoom=true;}
+		
 		var tab = document.getElementById("ci-rows");
 		var tr = document.createElement("tr");
+		tr.setAttribute("student",JSON.stringify({studentId:studentId}));
 		tab.appendChild(tr);
 		var td = document.createElement("td");
-		console.log("looking for->" + studentId);
 		td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
 		tr.id = "studentrow-" + studentId;
 		tr.appendChild(td);
 		td = document.createElement("td");
 		td.innerHTML=new Date(atTime).toLocaleTimeString('en-US');
 		tr.appendChild(td);
+		
 		td = document.createElement("td");
 		td.innerHTML="";
 		td.id="outcol-" + studentId;
 		tr.appendChild(td);
+		
+		if ( dualRoom ) {
+			td = document.createElement("td");
+			td.innerHTML="B";
+			td.id="roomcol-" + studentId;
+			tr.appendChild(td);
+		}
 		td = document.createElement("td");
 		var iNote = document.createElement("input");
 		iNote.type="text";
@@ -406,15 +433,21 @@ class ViewBuilder {
 		tr.appendChild(td);
 		
 		td = document.createElement("td");
-		var b = document.createElement("button");
-		b.innerHTML="click";
-		b.id = "force-out-" + studentId;
-		td.appendChild(b);
-		b.addEventListener("click",Controller.sendForceOutFunc);
-		b.setAttribute("studentId", studentId);
-		console.log("setting TRANSITID->" + transitId);
-		b.setAttribute("transitId", transitId);
-		tr.appendChild(td);
+		
+		var checkOutIcon = document.createElement("i");
+		checkOutIcon.id = "force-out-" + studentId;
+		checkOutIcon.addEventListener("click",Controller.sendForceOutFunc);
+		checkOutIcon.setAttribute("studentId",studentId);
+		checkOutIcon.setAttribute("transitId",transitId);
+		td.appendChild(checkOutIcon);
+		tr.append(td);
+		checkOutIcon.classList.add("fa","fa-shopping-cart","ml-3","pitTooltip","mr-2");	
+
+		var favToolTip = document.createElement("p");
+		favToolTip.classList.add("pitTooltipText");
+		favToolTip.textContent="Click to force checkout.";
+		checkOutIcon.appendChild(favToolTip);		
+
 	}
 	static async noteChange(e) {
 		var iNote=document.getElementById(e.srcElement.id);

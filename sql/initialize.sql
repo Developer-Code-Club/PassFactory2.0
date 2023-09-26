@@ -267,6 +267,74 @@ END
 DELIMITER ;
 
 
+
+DROP TABLE Room_Info_PIT;
+
+CREATE TABLE Room_Info_PIT (
+	Id varchar(255),
+	RoomType varchar(255),
+	Capacity Integer,
+	MaleCapacity Integer,
+	FemaleCapacity Integer,
+	DualRoom Boolean,
+	DualRoomId varchar(255),
+    CreateDate DateTime,
+	ModifyDate DateTime
+); 
+DROP PROCEDURE IF EXISTS CreateRoomInfo
+
+DELIMITER //
+CREATE PROCEDURE CreateRoomInfo ( IN inId varchar(255), inRoomType varchar(255),inCapacity Integer, inMaleCapacity Integer, inFemaleCapacity Integer, inDualRoom Boolean, inDualRoomId varchar(255) )
+BEGIN
+	INSERT INTO Room_Info_PIT
+		( Id,RoomType, Capacity, MaleCapacity, FemaleCapacity,DualRoom, DualRoomId, CreateDate, ModifyDate )
+	VALUES
+		 ( inId, inRoomType, inCapacity,inMaleCapacity,inFemaleCapacity,inDualRoom, inDualRoomId, Now(),Now());
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE GetRoomInfo ()
+BEGIN
+	SELECT * FROM Room_Info_PIT;
+END
+//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS DeleteRoomInfo;
+
+DELIMITER //
+CREATE PROCEDURE DeleteRoomInfo (IN inId varchar(255))
+BEGIN
+	DELETE FROM Room_Info_PIT WHERE Room_Info_PIT.Id = inId;
+END
+//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS UpdateRoomInfo;
+
+DELIMITER //
+CREATE PROCEDURE UpdateRoomInfo  ( IN inId varchar(255), inRoomType varchar(255),inCapacity Integer, inMaleCapacity Integer, inFemaleCapacity Integer, inDualRoom Boolean, inDualRoomId varchar(255) )
+BEGIN
+	UPDATE 
+		Room_Info_PIT
+	SET
+	    RoomType = inRoomType,
+		Capacity = inCapacity,
+		MaleCapacity = inMaleCapacity,
+		FemaleCapacity = inFemaleCapacity,
+		DualRoom = inDualRoom,
+		DualRoomId = inDualRoomId,
+		ModifyDate = Now()
+		WHERE 
+			Room_Info_PIT.Id = inId;
+END
+//
+DELIMITER ;
+
+
 /*
  * Create USER
  */
