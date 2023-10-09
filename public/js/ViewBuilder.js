@@ -385,26 +385,116 @@ class ViewBuilder {
 		var x = ViewBuilder.is_valid_datalist_value('ci_rooms_list', document.getElementById('ci_rooms_id').value);		
 		return x;
 	}
-	static checkRoomCapacity() {
+	static checkRoomCapacity(gender) {
 		var rows=document.getElementById("ci-rows");
+		var mCount=0;
+		var fCount=0;
 		for ( var i=0; i < rows.children.length; i++ ) {
 			console.log("id=-->" + rows.children[i].id);
-			var s=Jrows.children[i].getAttribute("student");
-			alert("there student->" + s);
+			var s=rows.children[i].getAttribute("student");
+			if ( s.gender == "M" ) { mCount ++; } else { fCount++; }
 		}
 	}
-	static inStudentToTable(studentId,atTime,transitId) {
-		var room = Controller.roomList.get(ViewBuilder.getLocation());
-		var dualRoom=false;
-		if ( room.type == "LAV-DUAL" ) { dualRoom=true;}
+	static checkIfStudentInRoom(studentId) {
+		var rows=document.getElementById("ci-rows");
+		for ( var i=0; i < rows.children.length; i++ ) {
+			var s=JSON.parse(rows.children[i].getAttribute("student"));
+			console.log("comparing->" + JSON.stringify(s) + " ->>" + studentId);
+			if ( s.studentId == studentId ) { return s.roomName;}
+		}
+		return null;
+	}
+	
+	static getTransitId(studentId) {
+		var rows=document.getElementById("ci-rows");
+		console.log("ROWSSSSSS->" + rows.children.length);
+		for ( var i=0; i < rows.children.length; i++ ) {
+			var s = rows.children[i].getAttribute("student");
+			var transitId=null;
+			if ( s != null ) { 
+				s = JSON.parse(s);
+				if ( s.studentId == studentId ) {
+					transitId = s.transitId;
+					console.log("RETURNING->" + transitId);
+					return transitId;
+				}
+			}
+		}
+		return null;
+	}
+	
+	static setRoomCapacity() {
+		var room1Ct=0;
+		var room2Ct=0;
+		// Loop through students in room and count them per room.
+		// if DualRoom use room1.  If gender use M vs F
+
+		var rows=document.getElementById("ci-rows");
+		for ( var i=0; i < rows.children.length; i++ ) {
+			var s=JSON.parse(rows.children[i].getAttribute("student"));
+			console.log("SSSSSs->" + JSON.stringify(s));
+			if ( Controller.isDualRoom() ) {
+				if ( s.roomName == Controller.dualRoom.room1 ) {
+					room1Ct++;
+				} else {
+					room2Ct++;
+				}	
+			} else {
+				if ( s.gender == "M" ) {
+					room1Ct++;
+				} else {
+					room2Ct++;
+				}
+			}
+		}
+	
+		var room1Lav = document.getElementById("boys-at");
+		var room2Lav = document.getElementById("girls-at");
+		
+		var r1Cap=parseInt(room1Lav.getAttribute("capacity"));
+		var r2Cap=parseInt(room2Lav.getAttribute("capacity"));
+		
+		if ( room1Ct < r1Cap ) {
+			room1Lav.classList.remove("badge-danger");
+			room1Lav.classList.add("badge-success");
+		} else {
+			room1Lav.classList.add("badge-danger");
+			room1Lav.classList.remove("badge-success");
+		}
+		room1Lav.innerHTML=room1Ct.toString();
+		room1Lav.setAttribute("lav-count", room1Ct);
+		console.log("cap->" + room1Ct + " ->" + r2Cap);
+		if ( room2Ct < r2Cap ) {
+			console.log("in here");
+			room2Lav.classList.remove("badge-danger");
+			room2Lav.classList.add("badge-success");
+		} else {
+			room2Lav.classList.add("badge-danger");
+			room2Lav.classList.remove("badge-success");
+		}
+		room2Lav.innerHTML=room2Ct.toString();
+		room2Lav.setAttribute("lav-count", room2Ct);
+	}
+	
+	static inStudentToTable(studentId,atTime,transitId,roomName) {
+		var room;
+		if ( roomName != null ) {
+			room = Controller.roomList.get(roomName);
+		} else {
+			room =  Controller.roomList.get(ViewBuilder.getLocation());
+		}
+		var s = Controller.studentsList.get(parseInt(studentId));
+//		ViewBuilder.checkRoomCapacity(s.gender);
 		
 		var tab = document.getElementById("ci-rows");
 		var tr = document.createElement("tr");
-		tr.setAttribute("student",JSON.stringify({studentId:studentId}));
+		tr.setAttribute("student",JSON.stringify({studentId:studentId, gender: s.gender, transitId:transitId, roomName: roomName}));
 		tab.appendChild(tr);
 		var td = document.createElement("td");
+		
 		td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
-		tr.id = "studentrow-" + studentId;
+		tr.id = "studentrow-" + transitId;
+		console.log("CREATED->" + tr.id  + "<----------------");
 		tr.appendChild(td);
 		td = document.createElement("td");
 		td.innerHTML=new Date(atTime).toLocaleTimeString('en-US');
@@ -414,11 +504,35 @@ class ViewBuilder {
 		td.innerHTML="";
 		td.id="outcol-" + studentId;
 		tr.appendChild(td);
-		
-		if ( dualRoom ) {
+
+		if ( Controller.isDualRoom() ) {
 			td = document.createElement("td");
-			td.innerHTML="B";
-			td.id="roomcol-" + studentId;
+			td.id="roomcol-" + transitId;
+			
+			var l = document.createElement("label");
+			l.id = "roomcollabel-" + transitId;
+			l.innerHTML=room.id;
+			td.appendChild(l);
+			
+			var flipRoomIcon = document.createElement("i");
+			flipRoomIcon.id = "flip-room-" + studentId;
+			flipRoomIcon.classList.add("disableStyle");
+			flipRoomIcon.addEventListener("click",Controller.sendFlipRoomFunc);
+			flipRoomIcon.setAttribute("studentId",studentId);
+			flipRoomIcon.setAttribute("transitId",transitId);
+			td.appendChild(flipRoomIcon);
+			flipRoomIcon.classList.add("fa","fa-refresh","ml-3","pitTooltip","mr-2");	
+
+			var flipToolTip = document.createElement("p");
+			flipToolTip.classList.add("pitTooltipText");
+			flipToolTip.textContent="Click to change dual room.";
+			flipRoomIcon.appendChild(flipToolTip);	
+			
+			tr.appendChild(td);
+		} else {		
+			td = document.createElement("td");
+			td.innerHTML= s.gender;
+			td.id="gendercol-" + studentId;
 			tr.appendChild(td);
 		}
 		td = document.createElement("td");
@@ -447,26 +561,31 @@ class ViewBuilder {
 		favToolTip.classList.add("pitTooltipText");
 		favToolTip.textContent="Click to force checkout.";
 		checkOutIcon.appendChild(favToolTip);		
+		ViewBuilder.setRoomCapacity();
 
 	}
+	
 	static async noteChange(e) {
 		var iNote=document.getElementById(e.srcElement.id);
 		var note=iNote.value;
 		var studentId=iNote.getAttribute("studentId");
 		var transitId=iNote.getAttribute("transitId");
 		
-		alert("note change->" + studentId + " ->" + transitId + " ->" + note);
 		Controller.sendNoteUpdate(transitId,studentId,note);
 		
 	}
-	static outStudentToTable(studentId,atTime) {
-		console.log("student->" + studentId);
+	static outStudentToTable(studentId,transitId,atTime) {
+		console.log("student->" + studentId + " transit->" + transitId);
 		var tab = document.getElementById("ci-out-rows");
-		var tr = document.getElementById("studentrow-" + studentId);
+		var tr = document.getElementById("studentrow-" + transitId);
+		console.log("looking for->" + transitId);
 		document.getElementById("force-out-" + studentId).classList.add("d-none");
 		var td = document.getElementById("outcol-" + studentId);
 		td.innerHTML=new Date(atTime).toLocaleTimeString('en-US');
 		tab.appendChild(tr);
+		var s = Controller.studentsList.get(parseInt(studentId));
+		var sD = tr.getAttribute("student");
+		ViewBuilder.setRoomCapacity();
 	}
 	static async getKeyUpTest(e) {
 		if (e.key === "Enter") {
@@ -487,6 +606,20 @@ class ViewBuilder {
 			document.getElementById("ci_students_id").value=f.name;
 		}
     }
+	static checkCapacityForPreferences() {
+		var roomOverCapacity=false;
+		var boysAtEl = document.getElementById("boys-at");
+		var girlsAtEl = document.getElementById("girls-at");
+		var capacity1 = boysAtEl.getAttribute("capacity");
+		var count1= boysAtEl.getAttribute("lav-count");
+		var capacity2 = girlsAtEl.getAttribute("capacity");
+		var count2= girlsAtEl.getAttribute("lav-count");
+		console.log("c1->" + capacity1 + " t1->" + count1 + " c2->" + capacity2 + " t2->" + count2);
+		if ( count1 >= capacity1 && count2 >= capacity2 ) {
+			roomOverCapacity = true;
+		}
+		return roomOverCapacity;	
+	}
 	static async getReport(e) {
 		var dt=document.getElementById("ci_rep_date");
 		var loc=ViewBuilder.getRepLocation();
@@ -498,15 +631,27 @@ class ViewBuilder {
 		var b5=document.getElementById("ci_rep_b5").checked;
 		var binclude=document.getElementById("ci_rep_include_passing").checked;
 
-		var rep=await DataLoader.getReportData(dt.value,loc,b1,b2,blunch,b3,b4,b5,binclude);
-		
+		var room=Controller.roomList.get(loc);
+		if ( room.type == "LAV-DUAL" ) {
+			var rep1=await DataLoader.getReportData(dt.value,room.id,b1,b2,blunch,b3,b4,b5,binclude);
+			var rep2=await DataLoader.getReportData(dt.value,room.dualRoomId,b1,b2,blunch,b3,b4,b5,binclude);
+			var rep=rep1.concat(rep2);
+		} else {
+			var rep=await DataLoader.getReportData(dt.value,loc,b1,b2,blunch,b3,b4,b5,binclude);
+		}
+		rep.sort(function(a,b){ return (new Date(a.checkIn) - new Date(b.checkIn)); });
 		$('#room-block-rows').empty();
 		var tab = document.getElementById("room-block-rows");
+				
+		
 		for (var i=0; i < rep.length; i++ ) {
+			console.log("REPORTING->" + JSON.stringify(rep[i]));
 			var tr = document.createElement("tr");
 			tab.appendChild(tr);
+			var s = Controller.studentsList.get(parseInt(rep[i].studentId))
 			var td = document.createElement("td");
-			td.innerHTML=Controller.studentsList.get(parseInt(rep[i].studentId)).name;
+			console.log("STUDENT->" + JSON.stringify(s));
+			td.innerHTML=s.name + "(" + s.id + ")";
 			tr.appendChild(td);
 			td = document.createElement("td");
 			td.innerHTML=rep[i].block;
@@ -521,6 +666,27 @@ class ViewBuilder {
 				td.innerHTML="";
 			}
 			tr.appendChild(td);
+			
+			td = document.createElement("td");
+			td.innerHTML=s.gender;
+			tr.appendChild(td);
+			
+			td = document.createElement("td");
+			td.innerHTML=rep[i].location;
+			tr.appendChild(td);
+			
+			td = document.createElement("td");
+			td.innerHTML=rep[i].note;
+			tr.appendChild(td);
+			
+			td = document.createElement("td");
+			var u=Controller.facultyList.get(rep[i].byUser);
+			if ( u != null ) {
+				td.innerHTML=u.name +  "(" + u.id + ")";
+			} else {
+				td.innerHTML = rep[i].byUser;
+			}
+			tr.appendChild(td);
 		}
 	}
 	static openScanning() {
@@ -532,5 +698,43 @@ class ViewBuilder {
 	static toggleLogs(e) {
 		document.getElementById("ci-logs").classList.toggle("d-none");
 	}
-		
+	static dualRoomSetup() {
+		document.getElementById("room1-config-label").innerHTML=Controller.dualRoom.room1;
+		document.getElementById("room2-config-label").innerHTML=Controller.dualRoom.room2;
+		$('#dualRoomModal').modal('show');
+	}
+	static clickedRoomDefault(e,room) {
+		//it is either room 1 or 2.  no other option.
+		// so, if not 2 default to 1.
+		if ( room == 2 ) {
+			document.getElementById("room1-config-default").checked=false;
+			document.getElementById("room2-config-default").checked=true;
+
+		} else {
+			document.getElementById("room1-config-default").checked=true;			
+			document.getElementById("room2-config-default").checked=false;
+		}
+	}
+	static async dualRoomConfigCancel() {
+		await Controller.sendClose();
+		$('#dualRoomModal').modal('hide');
+		alert("You have been logged out.");
+	}
+	static async dualRoomConfigContinue() {
+		var scanFirst = null;
+		var room1El = document.getElementById("room1-config-default")
+		var room2El = document.getElementById("room2-config-default")
+	
+		var capHandleEl=document.getElementById("config-capacity-select");
+		var soundEl = document.getElementById("sound-config-default");
+		$('#dualRoomModal').modal('hide');
+		if ( room1El.checked ) {
+			Controller.startWithRoom = 0;
+		} else {
+			Controller.startWithRoom = 1;
+		}
+		Controller.capacityHandler = capHandleEl.options[capHandleEl.selectedIndex].value;
+		Controller.playSound = soundEl.checked;
+		Controller.dualRoom.setScanFirstRoom(Controller.startWithRoom);
+	}
 }

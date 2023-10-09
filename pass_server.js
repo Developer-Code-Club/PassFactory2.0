@@ -36,6 +36,7 @@ try {
 	await theTransitHandler.initialize();
 	console.log("Done initializing TransitHandler.");
 	theRTManager.setTransitHandler(theTransitHandler);
+	console.log("XXXXXXXXXXXXXXXXXXXX");
 	 x = new DBHandler();
 	 x.initialize();
 } catch (e) { 

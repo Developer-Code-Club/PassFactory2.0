@@ -12,12 +12,22 @@ class ProdMode {
 		var productionMode = process.env.PRODUCTION_MODE;
 		console.log("Production Mode Environment Variable = " + productionMode);
 		if ( productionMode != undefined ) {
-			if ( productionMode == "TEST") {
+			if ( productionMode.toUpperCase() == "TEST") {
 				ProdMode.setProductionModeTest();
 			} else if ( productionMode == "PROD" ) {
 				ProdMode.setProductionModeProd();
 			} else {
 				throw new Error("Production Mode set to unknown value->" + productionMode);
+			}
+		}
+		//PERSIST_REF_DATA will make a copy of the data read from aspen
+		var persistRefData = process.env.PERSIST_REF_DATA;  
+		console.log("Persist Ref Data Environment Variable = " + persistRefData);
+		if ( persistRefData != null ) {
+			if ( persistRefData.toUpperCase() == "Y" ||  persistRefData.toUpperCase() == "YES"  ) {
+				ProdMode.persistRefData = true;
+			} else {
+				ProdMode.persitRefData = false;
 			}
 		}
 	}	
@@ -31,6 +41,7 @@ class ProdMode {
 	 * "TEST" vs "PROD" strings.
 	 */
 	static productionMode = "TEST";
+	static persistRefData = false;
 	
 	static setProductionModeTest() {
 		ProdMode.productionMode="TEST";

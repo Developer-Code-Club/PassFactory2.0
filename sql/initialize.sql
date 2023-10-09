@@ -177,7 +177,22 @@ BEGIN
 END
 //
 DELIMITER ;
+DROP PROCEDURE IF EXISTS FlipRoomTransitLegs;
 
+DELIMITER //
+CREATE PROCEDURE FlipRoomTransitLegs (IN inTransitId Integer, inLocation varchar(255), inByUser Integer)
+BEGIN
+	UPDATE 
+		Transit_Leg_PIT
+	SET
+		Location = inLocation,
+		ByUser = inByUser,
+		ModifyDate = Now()
+		WHERE 
+			Transit_Leg_PIT.TransitId = inTransitId;
+END
+//
+DELIMITER ;
 
 DROP PROCEDURE IF EXISTS GetTransitsReport;
 
@@ -191,7 +206,8 @@ BEGIN
 		l.ModifyDate AS ModifyDate,
 		l.ByUser AS ByUser,
 		l.Location AS Location,
-		l.TheEvent AS TheEvent
+		l.TheEvent AS TheEvent,
+		t.Note AS Note
 	FROM 
 		Transit_Leg_PIT AS l, 
 		Transit_PIT AS t 

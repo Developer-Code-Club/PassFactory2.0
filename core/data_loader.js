@@ -10,6 +10,7 @@ const ProdMode = require('./prod_mode');
 
 class DataLoader {
 	
+	//returns a map of student objects
 	static async getStudentData() {
 		if ( ProdMode.isProductionModeTest() ) {
 			return await TestDataReader.getStudentData();
@@ -28,33 +29,7 @@ class DataLoader {
 			throw Error("Unknown Production Mode!!!");
 		}
 	}
-	static async getTempUserData() {
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.getTempUserData();
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.getTempUserData();
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
-	}
-	static async getRoomInfoData() {
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.getRoomInfoData();
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.getRoomInfoData();
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
-	}
-	static async addTempUser(name) {
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.addTempUser(name);
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.addTempUser(name);
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
-	}
+
 	static async getRoomData() {
 		if ( ProdMode.isProductionModeTest() ) {
 			return await TestDataReader.getRoomData();
@@ -112,85 +87,45 @@ class DataLoader {
 	/*
 	 * below here we are loading data from mysql server.
 	 */
-	 static async getTransitData() {
-		 console.log("in data_loader.getTransitData");
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.getTransitData();
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.getTransitData();
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
+	 static async getTransitData() {	
+		return await ProdDataReader.getTransitData();
 	}
 	static async getTransitsByDate() {
-		 console.log("in data_loader.getTransitsByDate");
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.getTransitsByDate();
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.getTransitsByDate();
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
+		return await ProdDataReader.getTransitsByDate();
 	}
 	static async addTransitDB(studentId,isOpen,note) {
-		 console.log("in data_loader.getTransitData");
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.addTransitDB(studentId,isOpen,note);
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.addTransitDB(studentId,isOpen,note);
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
+		return await ProdDataReader.addTransitDB(studentId,isOpen,note);
 	}
 	static async updateTransitDB(transitId,studentId,isOpen,note) {
-		 console.log("in data_loader.updateTransitDB");
-		if ( ProdMode.isProductionModeTest() ) {
-			throw Error("test mode for this not implemented");
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.updateTransitDB(transitId,studentId,isOpen,note);
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
+		return await ProdDataReader.updateTransitDB(transitId,studentId,isOpen,note);
+	}
+	//this is a custom method for dual lav's to flip the room of a student checked in.
+	static async flipRoomDB(transitId,toRoom,byUserId) {
+		return await ProdDataReader.flipRoomDB(transitId,toRoom,byUserId);
 	}
 	static async addTransitLegDB(transitId,byUserId,locationId,theEvent) {
-		 console.log("in data_loader.getTransitData");
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.addTransitLegDB(transitId,byUserId,locationId,theEvent);
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.addTransitLegDB(transitId,byUserId,locationId,theEvent);
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
+		return await ProdDataReader.addTransitLegDB(transitId,byUserId,locationId,theEvent);
 	}
 	static async addTransitAndLegDB(studentId,byUserId,locationId,theEvent,note) {
-		 console.log("in data_loader.getTransitData");
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.addTransitAndLegDB(studentId,byUserId,locationId,theEvent,note);
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.addTransitAndLegDB(studentId,byUserId,locationId,theEvent,note);
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
+		return await ProdDataReader.addTransitAndLegDB(studentId,byUserId,locationId,theEvent,note);
 	}
 	static async closeTransitDB(transitId) {
-		 console.log("in data_loader.closeTransitDB");
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.closeTransitDB(transitID);
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.closeTransitDB(transitId);
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
+		return await ProdDataReader.closeTransitDB(transitId);
 	}
 	static async getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing) {
-		 console.log("in data_loader.getReportData");
-		if ( ProdMode.isProductionModeTest() ) {
-			return await TestDataReader.getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing);
-		} else if ( ProdMode.isProductionModeProd() ) {
-			return await ProdDataReader.getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing);
-		} else {
-			throw Error("Unknown Production Mode!!!");
-		}
+		return await ProdDataReader.getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing);
+	}
+	static async getTempUserData() {
+		return await ProdDataReader.getTempUserData();
+	}
+	static async getTempUserData() {
+		return await ProdDataReader.getTempUserData();
+	}
+	static async getRoomInfoData() {
+		return await ProdDataReader.getRoomInfoData();
+	}
+	static async addTempUser(name) {
+		return await ProdDataReader.addTempUser(name);
 	}
 }
 module.exports = DataLoader;

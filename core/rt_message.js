@@ -17,6 +17,7 @@ class RTMessage {
 		this.note = null;
 		this.studentId = null;
 		this.theDateTime = null;
+		this.id=null;
 	}
 
 	initialize(message) {
@@ -30,12 +31,13 @@ class RTMessage {
 		this.id = message.id;
 //		return this.checkIntegrity();
 	}
-	initializeScanOut(byUser,location,studentId,theDateTime) {
+	initializeScanOut(tId,byUser,location,studentId,theDateTime) {
 		this.func = "scanConfirmOut";
 		this.byUser = byUser;
 		this.location = location;
 		this.studentId = studentId;
 		this.theDateTime = theDateTime;
+		this.id = tId;
 	}
 	initializeUpdateNote(byUser,location,studentId,theDateTime,note) {
 		this.func = "updateNote";
@@ -44,6 +46,12 @@ class RTMessage {
 		this.studentId = studentId;
 		this.note=note;
 		this.theDateTime = theDateTime;
+	}
+	initializeFlipRoom(transitId, location, byUser) {
+		this.func = "flipRoom";
+		this.byUser = byUser;
+		this.location = location;
+		this.id = transitId;
 	}
 	initializeScanIn(byUser,location,studentId,theDateTime) {
 		this.func = "scanConfirmIn";

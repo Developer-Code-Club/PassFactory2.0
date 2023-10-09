@@ -3,17 +3,29 @@
  */
  
 class Controller {
-	static  creds = null;
-	static  socket = null;
+	static creds = null;
+	static socket = null;
 	static studentsList = null;
 	static roomList = null;
 	static heartbeats=0;
 	static heartbeatFunc=null;
+	static printConsole=false;
+	static dualRoom=null;
+	static startWithRoom=null; //for dual room preferences in room to start with 0 or 1.
+	static playSound=null; //does user want to hear capacity sounds;
+	static capacityHandler=null;  // one of values from modal. ignore, warn or block.
+	
 	constructor() {
 		
 	}
 	static isProcessing=false;
 	
+	static isDualRoom() {
+		if ( Controller.dualRoom == null ) {
+			return false;
+		}
+		return true;
+	}
 	async initializeData() {
 		var dateFor = document.getElementById("for-date").value;
 		if ( dateFor.length > 0 ) {
@@ -88,6 +100,9 @@ class Controller {
 		ViewBuilder.buildStudentsList(s);
 		
 		var tu = await x.getRTTempUserList();
+		for ( var i=0; i < tu.length; i++ ) {
+			Controller.facultyList.set(tu[i].id, tu[i]);
+		}
 
 		ViewBuilder.buildTempUserList(tu);
 
@@ -122,25 +137,87 @@ class Controller {
 		console.log("ret->" + JSON.stringify(ret));
 	}
 
-	static sendCheckInFunc(e) {
+	static async sendCheckInFunc(e) {
 		var i = ViewBuilder.getStudentId();
 		if ( i == null ) {
 			alert("Unknown Student");
 			return;
 		}
-		var room=Controller.roomList.get(ViewBuilder.getLocation());
-		var roomSupp="xxx";
-		if ( room.type == "LAV-DUAL" ) {
-			roomSupp="B";
+		var transitId = ViewBuilder.getTransitId(i);
+		
+console.log("Transit got->" + transitId);
+		Controller.creds.id = transitId;
+		
+		/* Here we check to see if it is a dual room.  And, we need to check to see if the person
+		 * is already checked in and this is actually a checkout. If it is, then any capacity 
+		 * functions are not applicable.
+		 */
+		var isInRoom = ViewBuilder.checkIfStudentInRoom(i);
+		if ( isInRoom ) {
+			Controller.creds.location = isInRoom;
+		} else if ( Controller.isDualRoom() ) {
+			Controller.creds.location = Controller.dualRoom.getNextRoom(document.getElementById("boys-at").getAttribute("lav-count"),document.getElementById("girls-at").getAttribute("lav-count"),true);
 		}
-		var message = {};
 		Controller.creds.note = "";
 		Controller.creds.studentId = i;
 		Controller.creds.func='scannedId';
-		Controller.creds.roomSupp=roomSupp;
-//		Controller.creds.userName = ViewBuilder.getUserId();
+		//null transit means they are not checked in yet.
+		//for non dual room, see if checkIfStudentInRoom works...
+		
+		if ( transitId == null ) {
+			var overCapacity= await ViewBuilder.checkCapacityForPreferences();
+			
+			if ( overCapacity && Controller.playSound ) {
+				var snd = new Audio("./audio/horn.wav");
+				snd.play();
+			}
+			if ( overCapacity && Controller.capacityHandler == "ignore" ) {
+				Controller.socket.send(JSON.stringify(Controller.creds));
+				ViewBuilder.clearStudentId();
+				return;
+			} else if ( overCapacity && Controller.capacityHandler == "warn" ) {	
+				$('#capacityConfirm').modal('show');			
+				return;
+			} else if ( overCapacity && Controller.capacityHandler == "block" ) {
+				alert("Room is at capacity, please wait...");
+				ViewBuilder.clearStudentId();
+				return;
+			} else {
+				Controller.socket.send(JSON.stringify(Controller.creds));
+				ViewBuilder.clearStudentId();
+			}	
+		} else {
+			Controller.socket.send(JSON.stringify(Controller.creds));
+			ViewBuilder.clearStudentId();
+		}
+	}
+	static async capacityCancel(e) {
+		$('#capacityConfirm').modal('hide');
+		ViewBuilder.clearStudentId();
+		return;
+	}
+	static async capacityContinue(e) {
+		$('#capacityConfirm').modal('hide');
 		Controller.socket.send(JSON.stringify(Controller.creds));
 		ViewBuilder.clearStudentId();
+		return;
+	}
+	static async flipCapacityCancel(e) {
+		$('#flipCapacityConfirm').modal('hide');
+		return;
+	}
+	static async flipCapacityConfirm(e) {
+		$('#flipCapacityConfirm').modal('hide');
+		var toRoom = document.getElementById("flipCapacityConfirm").getAttribute("toRoom");
+		var transitId = document.getElementById("flipCapacityConfirm").getAttribute("transitId");
+		await Controller.sendFlipRoom(transitId,toRoom);
+		var sEl = document.getElementById("studentrow-" + transitId);
+		var s = JSON.parse(sEl.getAttribute("student"));
+		s.roomName = toRoom;
+		sEl.setAttribute("student",JSON.stringify(s));
+		document.getElementById("roomcollabel-" + transitId).innerHTML=toRoom;
+		ViewBuilder.setRoomCapacity();	
+		return;
 	}
 	static sendForceOutFunc(e) {
 		var studentId=document.getElementById(e.srcElement.id).getAttribute("studentId");
@@ -238,7 +315,7 @@ class Controller {
 			Controller.heartbeatFunc = setInterval(function() {
             try {
                 Controller.heartbeats++;
-				console.log("MMMMISED->" + Controller.heartbeats );
+				Controller.consoleHeart("MMMMISED->" + Controller.heartbeats );
                 if (Controller.heartbeats >= 3)
                     throw new Error("Too many missed heartbeats.");
                 Controller.socket.send(JSON.stringify({ func:heartbeat_msg}));
@@ -256,12 +333,95 @@ class Controller {
         }, 5000);
    
 	}
-	
+	static consoleHeart(msq) {
+		if ( Controller.printConsole ) {
+			console.log(msg);
+		}
+	}
+	static flipClicked=false;
+	static async sendFlipRoomFunc(e) {
+		if ( Controller.flipClicked == true ) { alert("double"); return; }
+		Controller.flipClicked=true;
+		var transitId = document.getElementById(e.srcElement.id).getAttribute("transitId");
+		document.getElementById("roomcol-" + transitId).style.color="lightGrey";
+		var inOrOut=document.getElementById(e.srcElement.id).parentNode.parentNode.parentNode.id
+		var studentId = document.getElementById(e.srcElement.id).getAttribute("studentId");
+		var rowEl = document.getElementById("studentrow-" + transitId);
+		var s = JSON.parse(rowEl.getAttribute("student"));
+		var fromRoom = s.roomName;
+		var toRoom;
+		var toRoomEl;
+		
+		if ( Controller.dualRoom.room1 == fromRoom ) {
+			toRoom = Controller.dualRoom.room2;
+			toRoomEl = document.getElementById("girls-at");
+		} else {
+			toRoom = Controller.dualRoom.room1;
+			toRoomEl = document.getElementById("boys-at");
+		}
+		if ( inOrOut == "ci-out-rows" ) {
+			await Controller.sendFlipRoom(transitId,toRoom);
+			document.getElementById("roomcollabel-" + transitId).innerHTML=toRoom;
+			//just flip it.
+		} else {
+			//make sure we can flip into a room with capacity.	
+			var boysAtEl = document.getElementById("boys-at");
+			var girlsAtEl = document.getElementById("girls-at");
+			var capacity1 = boysAtEl.getAttribute("capacity");
+			var count1= boysAtEl.getAttribute("lav-count");
+			var capacity2 = girlsAtEl.getAttribute("capacity");
+			var count2= girlsAtEl.getAttribute("lav-count");
+			var toCapacity = toRoomEl.getAttribute("capacity");
+			var toCount= toRoomEl.getAttribute("lav-count");
+		
+			if ( toCount < toCapacity ) {
+				//go ahead and make switch.
+				await Controller.sendFlipRoom(transitId,toRoom);
+				var sEl = document.getElementById("studentrow-" + transitId);
+				var s = JSON.parse(sEl.getAttribute("student"));
+				s.roomName = toRoom;
+				sEl.setAttribute("student",JSON.stringify(s));
+				document.getElementById("roomcollabel-" + transitId).innerHTML=toRoom;
+				ViewBuilder.setRoomCapacity();
+				//update room counts
+			} else {
+				if ( Controller.capacityHandler == "ignore" ) {
+					//go ahead and make switch
+					await flipCapacityConfirm(null);
+					await Controller.sendFlipRoom(transitId,toRoom);
+					var sEl = document.getElementById("studentrow-" + transitId);
+					var s = JSON.parse(sEl.getAttribute("student"));
+					s.roomName = toRoom;
+					sEl.setAttribute("student",JSON.stringify(s));
+					document.getElementById("roomcollabel-" + transitId).innerHTML=toRoom;
+					ViewBuilder.setRoomCapacity();	
+				} else if ( Controller.capacityHandler == "warn" ) {
+					var x = document.getElementById("flipCapacityConfirm");
+					x.setAttribute("transitId",transitId);
+					x.setAttribute("toRoom",toRoom);
+					$('#flipCapacityConfirm').modal('show');
+				} else {  //block switch.
+					//block switch.
+					alert("sorry, destination room is at capacity and your preferences don't allow switch when room is at capacity.  If needed, switch after checkout and leave a note.");
+				}
+			}
+		}
+		Controller.flipClicked=false;
+		document.getElementById("roomcol-" + transitId).style.color="black";
+
+	}
 	static receiveMessage(message) {
-		console.log("receving->" + message.data);
+		
 		var content = document.getElementById("ci-logs");
 
+
 		var msg=JSON.parse(message.data);
+		if ( msg.func == "heartBeat" ) {
+			Controller.consoleHeart("heatbeat->" + message.data);
+		} else {
+			console.log("receving->" + message.data);
+		}
+		
 		if ( msg.func =="signinsuccess" ) {
 			content.innerHTML += "SUCCESS SIGNIN: " + msg.message  + '<br />';
 
@@ -271,23 +431,28 @@ class Controller {
 		} else if ( msg.func == "sendMessage" ) {
 			content.innerHTML += "From: " + msg.userName + " ->" + msg.message  + '<br />';
 		} else if ( msg.func == "scanConfirmIn" ) {
+			var s = Controller.studentsList.get(parseInt(msg.studentId));
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->IN" + msg.studentId  + " dt->"  + dtS +  " id->" + msg.id+ '<br />';			
-			ViewBuilder.checkRoomCapacity();
-			ViewBuilder.inStudentToTable(msg.studentId,dtS,msg.id);
+			ViewBuilder.inStudentToTable(msg.studentId,dtS,msg.id,msg.location);
 		} else if ( msg.func == "scanConfirmOut" ) {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->OUT" + msg.studentId  + " id->" + msg.id + " dt->"  + dtS + '<br />';			
-			ViewBuilder.outStudentToTable(msg.studentId, dtS);
+			ViewBuilder.outStudentToTable(msg.studentId, msg.id,dtS);
+		} else if ( msg.func == "flipRoom" ) {
+			var dt=new Date(msg.theDateTime);
+			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+			content.innerHTML += "byUser: " + msg.byUser + " ->OUT" + msg.studentId  + " id->" + msg.id + " dt->"  + dtS + '<br />';			
+//			ViewBuilder.outStudentToTable(msg.studentId, msg.id,dtS);
 		} else if ( msg.func == "studentList" ) {
 			Controller.studentList = new Map(msg.message);
 		} else if ( msg.func == "facultyList" ) {
 //			Controller.facultyList = new Map(msg.message);
 //			ViewBuilder.buildFacultyList(msg.message);
 		} else if ( msg.func == "heartBeat" ) {
-			console.log("heartBeat->" + JSON.stringify(msg));
+			//console.log("heartBeat->" + JSON.stringify(msg));
 			Controller.heartbeats--;
 		} else {
 			content.innerHTML += "Unknown message->"  + JSON.stringify(msg) + '<br>';
@@ -312,6 +477,12 @@ class Controller {
 		Controller.creds.studentId=studentId;
 		Controller.creds.id=transitId;
 		Controller.creds.note=note;
+		Controller.socket.send(JSON.stringify(Controller.creds));
+	}
+	static async sendFlipRoom(transitId,toRoom) {
+		Controller.creds.func="flipRoom";
+		Controller.creds.id=transitId;
+		Controller.creds.location=toRoom;
 		Controller.socket.send(JSON.stringify(Controller.creds));
 	}
 	static async sendClose() {
@@ -347,20 +518,65 @@ class Controller {
 
 	static async buildScreenPostLogin(l) {
 		console.log("in build screen post login");
+		$('#ci-rows').empty();
+		$('#ci-out-rows').empty();
 		var x = new Date();
 		var y = x.getFullYear();
 		var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
 		var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
 		var dtStr = y + "-" + m + "-" + d ;	
 		console.log("date->" + dtStr);
-		var res=await DataLoader.initializePostLogin(dtStr,l);
-		for ( var i=0; i < res.length; i++ ) {
-			console.log("loading->" + JSON.stringify(res[i]));
-			ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id);
-			if ( res[i].checkOut != null ) {
-				ViewBuilder.outStudentToTable(res[i].studentId, res[i].checkOut);
+		
+		//set report default date
+		document.getElementById("ci_rep_date").value = dtStr;
+		var boysAt=document.getElementById("boys-at");
+		var girlsAt=document.getElementById("girls-at");
+		boysAt.innerHTML="0";
+		girlsAt.innerHTML="0";
+		boysAt.setAttribute("lav-count",0);
+		girlsAt.setAttribute("lav-count",0);
+		var room=Controller.roomList.get(l);
+		if ( room.type == "LAV-DUAL" ) {
+			Controller.dualRoom = new DualRoom(room.id,room.dualRoomId);
+			boysAt.setAttribute("capacity",Controller.dualRoom.room1Capacity);
+			girlsAt.setAttribute("capacity",Controller.dualRoom.room2Capacity);
+			document.getElementById("boys-capacity").innerHTML=Controller.dualRoom.room1 + "(" + Controller.dualRoom.room1Capacity + "):";
+			document.getElementById("girls-capacity").innerHTML=Controller.dualRoom.room2 + "(" + Controller.dualRoom.room2Capacity + "):";
+
+			var res=await DataLoader.initializePostLogin(dtStr,Controller.dualRoom.room1);
+			for ( var i=0; i < res.length; i++ ) {
+				console.log("loading->" + JSON.stringify(res[i]));
+				ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id,res[i].location);
+				if ( res[i].checkOut != null ) {
+					ViewBuilder.outStudentToTable(res[i].studentId, res[i].id, res[i].checkOut);
+				}
+			}
+			var res=await DataLoader.initializePostLogin(dtStr,Controller.dualRoom.room2);
+			for ( var i=0; i < res.length; i++ ) {
+				console.log("loading->" + JSON.stringify(res[i]));
+				ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id,res[i].location);
+				if ( res[i].checkOut != null ) {
+					ViewBuilder.outStudentToTable(res[i].studentId, res[i].id, res[i].checkOut);
+				}
+			}
+		} else {
+			Controller.dualRoom = null;
+			boysAt.setAttribute("capacity",room.maleCapacity);
+			girlsAt.setAttribute("capacity",room.femaleCapacity);
+			document.getElementById("boys-capacity").innerHTML="Boys(" + room.maleCapacity + "):";
+			document.getElementById("girls-capacity").innerHTML="Girls(" + room.femaleCapacity + "):";
+			var res=await DataLoader.initializePostLogin(dtStr,l);
+			for ( var i=0; i < res.length; i++ ) {
+				console.log("loading->" + JSON.stringify(res[i]));
+				ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id,res[i].location);
+				if ( res[i].checkOut != null ) {
+					ViewBuilder.outStudentToTable(res[i].studentId, res[i].id, res[i].checkOut);
+				}
 			}
 		}
+		
+		
+
 		document.getElementById("ci-open-test").classList.add("d-none");
 		document.getElementById("ci-logged-in-header").classList.remove("d-none");
 		document.getElementById("signin-tab-item").classList.add("d-none");
@@ -369,14 +585,21 @@ class Controller {
 		document.getElementById("ci-user-header").innerHTML=document.getElementById("ci_faculty_id").value;
 		document.getElementById("ci-location-header").innerHTML=document.getElementById("ci_rooms_id").value;
 		document.getElementById("location-checker-tab").click();
-		var room=Controller.roomList.get(l);
-		document.getElementById("boys-capacity").innerHTML=room.maleCapacity;
-		document.getElementById("girls-capacity").innerHTML=room.femaleCapacity;
-		if ( room.type == "LAV-DUAL" ) {
+	
+		
+		
+		if ( Controller.isDualRoom() ) {
 			document.getElementById("std-room-in-header").classList.add("d-none");
 			document.getElementById("dual-room-in-header").classList.remove("d-none");
 			document.getElementById("std-room-out-header").classList.add("d-none");
 			document.getElementById("dual-room-out-header").classList.remove("d-none");
+			ViewBuilder.dualRoomSetup();
 		}
+	}
+	static async dualRoomConfigCancel(e) {
+		await ViewBuilder.dualRoomConfigCancel();
+	}
+	static dualRoomConfigContinue(e) {
+		ViewBuilder.dualRoomConfigContinue();
 	}
 }

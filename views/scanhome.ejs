@@ -21,6 +21,7 @@ table, th, td {
 	<script src="js/DataLoader.js"></script>
 	<script src="js/ViewBuilder.js"></script>
 	<script src="js/Controller.js"></script>
+	<script src="js/DualRoom.js"></script>
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
@@ -57,8 +58,8 @@ table, th, td {
 					<input id="ci_students_id" class="ml-2" list="ci_students_list" name="ci_students_id" onchange="Controller.sendCheckInFunc(event)">
 					<datalist id="ci_students_list">
 					</datalist>
-					<label>Boys Capacity: </label><label  class="ml-2" id="boys-capacity"></label>
-					<label class="ml-4">Girls Capacity</label><label class="ml-2" id="girls-capacity"></label>
+					<label id="boys-capacity"></label><span id="boys-at" class="badge badge-pill badge-success px-3 ml-2 mt-2" lav-count=0></span>
+					<label id="girls-capacity" class="ml-4"></label><span id="girls-at" class="badge badge-pill badge-success px-3 ml-2 mt-2" lav-count=0></span>
 
 					<br>
 			
@@ -71,7 +72,8 @@ table, th, td {
 									<th style="width:30%">Student</th>
 									<th style="width:20%">TimeIn</th>
 									<th style="width:20%">TimeOut</th>
-									<th style="width:30%">Note</th>
+									<th style="width:5%">Gender</th>
+									<th style="width:25%">Note</th>
 								</tr>
 							</thead>
 							<thead id="dual-room-in-header" class="d-none">
@@ -97,7 +99,8 @@ table, th, td {
 										<th style="width:30%">Student</th>
 										<th style="width:20%">TimeIn</th>
 										<th style="width:20%">TimeOut</th>
-										<th style="width:30%">Note</th>
+										<th style="width:5%">Gender</th>
+										<th style="width:25%">Note</th>
 									</tr>
 								</thead>
 								<thead id="dual-room-out-header" class="d-none">
@@ -163,11 +166,15 @@ table, th, td {
 						<table id="room-block-report" >
 							<thead>
 								<tr>
-									<th style="width:30%">Student</th>
-									<th style="width:20%">Block</th>
-									<th style="width:20%">TimeIn</th>
-									<th style="width:20%">TimeOut</th>
-									<th style="width:10%">ForceOut</th>
+									<th style="width:25%">Student</th>
+									<th style="width:5%">Block</th>
+									<th style="width:15%">TimeIn</th>
+									<th style="width:15%">TimeOut</th>
+									<th style="width:5%">Gender</th>
+									<th style="width:5%">Room</th>
+									<th style="width:20%">Note</th>
+									<th style="width:10%">By</th>
+									
 								</tr>
 							</thead>
 							<tbody id="room-block-rows">

@@ -24,3 +24,82 @@
 		
     </div>
 </div>
+<div class="modal fade" id="dualRoomModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close ml-auto" onclick="Controller.dualRoomConfigCancel(event)" data-dismiss="modal" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-video">
+                    <div class="embed-responsive">
+						<label>Hi,this is Dual Room for Gender Neutral Lavatory</label><br>
+						<label class="mr-2">Scan Room First:</label>
+						<input id="room1-config-default" onclick="ViewBuilder.clickedRoomDefault(event,1)"type="checkbox" checked><label id="room1-config-label"></label></input>
+						<input id="room2-config-default" onclick="ViewBuilder.clickedRoomDefault(event,2)" type="checkbox" ><label id="room2-config-label"></label></input>
+						<br>
+						<label>Capacity Options:</label>
+						<select id="config-capacity-select">
+							<option value="ignore">Ignore Full Capacity</option>
+							<option value="warn" selected>Warn before accepting</option>
+							<option value="block">Block from scanning in</option>
+						</select>
+						<br>
+						<input id="sound-config-default" type="checkbox" checked><label>Play Sound At Capacity</label></input>
+						<br>
+					</div>
+                </div>
+            </div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="Controller.dualRoomConfigCancel(event)">Cancel</button>
+				<button type="button" class="btn btn-primary" onclick="Controller.dualRoomConfigContinue(event)">Continue</button>
+			</div>
+	  </div>
+        </div>
+		
+    </div>
+</div>
+<div class="modal fade" id="capacityConfirm" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close ml-auto" onclick="Controller.capacityCancel(event)" data-dismiss="modal" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-video">
+                    <div class="embed-responsive">
+						<label>This room is at capacity.  Would you like to continue?</label>
+					</div>
+                </div>
+            </div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="Controller.capacityCancel(event)">Cancel</button>
+				<button type="button" class="btn btn-primary" onclick="Controller.capacityContinue(event)">Continue</button>
+			</div>
+	  </div>
+        </div>
+		
+    </div>
+</div>
+<div class="modal fade" id="flipCapacityConfirm" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close ml-auto" onclick="Controller.capacityCancel(event)" data-dismiss="modal" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-video">
+                    <div class="embed-responsive">
+						<label>The room you are flipping to is at capacity.  Would you like to continue?</label>
+					</div>
+                </div>
+            </div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="Controller.flipCapacityCancel(event)">Cancel</button>
+				<button type="button" class="btn btn-primary" onclick="Controller.flipCapacityConfirm(event)">Continue</button>
+			</div>
+	  </div>
+        </div>
+		
+    </div>
+</div>

@@ -8,7 +8,6 @@ const SchoolFactory = require('./school_factory');
 
 class RTManager {
 	
-	static userCounter=0;
 	static userMap=new Map();
 	static theTransitHandler=null;
 	static roomMap=new Map();
@@ -50,21 +49,27 @@ class RTManager {
 			console.log("connection.remoteAddress->" + connection.remoteAddress);
 			console.log("connection.webSocketVersion->" + connection.webSocketVersion);
 			console.log("connection.connected->" + connection.connected);
-			RTManager.userCounter++;
+			
 			
 			/*
 			* On Message Event Handler.
 			*/
 			connection.on('message',async function(message) {
-				console.log("userCount->" + RTManager.userCounter);
-				console.log("got message->" + message.utf8Data );
+				console.log("userCount->" + RTManager.userMap.size);
+				var a = Array.from(RTManager.userMap);
+				for ( var i=0; i < a.length; i++ ) {
+					console.log("user->" + a[i][0]);
+				}
+				//console.log("got message->" + message.utf8Data );
 				var msg = new RTMessage();
 				try {
 					msg.initialize(JSON.parse(message.utf8Data));
 				} catch (e) {
 					console.log("ERROR:" + e.message);
 				}
-				
+				if ( msg.func != "heartBeat" ) {
+					console.log("got message->" + message.utf8Data );
+				}
 				if ( msg.func == "signin" ) {
 					connection.lastUsedTimeStamp=new Date();
 					if ( msg.userName != null ) {							//only sign in if username is there.
@@ -75,7 +80,18 @@ class RTManager {
 							connection.myuser=msg.userName;
 							RTManager.userMap.set(msg.userName,connection);
 							connection.send(JSON.stringify( { func: 'signinsuccess' , message: 'hello ' + msg.userName + ", we will set you up for location " + msg.location }));
-
+							console.log("LOOKING FOR->" + msg.location);
+							var theRoom = RTManager.schoolFactory.theRoomHandler.theRooms.get(msg.location);
+							console.log("ROOOOM->" + JSON.stringify(theRoom));
+							if ( theRoom.dualRoomId != null ) {
+								var drl = RTManager.roomMap.get(theRoom.dualRoomId);
+								if (drl == null ) {
+									RTManager.roomMap.set(theRoom.dualRoomId,[ msg.userName]);
+								} else {
+									drl.push(msg.userName);
+									RTManager.roomMap.set(theRoom.dualRoomId,drl);
+								}
+							}
 							var roomList = RTManager.roomMap.get(msg.location);
 							if ( roomList == null ) {
 								RTManager.roomMap.set(msg.location,[ msg.userName ]);
@@ -151,7 +167,7 @@ console.log("found user->" + msg.userName);
 								toUser.send(JSON.stringify(ret));
 							}
 						} else {
-							console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
+							console.log("ERROR: 1something wrong with this msg->" + JSON.stringify(msg));
 						}
 					} catch (e) {
 						console.log(e);
@@ -167,7 +183,7 @@ console.log("found user->" + msg.userName);
 							toUser.send(JSON.stringify(ret));
 						}
 					} else {
-						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
+						console.log("ERROR: 2something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "getStudentList" ) {
 					connection.lastUsedTimeStamp=new Date();
@@ -180,7 +196,7 @@ console.log("found user->" + msg.userName);
 						msg.message=ret;
 						userAt.send(JSON.stringify(msg));
 					} else {
-						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
+						console.log("ERROR: 3something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "getFacultyList" ) {
 					connection.lastUsedTimeStamp=new Date();
@@ -193,7 +209,7 @@ console.log("found user->" + msg.userName);
 						msg.message=ret;
 						userAt.send(JSON.stringify(msg));
 					} else {
-						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
+						console.log("ERROR: 4something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "updateNote" ) {
 					console.log("updating notes->" + JSON.stringify(msg));
@@ -205,11 +221,23 @@ console.log("found user->" + msg.userName);
 							toUser.send(JSON.stringify(ret));
 						}
 					} else {
-						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
+						console.log("ERROR: 5something wrong with this msg->" + JSON.stringify(msg));
+					}
+				} else if ( msg.func == "flipRoom" ) {
+					console.log("flipping room ->" + JSON.stringify(msg));
+					var ret = await RTManager.theTransitHandler.flipRoom(msg);
+					var roomList = RTManager.roomMap.get(msg.location);
+					if ( roomList != null && roomList.length > 0 ) {
+						for ( var i=0; i < roomList.length; i++ ) {
+							var toUser = RTManager.userMap.get(roomList[i]);
+							toUser.send(JSON.stringify(ret));
+						}
+					} else {
+						console.log("ERROR: 5something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "heartBeat" ) {
 					connection.send(JSON.stringify({ func:'heartBeat', type:'pong'}));
-					console.log("heartbeat->" + JSON.stringify(msg));
+					//console.log("heartbeat->" + JSON.stringify(msg));
 				} else if ( msg.func == "close" ) {
 					connection.close();
 					console.log("closing->" + JSON.stringify(msg));	
@@ -229,7 +257,7 @@ console.log("found user->" + msg.userName);
 		console.log("Leaving INitialize RTManger.");
 	}
 	static startConnectionCleanupProcess() {
-		var x = setInterval(function() { RTManager.checkConnections(); },5000);
+		var x = setInterval(function() { RTManager.checkConnections(); },50000);
 	}
 	static checkConnections() {
 		var now=new Date();
@@ -245,17 +273,15 @@ console.log("found user->" + msg.userName);
 	}
 	static removeUserFromMemory(userName) {
 		RTManager.userMap.delete(userName);
-		RTManager.userCount--;
 		var theRooms = Array.from(RTManager.roomMap);
+		//given dual rooms, this looks through all rooms.
 		for ( var i=0; i < theRooms.length; i++ ) {
-			for ( var ii=0; ii < theRooms[i].length; ii++ ) {
-				/* assumes user only in 1 room. */
+			for ( var ii=0; ii < theRooms[i][1].length; ii++ ) {
 				if ( theRooms[i][1][ii] == userName )  {
 					console.log("deleting->" + JSON.stringify(theRooms[i]));
 					theRooms[i][1].splice(ii,1);
 					console.log("roomlistnow->" + JSON.stringify(theRooms[i][1]));
 					RTManager.roomMap.set(theRooms[i][0],theRooms[i][1]);
-					break;
 				}
 			}
 		}

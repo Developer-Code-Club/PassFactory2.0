@@ -3,7 +3,7 @@ const Faculty = require('./faculty');
 const Course = require('./course');
 const Room = require('./room');
 const BlockCalculator = require('./block_calculator');
-
+const ProdMode = require('./prod_mode');
 const Schedule = require('./schedule');
 const MasterSchedule = require('./master_schedule');
 const Pass = require('./pass');
@@ -22,10 +22,11 @@ class ProdDataReader
 	static theDBHandler = null;
 	
 	static async initialize() {
-		if ( ProdDataReader.theDBHander == null ) {
+		if ( ProdDataReader.theDBHandler == null ) {
+			console.log("IT IS NULL");
 			ProdDataReader.theDBHandler = new DBHandler();
 			await ProdDataReader.theDBHandler.initialize();
-		}
+		} 
 	}
 	static getKey = async () => 
 	{
@@ -45,7 +46,7 @@ class ProdDataReader
 	} //End getKey
 
   
-	static async getData(url){
+	static async getData(url,shortName){
 console.log("urlll->" + url);
 		var secretKey = await ProdDataReader.getKey();
 		var options = { headers:{ Authorization: ' Bearer ' + secretKey }};
@@ -53,7 +54,13 @@ console.log("urlll->" + url);
 			const res = await axios.get(url, options);
 //console.log("res->" + (res));
 			const d = await res.data;
-//console.log("d->" + JSON.stringify(d));
+			if ( ProdMode.persistRefData && shortName != null) {
+				fs.writeFileSync("./testdata/" + shortName + ".json",JSON.stringify(d),'utf8');
+			}
+			if ( shortName == null ) {
+				console.log("CALL WITH NULL SHORTNAME->" + url);
+			}
+console.log("length->" + d.length);
 			return d;
 		} catch (e) {
 			console.log("e.message->" + e.message);
@@ -69,7 +76,7 @@ console.log("urlll->" + url);
 		var thePasses = new Map();
 		var thePasses = new Map();
 		console.log("Date is " + d);
-		var p =  await ProdDataReader.getData(url + "passes?type=Passes&date=" + d);
+		var p =  await ProdDataReader.getData(url + "passes?type=Passes&date=" + d,"pass_data");
 		for (var i=0; i < p.length; i++ ) 
 		{
 			var dt = new Date(d + " " + p[i].fieldA002);
@@ -83,14 +90,18 @@ console.log("urlll->" + url);
 	static async getStudentData() 
 	{
 		var theStudents = new Map();
-		var std =  await ProdDataReader.getData(url + "students2?status=Active");
+		var std =  await ProdDataReader.getData(url + "students3?status=Active", "student_data");
+
+//		var std = fs.readFileSync('./testdata/students_test.json');
+//std = JSON.parse(std);
+//console.log("std->" + std);
 
 		for (var i=0; i < std.length; i++ ) 
 		{
 			//1's are OUT.
 			if (std[i].fieldB017 != "1")
 			{
-				var s=new Student(parseInt(std[i].localId), std[i].nameView, std[i].person.firstName, std[i].person.lastName, std[i].person.email01,std[i]);
+				var s=new Student(parseInt(std[i].localId), std[i].nameView, std[i].person.firstName, std[i].person.lastName, std[i].person.email01,std[i].person.genderCode,std[i]);
 				theStudents.set(s.id,s);
 			} 
 		}
@@ -105,37 +116,23 @@ console.log("urlll->" + url);
 
 		var d = new Date();
 		var month = d.getMonth() + 1;
+		console.log("month is->" + month);
 		var year = d.getFullYear()
 		if (month > 6)
 		year = year + 1;
-
-		var ss =  await ProdDataReader.getData(url + "stdSched2?year=" + year);
-/*
-		for (var i=0; i < ss.length; i++ )
-			{
-			var std = stdSched.get(ss[i].student.localId);
-			if (std == null)
-			{
-				stdCourses = new Array();
-				stdCourses.push(ss[i].section.courseView);
-				stdSched.set(ss[i].student.localId, stdCourses)
-			}
-			else
-			{
-				std.push(ss[i].section.courseView);
-			}
-		}
- */            
+console.log("caalling-sched");
+		var ss =  await ProdDataReader.getData(url + "stdSched2?year=" + year,"student_block_data");
+console.log("LENGTH->" + ss.length + " ->" + year);
 		return ss;
 	}
   
 	static async getFacultyData()
 	{
 		var theFaculty = new Map();
-		var f =  await ProdDataReader.getData(url + "staff?status=Active");
+		var f =  await ProdDataReader.getData(url + "staff2?status=Active", "faculty_data");
 		for (var i=0; i < f.length; i++ )
 		{  
-			var fac = new Faculty(parseInt(f[i].stateId), f[i].nameView, f[i].person.firstName, f[i].person.lastName, f[i].person.email01, f[i].departmentCode);
+			var fac = new Faculty(parseInt(f[i].localId), f[i].nameView, f[i].person.firstName, f[i].person.lastName, f[i].person.email01, f[i].departmentCode);
 			theFaculty.set(fac.id,fac);
 		} 
 		return theFaculty;
@@ -150,7 +147,7 @@ console.log("urlll->" + url);
 		if (month > 6) {
 			year = year + 1;
 		}
-		var c =  await ProdDataReader.getData(url + "course?year=" + year);
+		var c =  await ProdDataReader.getData(url + "course?year=" + year,"course_data");
 		
 		for (var i=0; i < c.length; i++ ) 
 		{
@@ -169,7 +166,7 @@ console.log("urlll->" + url);
 		var year = d.getFullYear() 
 		if (month > 6)
 			year = year + 1;
-		var s =  await ProdDataReader.getData(url + "schedMaster?year=" + year);
+		var s =  await ProdDataReader.getData(url + "schedMaster?year=" + year, "master_schedule_data");
 		var theSched = new Map();
 		for (var i=0; i < s.length; i++ ) {
 			var b=new MasterSchedule(s[i].courseView,s[i].primaryRoom.roomNumber, s[i].description, s[i].scheduleDisplay, s[i].termView, s[i].primaryStaff.person.email01,s[i]);
@@ -194,13 +191,13 @@ console.log("urlll->" + url);
 
 	static async getDayBellSched(d) 
 	{
-		var db =  await ProdDataReader.getData(url + "daybell?date=" + d);
+		var db =  await ProdDataReader.getData(url + "daybell?date=" + d, "bell_schedule_data");
 	}
 	static async getABDay(d)
 	{
 		var day="";
 		console.log("date is " + d);
-		var db =  await ProdDataReader.getData(url + "dateToAB?date=" + d);
+		var db =  await ProdDataReader.getData(url + "dateToAB?date=" + d,"a_b_day_data");
 		console.log("db is " + JSON.stringify(db));
 
 		console.log("schedule day number is " + db[0].scheduleDayNumber);
@@ -218,11 +215,27 @@ console.log("urlll->" + url);
 	static async getRoomData()
 	{
 		var theRooms = new Map();
-		var rm =  await ProdDataReader.getData(url + "rooms");
+		var rm =  await ProdDataReader.getData(url + "rooms","room_data");
 		for (var i=0; i < rm.length; i++ )
 		{
 			var r=new Room(rm[i].roomNumber, rm[i].departmentCode, rm[i].roomTypeCode, rm[i].buildingCode, rm[i].fieldC001, rm[i].locationCode, rm[i].maxCapacity);
 			theRooms.set(rm[i].roomNumber,r);  
+		}
+		var ri = await ProdDataReader.getRoomInfoData();
+		for ( var i=0; i < ri.length; i++ ) {
+			var r = theRooms.get(ri[i].id);
+			if ( r == null ) {
+				r = new Room(ri[i].id,"","","","","",0);
+				console.log("ERROR: Can not find roominfo room->" + JSON.stringify(ri[i]));
+				console.log("adding->" + JSON.stringify(r));
+			} 
+			r.type = ri[i].type;
+			r.dual = ri[i].dual;
+			r.capacity = ri[i].capacity;
+			r.maleCapacity = ri[i].maleCapacity;
+			r.femaleCapacity = ri[i].femaleCapacity;
+			r.dualRoomId = ri[i].dualRoomId;
+			theRooms.set(r.num,r);
 		}
 		return theRooms;
 	}
@@ -309,7 +322,8 @@ console.log("urlll->" + url);
 			info=info[0];
 			var users=[];
 			for ( var i=0; i < info.length; i++ ) {
-				users.push({id: info[i].Id, name: info[i].Name});
+				var id = parseInt(info[i].Id) * (-1);
+				users.push({id: id, name: info[i].Name});
 			}
 		} catch ( err ) {
 			console.log("there was an error->" + err.stack);
@@ -330,7 +344,7 @@ console.log("urlll->" + url);
 			var info = await conn.query(sql);
 			info=info[0];
 			for ( var i=0; i < info.length; i++ ) {
-				rooms.push({id: info[i].Id, type: info[i].RoomType, dual: info[i].DualRoom, capacity: info[i].Capacity, maleCapacity : info[i].MaleCapacity, femaleCapacity: info[i].FemaleCapacity });
+				rooms.push({id: info[i].Id, type: info[i].RoomType, dual: info[i].DualRoom, capacity: info[i].Capacity, maleCapacity : info[i].MaleCapacity, femaleCapacity: info[i].FemaleCapacity, dualRoomId: info[i].DualRoomId });
 			}
 		} catch ( err ) {
 			console.log("there was an error->" + err.stack);
@@ -350,6 +364,7 @@ console.log("urlll->" + url);
 			var sql="Call CreateTempUser(?,@rowkey); select @rowkey";
 			var info = await conn.query(sql,[name]);
 			var id = info[1][0]["@rowkey"];
+			id = parseInt(id)* (-1)
 			await conn.query("COMMIT");
 		} catch ( err ) {
 			console.log("there was an error->" + err.stack);
@@ -358,7 +373,8 @@ console.log("urlll->" + url);
 		} finally {
 			await ProdDataReader.theDBHandler.releaseit(conn);	
 		}
-		return { foo: "foof", name: name, id: id };
+		
+		return { name: name, id: id };
 	}
 	static async addTransitDB(studentId,isOpen,note) {
 		await ProdDataReader.initialize();
@@ -392,6 +408,26 @@ console.log("urlll->" + url);
 			var sql="Call UpdateTransit(?,?,?,?);";
 			var o = isOpen==="true";
 			await conn.query(sql,[transitId,studentId,o,note]);
+			await conn.query("COMMIT");
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			await conn.query("ROLLBACK");
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
+		return ;
+	}
+	static async flipRoomDB(transitId,toRoom,byUserId) {
+		console.log("flipRoomDB->" + transitId + " ->" + toRoom + " ->" + byUserId);
+		await ProdDataReader.initialize();
+		//Insert code here to read from mysql server.
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			await conn.query("START TRANSACTION");
+			/* DB Code */
+			var sql="Call FlipRoomTransitLegs(?,?,?);";
+			await conn.query(sql,[transitId,toRoom,byUserId]);
 			await conn.query("COMMIT");
 		} catch ( err ) {
 			console.log("there was an error->" + err.stack);
@@ -440,9 +476,9 @@ console.log("urlll->" + url);
 				if ( r == null ) {
 					console.log("r is null");
 					if ( info[i].TheEvent == "checkIn" ) {
-						m.set(parseInt(info[i].Id),{id: info[i].Id, studentId: info[i].StudentId, location: info[i].Location, checkIn: new Date(info[i].CreateDate)});
+						m.set(parseInt(info[i].Id),{id: info[i].Id, studentId: info[i].StudentId, location: info[i].Location, checkIn: new Date(info[i].CreateDate), note: info[i].Note, byUser: info[i].ByUser});
 					} else if (info[i].TheEvent == "checkOut" ) {
-						m.set(parseInt(info[i].Id),{id: info[i].Id, studentId: info[i].StudentId, location: info[i].Location, checkOut: new Date(info[i].CreateDate)});
+						m.set(parseInt(info[i].Id),{id: info[i].Id, studentId: info[i].StudentId, location: info[i].Location, checkOut: new Date(info[i].CreateDate), note: info[i].Note, byUser: info[i].ByUser});
 					}
 				} else {
 					console.log("r is NOT NULL ->"  + info[i].TheEvent );
@@ -454,6 +490,8 @@ console.log("urlll->" + url);
 						m.set(r.id,r);
 					} else if ( info[i].TheEvent == "forceOut" ) {
 						console.log("it was forceOut");
+						r.note = r.note + ";forceOut";
+						r.byUser=info[i].ByUser;
 						r.checkOut = new Date(info[i].CreateDate);
 						m.set(r.id,r);
 					} else {

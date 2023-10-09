@@ -48,6 +48,7 @@ class MasterScheduleHandler {
 			if ( b == null ) { b=0;}
 			this.allStudentBlockNames.set(bs[i].scheduleDisplay,b+1);				
 		}
+		console.log("theStiudentblockssource->" + this.theStudentsBlockSource);
 		for (var i=0; i < this.theStudentBlocksSource.length; i++ ) {
 			var s = theStudents.get(parseInt(this.theStudentBlocksSource[i].student.localId));
 
