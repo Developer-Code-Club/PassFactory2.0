@@ -116,7 +116,7 @@ class TransitHandler {
 			t.location = msg.location;
 			this.theTransits.set(t.id,t);
 			console.log("GOOD: Flipped->" + JSON.stringify(msg));
-			ret.initializeFlipRoom(msg.userName,msg.location,msg.byUser);
+			ret.initializeFlipRoom(msg.id,msg.location,msg.byUser);
 		}
 		return ret;
 	}
@@ -129,7 +129,7 @@ class TransitHandler {
 		} else {
 			await DataLoader.updateTransitDB(msg.id,t.studentId,t.isOpen,msg.note);
 			console.log("GOOD:  Update Notes->" + JSON.stringify(msg));
-			ret.initializeUpdateNote(msg.userName,msg.location,msg.studentId,msg.note)	
+			ret.initializeUpdateNote(msg.id,msg.userName,msg.location,msg.studentId,msg.note)	
 		}
 		return ret;
 	}

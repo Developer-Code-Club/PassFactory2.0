@@ -358,3 +358,32 @@ CREATE USER 'passit'@'localhost' IDENTIFIED BY 'passit';
 FLUSH PRIVILEGES;
 GRANT INSERT, UPDATE, DELETE, SELECT, EXECUTE on *.* TO 'passit'@'localhost' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
+
+
+/*
+ * Initialize Room Data.
+ */
+
+CALL CreateRoomInfo ("mid_campus","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("commons","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("820 lav","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("908 lav","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("920 boys lav","LAV-DUAL",1,1,1,True,"920 girls lav");
+CALL CreateRoomInfo ("920 girls lav","LAV-DUAL",1,1,1,True,"920 boys lav");
+CALL CreateRoomInfo ("200 lav","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("300 lav","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("500 lav","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("700 boys lav","LAV-DUAL",1,1,1,True,"700 girls lav");
+CALL CreateRoomInfo ("700 girls lav","LAV-DUAL",1,1,1,True,"700 boys lav");
+CALL CreateRoomInfo ("600 Girls lav","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("600 Boys lav","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("101 Courtyard","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("148 lav","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("146 lav","LAV-DUAL",1,1,1,True,"150 lav");
+CALL CreateRoomInfo ("150 lav","LAV-DUAL",1,1,1,True,"146 lav");
+CALL CreateRoomInfo ("152 lav","LAV-STD",4,4,4,False,"");
+CALL CreateRoomInfo ("IMC After hours","IMC",4,4,4,False,"");
+CALL CreateRoomInfo ("9/10 Counseling","OFFICE",4,4,4,False,"");
+CALL CreateRoomInfo ("Mid-Campus Couns.","OFFICE",4,4,4,False,"");
+CALL CreateRoomInfo ("600s Counseling","OFFICE",4,4,4,False,"");
+CALL CreateRoomInfo ("11/12 Counseling","OFFICE",4,4,4,False,"");

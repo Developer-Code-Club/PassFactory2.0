@@ -444,13 +444,18 @@ console.log("Transit got->" + transitId);
 		} else if ( msg.func == "flipRoom" ) {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-			content.innerHTML += "byUser: " + msg.byUser + " ->OUT" + msg.studentId  + " id->" + msg.id + " dt->"  + dtS + '<br />';			
-//			ViewBuilder.outStudentToTable(msg.studentId, msg.id,dtS);
+			content.innerHTML += "byUser: " + msg.byUser + " ->FlipRoom" + msg.studentId  + " id->" + msg.id + " msg->"  + JSON.stringify(msg) + '<br />';			
+			ViewBuilder.flipRoomMsgReceived(msg.id,msg.location);
 		} else if ( msg.func == "studentList" ) {
 			Controller.studentList = new Map(msg.message);
 		} else if ( msg.func == "facultyList" ) {
 //			Controller.facultyList = new Map(msg.message);
 //			ViewBuilder.buildFacultyList(msg.message);
+		} else if ( msg.func == "updateNote" ) {
+			var dt=new Date(msg.theDateTime);
+			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+			content.innerHTML += "byUser: " + msg.byUser + " ->note" + msg.studentId  + " id->" + msg.id + " dt->"  + dtS + '<br />';						
+			ViewBuilder.updateNoteMsgReceived(msg.id, msg.note);
 		} else if ( msg.func == "heartBeat" ) {
 			//console.log("heartBeat->" + JSON.stringify(msg));
 			Controller.heartbeats--;

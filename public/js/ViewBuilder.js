@@ -574,6 +574,17 @@ class ViewBuilder {
 		Controller.sendNoteUpdate(transitId,studentId,note);
 		
 	}
+	static async updateNoteMsgReceived(transitId, note) {
+		console.log("t->" + transitId + " ->" + note);
+		var ntEl = document.getElementById("note-input-" + transitId);
+		ntEl.value = note ;
+	}
+	static async flipRoomMsgReceived(transitId, room) {
+		console.log("tr->" + transitId + " ->" + room);
+		var rmEl = document.getElementById("roomcollabel-" + transitId);
+		console.log("rmel->" + rmEl);
+		rmEl.innerHTML = room;
+	}
 	static outStudentToTable(studentId,transitId,atTime) {
 		console.log("student->" + studentId + " transit->" + transitId);
 		var tab = document.getElementById("ci-out-rows");

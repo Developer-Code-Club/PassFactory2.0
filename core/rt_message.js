@@ -39,13 +39,13 @@ class RTMessage {
 		this.theDateTime = theDateTime;
 		this.id = tId;
 	}
-	initializeUpdateNote(byUser,location,studentId,theDateTime,note) {
+	initializeUpdateNote(tId,byUser,location,studentId,note) {
 		this.func = "updateNote";
 		this.byUser = byUser;
 		this.location = location;
 		this.studentId = studentId;
 		this.note=note;
-		this.theDateTime = theDateTime;
+		this.id = tId;
 	}
 	initializeFlipRoom(transitId, location, byUser) {
 		this.func = "flipRoom";
