@@ -7,7 +7,7 @@ const DataLoader = require('./data_loader');
 const DataIntegrity = require('./data_integrity');
 
 class StudentHandler {
-	
+	//handeler is the supplier
 	constructor() {
 		this.theStudents = new Map();
 		this.theStudentsByEmail = new Map();

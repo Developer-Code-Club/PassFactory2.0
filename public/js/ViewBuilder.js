@@ -556,12 +556,69 @@ class ViewBuilder {
 		td.appendChild(checkOutIcon);
 		tr.append(td);
 		checkOutIcon.classList.add("fa","fa-shopping-cart","ml-3","pitTooltip","mr-2");	
-
+		
 		var favToolTip = document.createElement("p");
 		favToolTip.classList.add("pitTooltipText");
 		favToolTip.textContent="Click to force checkout.";
 		checkOutIcon.appendChild(favToolTip);		
 		ViewBuilder.setRoomCapacity();
+		
+	}
+
+	static setUpDashboard(location, maleOccupancy, femaleOccupancy, faculty, transitId, maleCapacity, femaleCapacity) {
+		//console.log("student->" + studentId + " transit->" + transitId);
+		//var s = Controller.studentsList.get(parseInt(studentId));
+
+		
+		var tab = document.getElementById("ci-dash-status");
+		//$("#ci-dash-status").find("tr:gt(0)").remove();
+		
+		var tr = document.createElement("tr");
+		//	tr.setAttribute("student",JSON.stringify({studentId:studentId, gender: s.gender, transitId:transitId, roomName: roomName}));
+		tr.id = "studentrow-" + transitId;
+		tab.appendChild(tr);
+
+		
+		
+
+
+		var td = document.createElement("td");
+		// td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
+		// console.log("CREATED->" + tr.id  + "<----------------");
+		// tr.appendChild(td);
+		td = document.createElement("td");
+		td.innerHTML = faculty;
+		tr.appendChild(td);
+
+		td = document.createElement("td");
+		td.innerHTML = location;
+		tr.appendChild(td);
+
+		td = document.createElement("td");
+		td.innerHTML = maleOccupancy;
+		if(maleOccupancy >=maleCapacity){
+			td.style.color = "red";
+		}
+		else{
+			td.style.color = "green";
+		}
+		tr.appendChild(td);
+
+
+		td = document.createElement("td");
+		td.innerHTML=femaleOccupancy;
+		if(femaleOccupancy >=femaleCapacity){
+			td.style.color = "red";
+		}
+		else{
+			td.style.color = "green";
+		}
+		tr.appendChild(td);
+
+		//need to fix
+		if(faculty == "No Faculty"){
+			$(tr.id).addClass("table-warning");
+		}
 
 	}
 	
@@ -598,6 +655,8 @@ class ViewBuilder {
 		var sD = tr.getAttribute("student");
 		ViewBuilder.setRoomCapacity();
 	}
+
+
 	static async getKeyUpTest(e) {
 		if (e.key === "Enter") {
 			var id = parseInt(document.getElementById("ci_faculty_id_scan").value);
@@ -708,6 +767,9 @@ class ViewBuilder {
 	}
 	static toggleLogs(e) {
 		document.getElementById("ci-logs").classList.toggle("d-none");
+	}
+	static toggleDashboard(e) {
+		document.getElementById("ci-dash-area").classList.toggle("d-none");
 	}
 	static dualRoomSetup() {
 		document.getElementById("room1-config-label").innerHTML=Controller.dualRoom.room1;

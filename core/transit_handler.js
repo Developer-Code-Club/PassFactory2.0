@@ -52,6 +52,7 @@ class TransitHandler {
 		await DataLoader.closeTransitDB(transit.id);
 		this.theTransits.set(transit.id,transit);
 	}
+	//look
 	async processMessage(msg) {
 		console.log("Processing in TransitHandler->" + JSON.stringify(msg));
 		var t;

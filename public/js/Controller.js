@@ -601,6 +601,96 @@ console.log("Transit got->" + transitId);
 			ViewBuilder.dualRoomSetup();
 		}
 	}
+	static async buildDashboard() {
+
+		ViewBuilder.toggleDashboard();
+
+		if($("#ci-dash-area").hasClass("d-none")) return false;
+
+
+		var x = new Date();
+		var y = x.getFullYear();
+		var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
+		var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
+		var dtStr = y + "-" + m + "-" + d ;	
+		
+		
+
+		console.log("in build dashboard func");
+
+		$("#ci-dash-status").find("tr:gt(0)").remove();
+
+		var locations = Controller.roomList;
+
+		for (let [key, value] of locations) {
+			//key = location
+			console.log(key + " = " + value);
+			var loc = key;
+			var maleCapacity = value.maleCapacity;
+			var femaleCapacity = value.femaleCapacity;
+			var maleOccupancy = 0;
+			var femaleOccupancy = 0;
+
+			var occupidStat=await DataLoader.initializePostLogin(dtStr,loc);
+
+			const facultyId2 = [];
+			var facultyId;
+			var teachername;
+			const facultyNames = [];
+
+
+			for(var i = 0; i < occupidStat.length; i++){
+				//use this if multiple users
+				// if(!facultyId2.includes(occupidStat[i].byUser)){
+				// 	facultyId2.push(occupidStat[i].byUser);
+				// 	facultyNames.push(await Controller.getFacultyName(occupidStat[i].byUser));
+				// }
+				
+
+				if(occupidStat[i].checkOut==undefined){
+					var studentGender = Controller.studentsList.get(occupidStat[i].studentId).gender;
+					if(studentGender == 'M'){
+						maleOccupancy++;
+					}
+					else{
+						femaleOccupancy++;
+					}
+				}
+			}
+
+			console.log(facultyId);
+			console.log(facultyNames);
+			
+			
+			try {
+				facultyId = occupidStat[0].byUser;
+				teachername = await Controller.getFacultyName(facultyId);
+			} catch (error) {
+				teachername = "No Faculty";
+			}
+
+
+			// if(occupidStat[0].byUser != undefined || occupidStat[0].byUser != null){
+			// 	facultyId = occupidStat[0].byUser;
+			// }
+	
+
+			
+			ViewBuilder.setUpDashboard(loc, maleOccupancy, femaleOccupancy, teachername, loc, maleCapacity, femaleCapacity);
+		}
+		
+	}
+
+	static async getFacultyName(id){
+		var x = new DataLoader();
+		var f = await x.getRTFacultyList();
+
+
+
+		var facultyName= f.filter(el=> el[0]==id)[0][1].name;
+		return facultyName;
+	}
+
 	static async dualRoomConfigCancel(e) {
 		await ViewBuilder.dualRoomConfigCancel();
 	}

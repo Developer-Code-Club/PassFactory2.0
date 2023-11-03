@@ -8,6 +8,7 @@ const SchoolFactory = require('./school_factory');
 
 class RTManager {
 	
+	//this is the hashmap which is storing all the students locally
 	static userMap=new Map();
 	static theTransitHandler=null;
 	static roomMap=new Map();
@@ -56,6 +57,7 @@ class RTManager {
 			*/
 			connection.on('message',async function(message) {
 				console.log("userCount->" + RTManager.userMap.size);
+				// console.log(RTManager.userMap);
 				var a = Array.from(RTManager.userMap);
 				for ( var i=0; i < a.length; i++ ) {
 					console.log("user->" + a[i][0]);
@@ -92,6 +94,8 @@ class RTManager {
 									RTManager.roomMap.set(theRoom.dualRoomId,drl);
 								}
 							}
+							//can see the teachers
+							//rtmananger
 							var roomList = RTManager.roomMap.get(msg.location);
 							if ( roomList == null ) {
 								RTManager.roomMap.set(msg.location,[ msg.userName ]);
@@ -155,8 +159,11 @@ console.log("found user->" + msg.userName);
 				} else if ( msg.func == "scannedId" ) {
 					connection.lastUsedTimeStamp=new Date();
 					try {
+
+						//look at this
 						console.log("in scannedId with->" + JSON.stringify(msg));
 						var ret = await RTManager.theTransitHandler.processMessage(msg);
+
 						var roomList = RTManager.roomMap.get(msg.location);
 //						console.log("roomlist->" + JSON.stringify(roomList));
 //						console.log("RIZE->" + RTManager.roomMap.size);
