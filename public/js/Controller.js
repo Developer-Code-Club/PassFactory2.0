@@ -601,9 +601,11 @@ console.log("Transit got->" + transitId);
 			ViewBuilder.dualRoomSetup();
 		}
 	}
-	static async buildDashboard() {
+	static async buildDashboard(toggle) {
 
-		ViewBuilder.toggleDashboard();
+		if(toggle){
+			ViewBuilder.toggleDashboard();
+		}
 
 		if($("#ci-dash-area").hasClass("d-none")) return false;
 
@@ -618,7 +620,14 @@ console.log("Transit got->" + transitId);
 
 		console.log("in build dashboard func");
 
+		//$("#ci-dash-status").hide('slow', function(){ $("#ci-dash-status").find("tr:gt(0)").remove(); });
+		//$("#ci-dash-status").find("tr:gt(0)").remove();
+
+		$("#table-animation").hide();
+		//$("#table-animation").show('slow');
+		
 		$("#ci-dash-status").find("tr:gt(0)").remove();
+		
 
 		var locations = Controller.roomList;
 
@@ -633,18 +642,15 @@ console.log("Transit got->" + transitId);
 
 			var occupidStat=await DataLoader.initializePostLogin(dtStr,loc);
 
-			const facultyId2 = [];
-			var facultyId;
-			var teachername;
+			const facultyId = [];
 			const facultyNames = [];
-
 
 			for(var i = 0; i < occupidStat.length; i++){
 				//use this if multiple users
-				// if(!facultyId2.includes(occupidStat[i].byUser)){
-				// 	facultyId2.push(occupidStat[i].byUser);
-				// 	facultyNames.push(await Controller.getFacultyName(occupidStat[i].byUser));
-				// }
+				if(!facultyId.includes(occupidStat[i].byUser)){
+					facultyId.push(occupidStat[i].byUser);
+					facultyNames.push(await Controller.getFacultyName(occupidStat[i].byUser));
+				}
 				
 
 				if(occupidStat[i].checkOut==undefined){
@@ -662,12 +668,12 @@ console.log("Transit got->" + transitId);
 			console.log(facultyNames);
 			
 			
-			try {
-				facultyId = occupidStat[0].byUser;
-				teachername = await Controller.getFacultyName(facultyId);
-			} catch (error) {
-				teachername = "No Faculty";
-			}
+			// try {
+			// 	facultyId = occupidStat[0].byUser;
+			// 	teachername = await Controller.getFacultyName(facultyId);
+			// } catch (error) {
+			// 	teachername = "No Faculty";
+			// }
 
 
 			// if(occupidStat[0].byUser != undefined || occupidStat[0].byUser != null){
@@ -676,8 +682,10 @@ console.log("Transit got->" + transitId);
 	
 
 			
-			ViewBuilder.setUpDashboard(loc, maleOccupancy, femaleOccupancy, teachername, loc, maleCapacity, femaleCapacity);
+			ViewBuilder.setUpDashboard(loc, maleOccupancy, femaleOccupancy, facultyNames, loc, maleCapacity, femaleCapacity);
+			
 		}
+		$("#table-animation").show('slow');
 		
 	}
 
@@ -685,9 +693,11 @@ console.log("Transit got->" + transitId);
 		var x = new DataLoader();
 		var f = await x.getRTFacultyList();
 
-
-
-		var facultyName= f.filter(el=> el[0]==id)[0][1].name;
+		var list = f.filter(e=>e[0]==id);
+		var facultyName=id;
+		if (list.length!=0)
+			facultyName= list[0][1].name;
+			
 		return facultyName;
 	}
 

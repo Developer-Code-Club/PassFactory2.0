@@ -587,37 +587,74 @@ class ViewBuilder {
 		// console.log("CREATED->" + tr.id  + "<----------------");
 		// tr.appendChild(td);
 		td = document.createElement("td");
-		td.innerHTML = faculty;
+		td.innerHTML = faculty.join(' | ');
 		tr.appendChild(td);
 
 		td = document.createElement("td");
 		td.innerHTML = location;
 		tr.appendChild(td);
+		
 
 		td = document.createElement("td");
-		td.innerHTML = maleOccupancy;
+		var span = document.createElement("span");
+		
+		span.innerHTML = maleOccupancy;
+		//span.innerHTML = maleCapacity + " <span class='badge badge-light'>"+ maleOccupancy + "</span>";
+
+
 		if(maleOccupancy >=maleCapacity){
-			td.style.color = "red";
+			span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
+
 		}
 		else{
-			td.style.color = "green";
+			span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
 		}
+		td.appendChild(span);
+		span = document.createElement("span");
+
 		tr.appendChild(td);
 
 
 		td = document.createElement("td");
-		td.innerHTML=femaleOccupancy;
+		span = document.createElement("span");
+		
+		span.innerHTML = femaleOccupancy;
+
 		if(femaleOccupancy >=femaleCapacity){
-			td.style.color = "red";
+			span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
+
 		}
 		else{
-			td.style.color = "green";
+			span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
 		}
+		td.appendChild(span);
 		tr.appendChild(td);
 
-		//need to fix
-		if(faculty == "No Faculty"){
-			$(tr.id).addClass("table-warning");
+
+		// td = document.createElement("td");
+		// td.innerHTML = maleOccupancy;
+		// if(maleOccupancy >=maleCapacity){
+		// 	td.style.color = "red";
+		// }
+		// else{
+		// 	td.style.color = "green";
+		// }
+		// tr.appendChild(td);
+
+
+		// td = document.createElement("td");
+		// td.innerHTML=femaleOccupancy;
+		// if(femaleOccupancy >=femaleCapacity){
+		// 	td.style.color = "red";
+		// }
+		// else{
+		// 	td.style.color = "green";
+		// }
+		// tr.appendChild(td);
+
+
+		if(faculty.length == 0){
+			tr.classList.add("table-warning");
 		}
 
 	}
@@ -769,7 +806,7 @@ class ViewBuilder {
 		document.getElementById("ci-logs").classList.toggle("d-none");
 	}
 	static toggleDashboard(e) {
-		document.getElementById("ci-dash-area").classList.toggle("d-none");
+		document.getElementById("ci-dash-status").classList.toggle("d-none");
 	}
 	static dualRoomSetup() {
 		document.getElementById("room1-config-label").innerHTML=Controller.dualRoom.room1;
