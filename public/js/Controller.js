@@ -239,6 +239,10 @@ console.log("Transit got->" + transitId);
 		Controller.creds.func='getFacultyList';
 		Controller.socket.send(JSON.stringify(Controller.creds));
 	}
+	static sendGetDashboard() {
+		Controller.creds.func='getDashboard';
+		Controller.socket.send(JSON.stringify(Controller.creds));
+	}
 	/*
 	 * This function will verify the FacultyId and the Location of 
 	 * the person logging in. They can create a temporary faculty ID but
@@ -451,6 +455,14 @@ console.log("Transit got->" + transitId);
 		} else if ( msg.func == "facultyList" ) {
 //			Controller.facultyList = new Map(msg.message);
 //			ViewBuilder.buildFacultyList(msg.message);
+		} else if ( msg.func == "dashboard" ) {
+			Controller.buildDashboard(msg);
+		} else if ( msg.func == "dashboardsignin") {
+			Controller.updateSignIn(msg);
+		} else if ( msg.func == "dashboardsignout") {
+			Controller.removeUser(msg.user);
+		} else if ( msg.func == "dashboardscanin") {
+			Controller.updateScanIn(msg);
 		} else if ( msg.func == "updateNote" ) {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -496,6 +508,7 @@ console.log("Transit got->" + transitId);
 		Controller.creds.func="close";
 		Controller.socket.send(JSON.stringify(Controller.creds));
 		Controller.socket.close();
+		ViewBuilder.clearDashboard();
 		ViewBuilder.signOutCleanUp();
 		Controller.socket = null;    
 	}
@@ -587,6 +600,7 @@ console.log("Transit got->" + transitId);
 		document.getElementById("signin-tab-item").classList.add("d-none");
 		document.getElementById("scan-tab-item").classList.remove("d-none");
 		document.getElementById("report-tab-item").classList.remove("d-none");
+		document.getElementById("dashboard-tab-item").classList.remove("d-none");
 		document.getElementById("ci-user-header").innerHTML=document.getElementById("ci_faculty_id").value;
 		document.getElementById("ci-location-header").innerHTML=document.getElementById("ci_rooms_id").value;
 		document.getElementById("location-checker-tab").click();
@@ -606,5 +620,88 @@ console.log("Transit got->" + transitId);
 	}
 	static dualRoomConfigContinue(e) {
 		ViewBuilder.dualRoomConfigContinue();
+	}
+
+	static async buildDashboard(msg) {
+		var x = new Date();
+		var y = x.getFullYear();
+		var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
+		var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
+		var dtStr = y + "-" + m + "-" + d ;	
+		try {
+			var fm = await Controller.getFacultyNames(msg.users);
+			var rooms = msg.rooms;
+			var ids = msg.users;
+			for (const [key, value] of rooms.entries()) {
+				var n = value.num, f = 0, m = 0, c = value.capacity, status;
+				var l = await DataLoader.initializePostLogin(dtStr,value.num);
+				for(let t of l) {
+					if(t.checkOut) {
+						continue;
+					} 
+					if(Controller.studentsList.get(t.studentId).gender == "M") {
+						m++;
+					} else {
+						f++;
+					}
+				}
+				var user = ids.find(user => user[0] === value.num);
+				if(user) {
+					user = fm.get(user[1]);
+					status = "Active";
+				} else {
+				    user = 'None';
+					status = "Empty";
+				}
+				ViewBuilder.addLocation(n, f, m, c, user, status);
+			}
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	}
+
+	static async updateSignIn(msg) {
+		var f = await Controller.getFacultyName(msg.id);
+		ViewBuilder.newSignIn(f, msg.room);
+	}
+
+
+	static updateScanIn(msg) {
+		var l = msg.location;
+		var t = msg.type;
+		var student = Controller.studentsList.get(msg.id);
+		if(t === "scanConfirmOut") {
+			ViewBuilder.dbScanIn(l, student.gender, false);
+		} else {
+			ViewBuilder.dbScanIn(l, student.gender, true);
+		}
+	}
+	
+	static async getFacultyNames(ids) {
+		var d = new DataLoader();
+		var f = await d.getRTFacultyList();
+		var facultyMap = new Map();
+		for(let id of ids) {
+			let n = id[1];
+			var list = f.filter(e => e[0] == n);
+        	var facultyName = id;
+        	if (list.length != 0) {
+            	facultyName = list[0][1].name;
+        	}
+        	facultyMap.set(n, facultyName);
+		}
+		return facultyMap;
+	}
+
+	static async getFacultyName(id){
+		var x = new DataLoader();
+		var f = await x.getRTFacultyList();
+
+		var list = f.filter(e=>e[0]==id);
+		var facultyName=id;
+		if (list.length!=0)
+			facultyName= list[0][1].name;
+			
+		return facultyName;
 	}
 }
