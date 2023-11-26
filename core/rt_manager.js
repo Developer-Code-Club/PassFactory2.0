@@ -72,9 +72,11 @@ class RTManager {
 				if ( msg.func != "heartBeat" ) {
 					console.log("got message->" + message.utf8Data );
 				}
-				//For each of these msg.func's you need to decide if you refresh all the dashboard users dashboards. -mcole
+				//For each of these msg.func's you need to decide if you refresh all the dashboard users dashboards. -mcole 
 				if ( msg.func == "signin" ) {
-					//mcole: yes if new lav person.
+					console.log("*********going to update dashboard");
+					//Controller.refreshDashboard();
+					//mcole: yes if new lav person. 
 					connection.lastUsedTimeStamp=new Date();
 					if ( msg.userName != null ) {							//only sign in if username is there.
 						console.log("in signin->" + JSON.stringify(msg));
@@ -145,7 +147,7 @@ console.log("found user->" + msg.userName);
 						console.log("EMPTY USERNAME->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "sendMessage" ) {
-					//mcole: i don't think so.
+					//mcole: i don't think so. 
 					connection.lastUsedTimeStamp=new Date();
 					console.log("insendmessage ->" + msg.toUserName);
 					var toUser = RTManager.userMap.get(msg.toUserName);
@@ -160,10 +162,12 @@ console.log("found user->" + msg.userName);
 						connection.send( JSON.stringify({func:"successSendMessage", message: "message was sent to->" + msg.toUserName}));
 					}
 				} else if ( msg.func == "scannedId" ) {
-					//mcole: yes someone scanned in or out.
+					console.log("*********going to update dashboard");
+					//Controller.refreshDashboard();
+					console.log("testing initialize");
+					//mcole: yes someone scanned in or out. 
 					connection.lastUsedTimeStamp=new Date();
 					try {
-
 						//look at this
 						console.log("in scannedId with->" + JSON.stringify(msg));
 						var ret = await RTManager.theTransitHandler.processMessage(msg);
@@ -177,15 +181,20 @@ console.log("found user->" + msg.userName);
 								console.log("sending->" + JSON.stringify(ret));
 								toUser.send(JSON.stringify(ret));
 							}
+							//Controller.refreshDashboard();
 						} else {
 							console.log("ERROR: 1something wrong with this msg->" + JSON.stringify(msg));
 						}
-						//mcole:  this.checkForDashboardUpdate(msg);  maybe this goes outside if. 
+						//mcole:  this.checkForDashboardUpdate(msg);  maybe this goes outside if.  
 					} catch (e) {
 						console.log(e);
 					}
 				} else if ( msg.func == "forceOut" ) {
-					//mcole: yes.
+
+					// console.log("*********going to update dashboard");
+					// Controller.refreshDashboard();
+
+					//mcole: yes. 
 					connection.lastUsedTimeStamp=new Date();
 					console.log("in forceOut with->" + JSON.stringify(msg));
 					var ret = await RTManager.theTransitHandler.forceOut(msg);
@@ -199,7 +208,7 @@ console.log("found user->" + msg.userName);
 						console.log("ERROR: 2something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "getStudentList" ) {
-					//mcole: no setup func.
+					//mcole: no setup func. 
 					connection.lastUsedTimeStamp=new Date();
 					console.log("in getStudentList with->" + JSON.stringify(msg));
 					var userAt = RTManager.userMap.get(msg.userName);
@@ -213,7 +222,7 @@ console.log("found user->" + msg.userName);
 						console.log("ERROR: 3something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "getFacultyList" ) {
-					//mcole: no set up func
+					//mcole: no set up func 
 					connection.lastUsedTimeStamp=new Date();
 					console.log("in getFacultyList with->" + JSON.stringify(msg));
 					var userAt = RTManager.userMap.get(msg.userName);
@@ -227,7 +236,7 @@ console.log("found user->" + msg.userName);
 						console.log("ERROR: 4something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "updateNote" ) {
-					//mcole: only if we want it.
+					//mcole: only if we want it. 
 					console.log("updating notes->" + JSON.stringify(msg));
 					var ret = await RTManager.theTransitHandler.updateNote(msg);
 					var roomList = RTManager.roomMap.get(msg.location);
@@ -240,7 +249,9 @@ console.log("found user->" + msg.userName);
 						console.log("ERROR: 5something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "flipRoom" ) {
-					//mcole : yes room count changed
+					console.log("*********going to update dashboard");
+					//Controller.refreshDashboard();
+					//mcole : yes room count changed 
 					console.log("flipping room ->" + JSON.stringify(msg));
 					var ret = await RTManager.theTransitHandler.flipRoom(msg);
 					var roomList = RTManager.roomMap.get(msg.location);
@@ -253,20 +264,20 @@ console.log("found user->" + msg.userName);
 						console.log("ERROR: 5something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "heartBeat" ) {
-					//mcole: no
+					//mcole: no 
 					connection.send(JSON.stringify({ func:'heartBeat', type:'pong'}));
 					//console.log("heartbeat->" + JSON.stringify(msg));
 				} else if ( msg.func == "close" ) {
-					//mcole: yes someone logged out
+					//mcole: yes someone logged out 
 					connection.close();
 					console.log("closing->" + JSON.stringify(msg));	
 				} else if ( msg.func == "dashboard") {
 					console.log("someone is logging into dashboard.");
-					//here you will put the dashboard user in a table of all dashboard users. -mcole
-					//then you will get all the dashboard data and return to that user to initialize.
-					//all the yes's are the places where we need to refresh dashboard
+					//here you will put the dashboard user in a table of all dashboard users. -mcole 
+					//then you will get all the dashboard data and return to that user to initialize. 
+					//all the yes's are the places where we need to refresh dashboard 
 				}
-				//mcole maybe call to update dashboatrfd users goes here.
+				//mcole maybe call to update dashboatrfd users goes here. 
 				else { 
 					connection.send("Sorry, I don't understand what you are asking for.");
 				}	

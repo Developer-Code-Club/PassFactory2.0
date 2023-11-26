@@ -1,7 +1,7 @@
 /*
  * The ViewBuilder screen builder.
  */
- 
+
 class ViewBuilder {
 	
 	constructor() {
@@ -568,93 +568,175 @@ class ViewBuilder {
 	static setUpDashboard(location, maleOccupancy, femaleOccupancy, faculty, transitId, maleCapacity, femaleCapacity) {
 		//console.log("student->" + studentId + " transit->" + transitId);
 		//var s = Controller.studentsList.get(parseInt(studentId));
+		var newJsonData = JSON.stringify({location:location, maleOccupancy: maleOccupancy, femaleOccupancy:femaleOccupancy, faculty: faculty, maleCapacity:maleCapacity, femaleCapacity:femaleCapacity});
+		var rowid =  "Dashrow-" + transitId;
+		if($("#ci-dash-status").find('tr').length == Controller.roomList.size){
+			var tr = $("#ci-dash-status").find('#' + rowid.replace(/([!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, "\\$1"));
+			var oldJsonData = tr.attr('locationData');
+
+			if(newJsonData != oldJsonData){
+
+				tr.find('td:eq(0)').text(faculty.join(' | '));
+				tr.find('td:eq(1)').text(location);
+
+				var spanMale = tr.find('td:eq(2) span');
+				spanMale.text(maleOccupancy);
+
+				if(maleOccupancy >=maleCapacity){
+
+					spanMale.removeClass();
+					//span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
+
+					// Add classes to the span inside the td
+					spanMale.addClass("badge badge-pill badge-danger px-3 ml-2 mt-2");
 
 		
-		var tab = document.getElementById("ci-dash-status");
-		//$("#ci-dash-status").find("tr:gt(0)").remove();
-		
-		var tr = document.createElement("tr");
-		//	tr.setAttribute("student",JSON.stringify({studentId:studentId, gender: s.gender, transitId:transitId, roomName: roomName}));
-		tr.id = "studentrow-" + transitId;
-		tab.appendChild(tr);
+				}
+				else{
+					spanMale.removeClass();
+					//span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
+					spanMale.addClass("badge badge-pill badge-success px-3 ml-2 mt-2");
+
+				}
+
+
+				var spanFemale = tr.find('td:eq(3) span');
+				spanFemale.text(femaleOccupancy);
+
+				if(femaleOccupancy >=femaleCapacity){
+
+					spanFemale.removeClass();
+					//span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
+
+					// Add classes to the span inside the td
+					spanFemale.addClass("badge badge-pill badge-danger px-3 ml-2 mt-2");
 
 		
-		
+				}
+				else{
+					spanFemale.removeClass();
+					//spFemalelassList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
+					spanFemale.addClass("badge badge-pill badge-success px-3 ml-2 mt-2");
+
+				}
+
+				if(faculty.length == 0){
+					tr.addClass("table-warning");
+					//tr.classList.add("table-warning");
+				}
+				else{
+					tr.removeClass("table-warning");
+					//tr.classList.remove("table-warning");
+				}
+
+				//tr.find('td:eq(2)').text(maleOccupancy);
+				//tr.find('td:eq(3)').text(femaleOccupancy);
+				
+				
+				tr.addClass('table-secondary', 1000);
+				
+				setTimeout(function() {
+					tr.removeClass('table-secondary');
+				  }.bind(tr), 1000); 
+
+				
+				tr.attr("locationData",newJsonData);
+
+				//tr.setAttribute("locationData",newJsonData);
 
 
-		var td = document.createElement("td");
-		// td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
-		// console.log("CREATED->" + tr.id  + "<----------------");
-		// tr.appendChild(td);
-		td = document.createElement("td");
-		td.innerHTML = faculty.join(' | ');
-		tr.appendChild(td);
-
-		td = document.createElement("td");
-		td.innerHTML = location;
-		tr.appendChild(td);
-		
-
-		td = document.createElement("td");
-		var span = document.createElement("span");
-		
-		span.innerHTML = maleOccupancy;
-		//span.innerHTML = maleCapacity + " <span class='badge badge-light'>"+ maleOccupancy + "</span>";
-
-
-		if(maleOccupancy >=maleCapacity){
-			span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
-
+			}
 		}
+
+
+
 		else{
-			span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
-		}
-		td.appendChild(span);
-		span = document.createElement("span");
-
-		tr.appendChild(td);
-
-
-		td = document.createElement("td");
-		span = document.createElement("span");
 		
-		span.innerHTML = femaleOccupancy;
+			var tab = document.getElementById("ci-dash-status");
+			//$("#ci-dash-status").find("tr:gt(0)").remove();
+			
+			var tr = document.createElement("tr");
+			tr.id = "Dashrow-" + transitId;
+			tab.appendChild(tr);
+			
 
-		if(femaleOccupancy >=femaleCapacity){
-			span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
+			tr.setAttribute("locationData",newJsonData);
+			
 
-		}
-		else{
-			span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
-		}
-		td.appendChild(span);
-		tr.appendChild(td);
+			var td = document.createElement("td");
+			// td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
+			// console.log("CREATED->" + tr.id  + "<----------------");
+			// tr.appendChild(td);
+			td = document.createElement("td");
+			td.innerHTML = faculty.join(' | ');
+			tr.appendChild(td);
 
+			td = document.createElement("td");
+			td.innerHTML = location;
+			tr.appendChild(td);
+			
 
-		// td = document.createElement("td");
-		// td.innerHTML = maleOccupancy;
-		// if(maleOccupancy >=maleCapacity){
-		// 	td.style.color = "red";
-		// }
-		// else{
-		// 	td.style.color = "green";
-		// }
-		// tr.appendChild(td);
-
-
-		// td = document.createElement("td");
-		// td.innerHTML=femaleOccupancy;
-		// if(femaleOccupancy >=femaleCapacity){
-		// 	td.style.color = "red";
-		// }
-		// else{
-		// 	td.style.color = "green";
-		// }
-		// tr.appendChild(td);
+			td = document.createElement("td");
+			var span = document.createElement("span");
+			
+			span.innerHTML = maleOccupancy;
+			//span.innerHTML = maleCapacity + " <span class='badge badge-light'>"+ maleOccupancy + "</span>";
 
 
-		if(faculty.length == 0){
-			tr.classList.add("table-warning");
+			if(maleOccupancy >=maleCapacity){
+				span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
+
+			}
+			else{
+				span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
+			}
+			td.appendChild(span);
+			span = document.createElement("span");
+
+			tr.appendChild(td);
+
+
+			td = document.createElement("td");
+			span = document.createElement("span");
+			
+			span.innerHTML = femaleOccupancy;
+
+			if(femaleOccupancy >=femaleCapacity){
+				span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
+
+			}
+			else{
+				span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
+			}
+			td.appendChild(span);
+			tr.appendChild(td);
+
+
+			// td = document.createElement("td");
+			// td.innerHTML = maleOccupancy;
+			// if(maleOccupancy >=maleCapacity){
+			// 	td.style.color = "red";
+			// }
+			// else{
+			// 	td.style.color = "green";
+			// }
+			// tr.appendChild(td);
+
+
+			// td = document.createElement("td");
+			// td.innerHTML=femaleOccupancy;
+			// if(femaleOccupancy >=femaleCapacity){
+			// 	td.style.color = "red";
+			// }
+			// else{
+			// 	td.style.color = "green";
+			// }
+			// tr.appendChild(td);
+
+
+			if(faculty.length == 0){
+				tr.classList.add("table-warning");
+			}
 		}
 
 	}

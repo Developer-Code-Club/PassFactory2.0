@@ -294,6 +294,7 @@ console.log("Transit got->" + transitId);
 		Controller.buildScreenPostLogin(loc);
 	}
 	static setWSLogin(user, loc) {
+		console.log("In setWSLogin -> " + Controller.socket);
 		var server="ws://localhost:1337";
 		if ( Controller.socket != null ) {
 			Controller.sendClose();
@@ -424,6 +425,8 @@ console.log("Transit got->" + transitId);
 		
 		if ( msg.func =="signinsuccess" ) {
 			content.innerHTML += "SUCCESS SIGNIN: " + msg.message  + '<br />';
+			console.log("*********going to update dashboard");
+			Controller.refreshDashboard();
 
 		} else if ( msg.func == "successSendMessage" ) {
 			content.innerHTML += "SUCCESS SEND: " + msg.message  + '<br />';
@@ -436,16 +439,24 @@ console.log("Transit got->" + transitId);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->IN" + msg.studentId  + " dt->"  + dtS +  " id->" + msg.id+ '<br />';			
 			ViewBuilder.inStudentToTable(msg.studentId,dtS,msg.id,msg.location);
+			
+			console.log("*********going to update dashboard");
+			Controller.refreshDashboard();
 		} else if ( msg.func == "scanConfirmOut" ) {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->OUT" + msg.studentId  + " id->" + msg.id + " dt->"  + dtS + '<br />';			
 			ViewBuilder.outStudentToTable(msg.studentId, msg.id,dtS);
+
+			console.log("*********going to update dashboard");
+			Controller.refreshDashboard();
 		} else if ( msg.func == "flipRoom" ) {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->FlipRoom" + msg.studentId  + " id->" + msg.id + " msg->"  + JSON.stringify(msg) + '<br />';			
 			ViewBuilder.flipRoomMsgReceived(msg.id,msg.location);
+			console.log("*********going to update dashboard");
+			Controller.refreshDashboard();
 		} else if ( msg.func == "studentList" ) {
 			Controller.studentList = new Map(msg.message);
 		} else if ( msg.func == "facultyList" ) {
@@ -601,10 +612,17 @@ console.log("Transit got->" + transitId);
 			ViewBuilder.dualRoomSetup();
 		}
 	}
+
+	static async refreshDashboard(){
+		this.buildDashboard(false);
+	}
+
 	static async buildDashboard(toggle) {
 
 		if(toggle){
 			ViewBuilder.toggleDashboard();
+			$("#table-animation").hide();
+
 		}
 
 		if($("#ci-dash-area").hasClass("d-none")) return false;
@@ -623,17 +641,17 @@ console.log("Transit got->" + transitId);
 		//$("#ci-dash-status").hide('slow', function(){ $("#ci-dash-status").find("tr:gt(0)").remove(); });
 		//$("#ci-dash-status").find("tr:gt(0)").remove();
 
-		$("#table-animation").hide();
+		///$("#table-animation").hide();
 		//$("#table-animation").show('slow');
 		
-		$("#ci-dash-status").find("tr:gt(0)").remove();
+		//$("#ci-dash-status").find("tr:gt(0)").remove();
 		
 
 		var locations = Controller.roomList;
 
 		for (let [key, value] of locations) {
 			//key = location
-			console.log(key + " = " + value);
+			//console.log(key + " = " + value);
 			var loc = key;
 			var maleCapacity = value.maleCapacity;
 			var femaleCapacity = value.femaleCapacity;
@@ -664,8 +682,8 @@ console.log("Transit got->" + transitId);
 				}
 			}
 
-			console.log(facultyId);
-			console.log(facultyNames);
+			// console.log(facultyId);
+			// console.log(facultyNames);
 			
 			
 			// try {
@@ -685,7 +703,7 @@ console.log("Transit got->" + transitId);
 			ViewBuilder.setUpDashboard(loc, maleOccupancy, femaleOccupancy, facultyNames, loc, maleCapacity, femaleCapacity);
 			
 		}
-		$("#table-animation").show('slow');
+			$("#table-animation").show('slow');
 		
 	}
 
