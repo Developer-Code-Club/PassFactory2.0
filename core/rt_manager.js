@@ -9,10 +9,12 @@ const SchoolFactory = require('./school_factory');
 class RTManager {
 	
 	//this is the hashmap which is storing all the students locally
+	static userCounter=0;
 	static userMap=new Map();
 	static theTransitHandler=null;
 	static roomMap=new Map();
 	static schoolFactory=null;
+	static dashboardUsers= [];
 	
 	constructor(port) {
 		this.port=port;
@@ -50,14 +52,13 @@ class RTManager {
 			console.log("connection.remoteAddress->" + connection.remoteAddress);
 			console.log("connection.webSocketVersion->" + connection.webSocketVersion);
 			console.log("connection.connected->" + connection.connected);
-			
+			RTManager.userCounter++;
 			
 			/*
 			* On Message Event Handler.
 			*/
 			connection.on('message',async function(message) {
 				console.log("userCount->" + RTManager.userMap.size);
-				// console.log(RTManager.userMap);
 				var a = Array.from(RTManager.userMap);
 				for ( var i=0; i < a.length; i++ ) {
 					console.log("user->" + a[i][0]);
@@ -72,7 +73,6 @@ class RTManager {
 				if ( msg.func != "heartBeat" ) {
 					console.log("got message->" + message.utf8Data );
 				}
-				//For each of these msg.func's you need to decide if you refresh all the dashboard users dashboards. -mcole 
 				if ( msg.func == "signin" ) {
 					console.log("*********going to update dashboard");
 					//Controller.refreshDashboard();
@@ -86,17 +86,9 @@ class RTManager {
 							connection.myuser=msg.userName;
 							RTManager.userMap.set(msg.userName,connection);
 							connection.send(JSON.stringify( { func: 'signinsuccess' , message: 'hello ' + msg.userName + ", we will set you up for location " + msg.location }));
-							console.log("LOOKING FOR->" + msg.location);
-							var theRoom = RTManager.schoolFactory.theRoomHandler.theRooms.get(msg.location);
-							console.log("ROOOOM->" + JSON.stringify(theRoom));
-							if ( theRoom.dualRoomId != null ) {
-								var drl = RTManager.roomMap.get(theRoom.dualRoomId);
-								if (drl == null ) {
-									RTManager.roomMap.set(theRoom.dualRoomId,[ msg.userName]);
-								} else {
-									drl.push(msg.userName);
-									RTManager.roomMap.set(theRoom.dualRoomId,drl);
-								}
+							for(let user of RTManager.dashboardUsers) {
+								user.send(JSON.stringify( { func: 'dashboardsignin' , room: msg.location , id: msg.userName}));
+								console.log("sending to........" + user);
 							}
 							//can see the teachers
 							//rtmananger
@@ -173,6 +165,9 @@ console.log("found user->" + msg.userName);
 						var ret = await RTManager.theTransitHandler.processMessage(msg);
 
 						var roomList = RTManager.roomMap.get(msg.location);
+						for(let user of RTManager.dashboardUsers) {
+							user.send(JSON.stringify( { func: 'dashboardscanin' , type: ret.func , id: ret.studentId , location: ret.location}));
+						}
 //						console.log("roomlist->" + JSON.stringify(roomList));
 //						console.log("RIZE->" + RTManager.roomMap.size);
 						if ( roomList != null && roomList.length > 0 ) {
@@ -183,7 +178,7 @@ console.log("found user->" + msg.userName);
 							}
 							//Controller.refreshDashboard();
 						} else {
-							console.log("ERROR: 1something wrong with this msg->" + JSON.stringify(msg));
+							console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 						}
 						//mcole:  this.checkForDashboardUpdate(msg);  maybe this goes outside if.  
 					} catch (e) {
@@ -205,7 +200,7 @@ console.log("found user->" + msg.userName);
 							toUser.send(JSON.stringify(ret));
 						}
 					} else {
-						console.log("ERROR: 2something wrong with this msg->" + JSON.stringify(msg));
+						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "getStudentList" ) {
 					//mcole: no setup func. 
@@ -219,7 +214,7 @@ console.log("found user->" + msg.userName);
 						msg.message=ret;
 						userAt.send(JSON.stringify(msg));
 					} else {
-						console.log("ERROR: 3something wrong with this msg->" + JSON.stringify(msg));
+						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "getFacultyList" ) {
 					//mcole: no set up func 
@@ -233,7 +228,7 @@ console.log("found user->" + msg.userName);
 						msg.message=ret;
 						userAt.send(JSON.stringify(msg));
 					} else {
-						console.log("ERROR: 4something wrong with this msg->" + JSON.stringify(msg));
+						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "updateNote" ) {
 					//mcole: only if we want it. 
@@ -246,29 +241,28 @@ console.log("found user->" + msg.userName);
 							toUser.send(JSON.stringify(ret));
 						}
 					} else {
-						console.log("ERROR: 5something wrong with this msg->" + JSON.stringify(msg));
+						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}
-				} else if ( msg.func == "flipRoom" ) {
+				} else if ( msg.func == "getDashboard" ) {
 					console.log("*********going to update dashboard");
 					//Controller.refreshDashboard();
 					//mcole : yes room count changed 
-					console.log("flipping room ->" + JSON.stringify(msg));
-					var ret = await RTManager.theTransitHandler.flipRoom(msg);
-					var roomList = RTManager.roomMap.get(msg.location);
-					if ( roomList != null && roomList.length > 0 ) {
-						for ( var i=0; i < roomList.length; i++ ) {
-							var toUser = RTManager.userMap.get(roomList[i]);
-							toUser.send(JSON.stringify(ret));
-						}
-					} else {
-						console.log("ERROR: 5something wrong with this msg->" + JSON.stringify(msg));
-					}
+					var userAt = RTManager.userMap.get(msg.userName);
+					
+					RTManager.dashboardUsers.push(userAt);
+
+					var rooms = Array.from(RTManager.schoolFactory.theRoomHandler.theRooms.values()).filter(room => room.type === 'LAV-STD' || room.type === 'LAV-DUAL');
+					const response = {
+						func: 'dashboard',
+						rooms: rooms,
+						users: Array.from(RTManager.roomMap),
+					};
+					userAt.send(JSON.stringify(response));
 				} else if ( msg.func == "heartBeat" ) {
 					//mcole: no 
 					connection.send(JSON.stringify({ func:'heartBeat', type:'pong'}));
-					//console.log("heartbeat->" + JSON.stringify(msg));
+					console.log("heartbeat->" + JSON.stringify(msg));
 				} else if ( msg.func == "close" ) {
-					//mcole: yes someone logged out 
 					connection.close();
 					console.log("closing->" + JSON.stringify(msg));	
 				} else if ( msg.func == "dashboard") {
@@ -294,7 +288,7 @@ console.log("found user->" + msg.userName);
 		console.log("Leaving INitialize RTManger.");
 	}
 	static startConnectionCleanupProcess() {
-		var x = setInterval(function() { RTManager.checkConnections(); },50000);
+		var x = setInterval(function() { RTManager.checkConnections(); },5000);
 	}
 	static checkConnections() {
 		var now=new Date();
@@ -310,15 +304,17 @@ console.log("found user->" + msg.userName);
 	}
 	static removeUserFromMemory(userName) {
 		RTManager.userMap.delete(userName);
+		RTManager.userCount--;
 		var theRooms = Array.from(RTManager.roomMap);
-		//given dual rooms, this looks through all rooms.
 		for ( var i=0; i < theRooms.length; i++ ) {
-			for ( var ii=0; ii < theRooms[i][1].length; ii++ ) {
+			for ( var ii=0; ii < theRooms[i].length; ii++ ) {
+				/* assumes user only in 1 room. */
 				if ( theRooms[i][1][ii] == userName )  {
 					console.log("deleting->" + JSON.stringify(theRooms[i]));
 					theRooms[i][1].splice(ii,1);
 					console.log("roomlistnow->" + JSON.stringify(theRooms[i][1]));
 					RTManager.roomMap.set(theRooms[i][0],theRooms[i][1]);
+					break;
 				}
 			}
 		}

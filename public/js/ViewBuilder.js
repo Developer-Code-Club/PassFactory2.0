@@ -367,7 +367,8 @@ class ViewBuilder {
 		document.getElementById("dual-room-in-header").classList.add("d-none");
 		document.getElementById("std-room-out-header").classList.remove("d-none");
 		document.getElementById("dual-room-out-header").classList.add("d-none");
-		
+		document.getElementById("dashboard-tab-item").classList.add("d-none");
+
 		document.getElementById("signin-tab").click();
 		
 	}
@@ -928,5 +929,77 @@ class ViewBuilder {
 		Controller.capacityHandler = capHandleEl.options[capHandleEl.selectedIndex].value;
 		Controller.playSound = soundEl.checked;
 		Controller.dualRoom.setScanFirstRoom(Controller.startWithRoom);
+	}
+
+	static addLocation(num, f, m, cap, user, status) {
+		var b = document.getElementById("tablebody");
+		var tr = document.createElement('tr');
+		tr.className = 'align-middle';
+		tr.id = num;
+		var td = document.createElement('td');
+		td.innerHTML = num;
+		tr.appendChild(td);
+		td = document.createElement('td');
+		td.innerHTML = f;
+		tr.appendChild(td);
+		td = document.createElement('td');
+		td.innerHTML = m;
+		tr.appendChild(td);
+		td = document.createElement('td');
+		td.innerHTML = cap;
+		tr.appendChild(td);
+		td = document.createElement('td');
+		td.innerHTML = user;
+		tr.appendChild(td);
+		td = document.createElement('td');
+		var span = document.createElement('span');
+		if(status == "Active") {
+			span.className = 'badge fs-6 fw-normal bg-tint-success text-success';
+		} else {
+			span.className = 'badge fs-6 fw-normal bg-tint-danger text-danger';
+		}
+		span.innerHTML = status;
+		td.appendChild(span);
+		tr.appendChild(td);
+		b.appendChild(tr);
+	}
+
+	static clearDashboard() {
+		var table = document.getElementById('tablebody');
+		table.innerHTML = "";
+	}
+
+	static newSignIn(name, location) {
+		var tr = document.getElementById(location);
+		var r = tr.cells[4];
+		var s = tr.cells[5].children;
+		if(r.innerHTML == name) {
+			ViewBuilder.removeUser(location);
+		} else {
+			r.innerHTML = name;
+			s[0].className = 'badge fs-6 fw-normal bg-tint-danger text-danger';
+			s[0].innerHTML = "Active"
+		}
+	}
+
+	static removeUser(location) {
+		var tr = document.getElementById(location);
+		tr.cells[4].innerHTML = "None";
+		var s = tr.cells[5].children;
+		s[0].className = 'badge fs-6 fw-normal bg-tint-danger text-danger';
+		s[0].innerHTML = "Empty";
+	}
+
+	static dbScanIn(location, n, scan) {
+		var tr = document.getElementById(location);
+		console.log(n);
+		var cell = n == "M" ? 2 : 1;
+		console.log(cell);
+		var count = parseInt(tr.cells[cell].innerHTML);
+		if(scan) {
+			tr.cells[cell].innerHTML = count+=1;
+		} else {
+			tr.cells[cell].innerHTML = count-=1;
+		}
 	}
 }
