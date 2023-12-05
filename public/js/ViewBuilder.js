@@ -932,6 +932,7 @@ class ViewBuilder {
 	}
 
 	static addLocation(num, f, m, cap, user, status) {
+		alert("addlocation");
 		var b = document.getElementById("tablebody");
 		var tr = document.createElement('tr');
 		tr.className = 'align-middle';
@@ -965,11 +966,13 @@ class ViewBuilder {
 	}
 
 	static clearDashboard() {
+		alert("clearDashboard");
 		var table = document.getElementById('tablebody');
 		table.innerHTML = "";
 	}
 
 	static newSignIn(name, location) {
+		alert("newSignIn");
 		var tr = document.getElementById(location);
 		var r = tr.cells[4];
 		var s = tr.cells[5].children;
@@ -991,6 +994,8 @@ class ViewBuilder {
 	}
 
 	static dbScanIn(location, n, scan) {
+		alert("dbScanIn");
+		Controller.refreshDashboard();
 		var tr = document.getElementById(location);
 		console.log(n);
 		var cell = n == "M" ? 2 : 1;

@@ -153,7 +153,12 @@ console.log("found user->" + msg.userName);
 						toUser.send(JSON.stringify(msg));
 						connection.send( JSON.stringify({func:"successSendMessage", message: "message was sent to->" + msg.toUserName}));
 					}
-				} else if ( msg.func == "scannedId" ) {
+				} 
+				else if (msg.func == "dashboardWEBSOCKET1"){
+					user.send(JSON.stringify( { func: 'dashboardWEBSOCKET1' , type: ret.func , id: ret.studentId , location: ret.location}));
+				  }
+				
+				else if ( msg.func == "scannedId" ) {
 					console.log("*********going to update dashboard");
 					//Controller.refreshDashboard();
 					console.log("testing initialize");
