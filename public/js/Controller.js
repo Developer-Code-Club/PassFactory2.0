@@ -240,6 +240,7 @@ console.log("Transit got->" + transitId);
 		Controller.creds.func='getFacultyList';
 		Controller.socket.send(JSON.stringify(Controller.creds));
 	}
+	//need this to register as dashboard user
 	static sendGetDashboard() {
 		Controller.creds.func='getDashboard';
 		Controller.socket.send(JSON.stringify(Controller.creds));
@@ -454,7 +455,7 @@ console.log("Transit got->" + transitId);
 			content.innerHTML += "byUser: " + msg.byUser + " ->OUT" + msg.studentId  + " id->" + msg.id + " dt->"  + dtS + '<br />';			
 			ViewBuilder.outStudentToTable(msg.studentId, msg.id,dtS);
 
-			console.log("*********going to update dashboard");
+			//console.log("*********going to update dashboard");
 			Controller.refreshDashboard();
 		} else if ( msg.func == "flipRoom" ) {
 			var dt=new Date(msg.theDateTime);
@@ -474,17 +475,16 @@ console.log("Transit got->" + transitId);
 			Controller.updateSignIn(msg);
 		} else if ( msg.func == "dashboardsignout") {
 			Controller.removeUser(msg.user);
-		}  else if ( msg.func == "updateNote" ) {
-		} 
+		}
 		
 		else if ( msg.func == "dashboardscanin") {
 			alert("inside recivemessage - dashboard scanin");
 			Controller.updateScanIn(msg);
 			Controller.refreshDashboard();
 		} 
-		  else if (msg.func == "dashboardWEBSOCKET1"){
-			alert("ANCDEF");
-		  }
+		//   else if (msg.func == "dashboardWEBSOCKET1"){
+		// 	alert("ANCDEF");
+		//   }
 		 
 		else if ( msg.func == "updateNote" ) {
 			var dt=new Date(msg.theDateTime);
@@ -501,7 +501,6 @@ console.log("Transit got->" + transitId);
 
 	static messageInputFunc(e) {
 		console.log("messageInputFunc" + document.getElementById(e.srcElement.id).value);
-
 	}
 	static sendTestFunc(e) {
 		console.log("sendTestFunc->" + document.getElementById(e.srcElement.id).value); 
@@ -639,18 +638,20 @@ console.log("Transit got->" + transitId);
 		}
 	}
 
+
 	static async refreshDashboard(){
 		Controller.buildDashboardARNAV(false)
 	}
 
 	static async buildDashboardARNAV(toggle) {
 
-		Controller.creds.func='dashboardWEBSOCKET1';
+		//Controller.creds.func='dashboardWEBSOCKET1';
+
+		//Controller.sendGetDashboard();
 
 		if(toggle){
 			ViewBuilder.toggleDashboard();
 			$("#table-animation").hide();
-
 		}
 
 		if($("#ci-dash-area").hasClass("d-none")) return false;
@@ -767,6 +768,9 @@ console.log("Transit got->" + transitId);
 			var facultyList = await Controller.getFacultyNames(msg.users);
 			var rooms = msg.rooms;
 			var ids = msg.users;
+			const facultyId = [];
+			const facultyNames = [];
+
 			for (const [key, value] of rooms.entries()) {
 				var location = value.num, femaleOccupancy = 0, maleOccupancy = 0, capacity = value.capacity, status;
 				var l = await DataLoader.initializePostLogin(dtStr,value.num);
@@ -774,10 +778,9 @@ console.log("Transit got->" + transitId);
 				var femaleCapacity = value.femaleCapacity;
 				var user = ids.find(user => user[0] === value.num);
 
-				var occupidStat=await DataLoader.initializePostLogin(dtStr,key);
+				var occupidStat=await DataLoader.initializePostLogin(dtStr,location);
 
-				const facultyId = [];
-				const facultyNames = [];
+				
 				
 				for(var i = 0; i < occupidStat.length; i++){
 					//use this if multiple users
@@ -806,11 +809,12 @@ console.log("Transit got->" + transitId);
 					status = "Empty";
 				}
 
-				var test = DataLoader.initializePostLogin(dtStr,'mid_campus');
+				//var test = DataLoader.initializePostLogin(dtStr,'mid_campus');
 
+				let lastUser = facultyNames[facultyNames.length - 1];
 
-				ViewBuilder.addLocation(location, femaleOccupancy, maleOccupancy, capacity, user, status);
-				ViewBuilder.setUpDashboard(location,maleOccupancy, femaleOccupancy, facultyNames, location, maleCapacity, femaleCapacity);
+				//ViewBuilder.addLocation(location, femaleOccupancy, maleOccupancy, capacity, user, status);
+				ViewBuilder.setUpDashboard(location,maleOccupancy, femaleOccupancy, lastUser, location, maleCapacity, femaleCapacity);
 			}
 		} catch (error) {
 			console.error('Error:', error);
@@ -908,107 +912,107 @@ console.log("Transit got->" + transitId);
 
 
 
-	static async buildDashboard(msg) {
-		alert("Builddashboard");
-		var x = new Date();
-		var y = x.getFullYear();
-		var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
-		var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
-		var dtStr = y + "-" + m + "-" + d ;	
-		try {
-			var facultyList = await Controller.getFacultyNames(msg.users);
-			var rooms = msg.rooms;
-			var ids = msg.users;
-			for (const [key, value] of rooms.entries()) {
-				var location = value.num, femaleOccupancy = 0, maleOccupancy = 0, capacity = value.capacity, status;
-				var l = await DataLoader.initializePostLogin(dtStr,value.num);
-				var maleCapacity = value.maleCapacity;
-				var femaleCapacity = value.femaleCapacity;
-				var user = ids.find(user => user[0] === value.num);
+	// static async buildDashboard(msg) {
+	// 	alert("Builddashboard");
+	// 	var x = new Date();
+	// 	var y = x.getFullYear();
+	// 	var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
+	// 	var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
+	// 	var dtStr = y + "-" + m + "-" + d ;	
+	// 	try {
+	// 		var facultyList = await Controller.getFacultyNames(msg.users);
+	// 		var rooms = msg.rooms;
+	// 		var ids = msg.users;
+	// 		for (const [key, value] of rooms.entries()) {
+	// 			var location = value.num, femaleOccupancy = 0, maleOccupancy = 0, capacity = value.capacity, status;
+	// 			var l = await DataLoader.initializePostLogin(dtStr,value.num);
+	// 			var maleCapacity = value.maleCapacity;
+	// 			var femaleCapacity = value.femaleCapacity;
+	// 			var user = ids.find(user => user[0] === value.num);
 
-				var occupidStat=await DataLoader.initializePostLogin(dtStr,key);
+	// 			var occupidStat=await DataLoader.initializePostLogin(dtStr,key);
 
-				const facultyId = [];
-				const facultyNames = [];
+	// 			const facultyId = [];
+	// 			const facultyNames = [];
 				
-				for(var i = 0; i < occupidStat.length; i++){
-					//use this if multiple users
-					if(!facultyId.includes(occupidStat[i].byUser)){
-						facultyId.push(occupidStat[i].byUser);
-						facultyNames.push(await Controller.getFacultyName(occupidStat[i].byUser));
-					}
-				}
+	// 			for(var i = 0; i < occupidStat.length; i++){
+	// 				//use this if multiple users
+	// 				if(!facultyId.includes(occupidStat[i].byUser)){
+	// 					facultyId.push(occupidStat[i].byUser);
+	// 					facultyNames.push(await Controller.getFacultyName(occupidStat[i].byUser));
+	// 				}
+	// 			}
 
 
-				for(let t of l) {
-					if(t.checkOut) {
-						continue;
-					} 
-					if(Controller.studentsList.get(t.studentId).gender == "M") {
-						maleOccupancy++;
-					} else {
-						femaleOccupancy++;
-					}
-				}
-				if(user) {
-					user = facultyList.get(user[1]);
-					status = "Active";
-				} else {
-				    user = 'None';
-					status = "Empty";
-				}
+	// 			for(let t of l) {
+	// 				if(t.checkOut) {
+	// 					continue;
+	// 				} 
+	// 				if(Controller.studentsList.get(t.studentId).gender == "M") {
+	// 					maleOccupancy++;
+	// 				} else {
+	// 					femaleOccupancy++;
+	// 				}
+	// 			}
+	// 			if(user) {
+	// 				user = facultyList.get(user[1]);
+	// 				status = "Active";
+	// 			} else {
+	// 			    user = 'None';
+	// 				status = "Empty";
+	// 			}
 
-				var test = DataLoader.initializePostLogin(dtStr,'mid_campus');
-
-
-				ViewBuilder.addLocation(location, femaleOccupancy, maleOccupancy, capacity, user, status);
-				ViewBuilder.setUpDashboard(location,maleOccupancy, femaleOccupancy, facultyNames, location, maleCapacity, femaleCapacity);
-			}
-		} catch (error) {
-			console.error('Error:', error);
-		}
-	}
+	// 			var test = DataLoader.initializePostLogin(dtStr,'mid_campus');
 
 
+	// 			ViewBuilder.addLocation(location, femaleOccupancy, maleOccupancy, capacity, user, status);
+	// 			ViewBuilder.setUpDashboard(location,maleOccupancy, femaleOccupancy, facultyNames, location, maleCapacity, femaleCapacity);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error:', error);
+	// 	}
+	// }
 
-	static async buildDashboardJI(msg) {
-		alert("JI");
-		var x = new Date();
-		var y = x.getFullYear();
-		var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
-		var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
-		var dtStr = y + "-" + m + "-" + d ;	
-		try {
-			var fm = await Controller.getFacultyNames(msg.users);
-			var rooms = msg.rooms;
-			var ids = msg.users;
-			for (const [key, value] of rooms.entries()) {
-				var n = value.num, f = 0, m = 0, c = value.capacity, status;
-				var l = await DataLoader.initializePostLogin(dtStr,value.num);
-				for(let t of l) {
-					if(t.checkOut) {
-						continue;
-					} 
-					if(Controller.studentsList.get(t.studentId).gender == "M") {
-						m++;
-					} else {
-						f++;
-					}
-				}
-				var user = ids.find(user => user[0] === value.num);
-				if(user) {
-					user = fm.get(user[1]);
-					status = "Active";
-				} else {
-				    user = 'None';
-					status = "Empty";
-				}
-				ViewBuilder.addLocation(n, f, m, c, user, status);
-			}
-		} catch (error) {
-			console.error('Error:', error);
-		}
-	}
+
+
+	// static async buildDashboardJI(msg) {
+	// 	alert("JI");
+	// 	var x = new Date();
+	// 	var y = x.getFullYear();
+	// 	var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
+	// 	var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
+	// 	var dtStr = y + "-" + m + "-" + d ;	
+	// 	try {
+	// 		var fm = await Controller.getFacultyNames(msg.users);
+	// 		var rooms = msg.rooms;
+	// 		var ids = msg.users;
+	// 		for (const [key, value] of rooms.entries()) {
+	// 			var n = value.num, f = 0, m = 0, c = value.capacity, status;
+	// 			var l = await DataLoader.initializePostLogin(dtStr,value.num);
+	// 			for(let t of l) {
+	// 				if(t.checkOut) {
+	// 					continue;
+	// 				} 
+	// 				if(Controller.studentsList.get(t.studentId).gender == "M") {
+	// 					m++;
+	// 				} else {
+	// 					f++;
+	// 				}
+	// 			}
+	// 			var user = ids.find(user => user[0] === value.num);
+	// 			if(user) {
+	// 				user = fm.get(user[1]);
+	// 				status = "Active";
+	// 			} else {
+	// 			    user = 'None';
+	// 				status = "Empty";
+	// 			}
+	// 			ViewBuilder.addLocation(n, f, m, c, user, status);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error:', error);
+	// 	}
+	// }
 
 	static async updateSignIn(msg) {
 		var f = await Controller.getFacultyName(msg.id);
@@ -1058,43 +1062,43 @@ console.log("Transit got->" + transitId);
 		return facultyName;
 	}
 
-	static async buildDashboard(msg) {
-		var x = new Date();
-		var y = x.getFullYear();
-		var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
-		var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
-		var dtStr = y + "-" + m + "-" + d ;	
-		try {
-			var fm = await Controller.getFacultyNames(msg.users);
-			var rooms = msg.rooms;
-			var ids = msg.users;
-			for (const [key, value] of rooms.entries()) {
-				var n = value.num, f = 0, m = 0, c = value.capacity, status;
-				var l = await DataLoader.initializePostLogin(dtStr,value.num);
-				for(let t of l) {
-					if(t.checkOut) {
-						continue;
-					} 
-					if(Controller.studentsList.get(t.studentId).gender == "M") {
-						m++;
-					} else {
-						f++;
-					}
-				}
-				var user = ids.find(user => user[0] === value.num);
-				if(user) {
-					user = fm.get(user[1]);
-					status = "Active";
-				} else {
-				    user = 'None';
-					status = "Empty";
-				}
-				ViewBuilder.addLocation(n, f, m, c, user, status);
-			}
-		} catch (error) {
-			console.error('Error:', error);
-		}
-	}
+	// static async buildDashboard(msg) {
+	// 	var x = new Date();
+	// 	var y = x.getFullYear();
+	// 	var m = x.getMonth(); m++; if ( m.toString().length == 1) { m="0" + m.toString();} 
+	// 	var d = x.getDate(); if ( d.toString().length == 1 ) { d = "0" + d.toString();}
+	// 	var dtStr = y + "-" + m + "-" + d ;	
+	// 	try {
+	// 		var fm = await Controller.getFacultyNames(msg.users);
+	// 		var rooms = msg.rooms;
+	// 		var ids = msg.users;
+	// 		for (const [key, value] of rooms.entries()) {
+	// 			var n = value.num, f = 0, m = 0, c = value.capacity, status;
+	// 			var l = await DataLoader.initializePostLogin(dtStr,value.num);
+	// 			for(let t of l) {
+	// 				if(t.checkOut) {
+	// 					continue;
+	// 				} 
+	// 				if(Controller.studentsList.get(t.studentId).gender == "M") {
+	// 					m++;
+	// 				} else {
+	// 					f++;
+	// 				}
+	// 			}
+	// 			var user = ids.find(user => user[0] === value.num);
+	// 			if(user) {
+	// 				user = fm.get(user[1]);
+	// 				status = "Active";
+	// 			} else {
+	// 			    user = 'None';
+	// 				status = "Empty";
+	// 			}
+	// 			ViewBuilder.addLocation(n, f, m, c, user, status);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error:', error);
+	// 	}
+	// }
 
 	static async updateSignIn(msg) {
 		var f = await Controller.getFacultyName(msg.id);

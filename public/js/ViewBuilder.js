@@ -576,8 +576,12 @@ class ViewBuilder {
 			var oldJsonData = tr.attr('locationData');
 
 			if(newJsonData != oldJsonData){
+				
+				//using if faculty is array
+				//tr.find('td:eq(0)').text(faculty.join(' | '));
 
-				tr.find('td:eq(0)').text(faculty.join(' | '));
+				tr.find('td:eq(0)').text(faculty);
+
 				tr.find('td:eq(1)').text(location);
 
 				var spanMale = tr.find('td:eq(2) span');
