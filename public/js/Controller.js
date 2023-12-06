@@ -479,7 +479,7 @@ console.log("Transit got->" + transitId);
 		
 		else if ( msg.func == "dashboardscanin") {
 			alert("inside recivemessage - dashboard scanin");
-			Controller.updateScanIn(msg);
+			//Controller.updateScanIn(msg);
 			Controller.refreshDashboard();
 		} 
 		//   else if (msg.func == "dashboardWEBSOCKET1"){
