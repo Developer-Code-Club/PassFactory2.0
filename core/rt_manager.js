@@ -78,7 +78,6 @@ class RTManager {
 							connection.send(JSON.stringify( { func: 'signinsuccess' , message: 'hello ' + msg.userName + ", we will set you up for location " + msg.location }));
 							for(let user of RTManager.dashboardUsers) {
 								user.send(JSON.stringify( { func: 'dashboardsignin' , room: msg.location , id: msg.userName}));
-								console.log("sending to........" + user);
 							}
 							var roomList = RTManager.roomMap.get(msg.location);
 							if ( roomList == null ) {
@@ -230,11 +229,6 @@ console.log("found user->" + msg.userName);
 					connection.send(JSON.stringify({ func:'heartBeat', type:'pong'}));
 					console.log("heartbeat->" + JSON.stringify(msg));
 				} else if ( msg.func == "close" ) {
-					var userAt = RTManager.userMap.get(msg.userName);
-					RTManager.dashboardUsers.splice(RTManager.dashboardUsers.indexOf(userAt),1);
-					for(let user of RTManager.dashboardUsers) {
-						user.send(JSON.stringify( { func: 'dashboardsignin' , room: msg.location , id: msg.userName}));
-					}
 					connection.close();
 					console.log("closing->" + JSON.stringify(msg));	
 				} else { 
@@ -245,7 +239,17 @@ console.log("found user->" + msg.userName);
 			* On Close Event Handler
 			*/
 			connection.on('close', async function(x) {
+				if(RTManager.dashboardUsers.includes(connection.myuser)) RTManager.dashboardUsers.splice(RTManager.dashboardUsers.indexOf(connection.myuser),1);
+				let room;
+				RTManager.roomMap.forEach((value, key) => {
+					if(value[0] == connection.myuser) {
+						room = key;
+					}
+				});
 				RTManager.removeUserFromMemory(connection.myuser);
+				for(let user of RTManager.dashboardUsers) {
+					user.send(JSON.stringify( { func: 'dashboardsignin' , room: room, id: connection.myuser}));
+				}
 				console.log('connection closed->' + JSON.stringify(x) + " ->" + connection.myuser + " ->" + connection.foo);
 			});
 		});	

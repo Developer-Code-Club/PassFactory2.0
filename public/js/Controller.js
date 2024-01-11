@@ -459,8 +459,6 @@ console.log("Transit got->" + transitId);
 			Controller.buildDashboard(msg);
 		} else if ( msg.func == "dashboardsignin") {
 			Controller.updateSignIn(msg);
-		} else if ( msg.func == "dashboardsignout") {
-			Controller.removeUser(msg.user);
 		} else if ( msg.func == "dashboardscanin") {
 			Controller.updateScanIn(msg);
 		} else if ( msg.func == "updateNote" ) {
@@ -646,7 +644,7 @@ console.log("Transit got->" + transitId);
 					}
 				}
 				var user = ids.find(user => user[0] === value.num);
-				if(user) {
+				if(user && user[1].length == 1) {
 					user = fm.get(user[1]);
 					status = "Active";
 				} else {

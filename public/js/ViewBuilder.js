@@ -753,24 +753,30 @@ class ViewBuilder {
 	static addLocation(num, f, m, cap, user, status) {
 		var b = document.getElementById("tablebody");
 		var tr = document.createElement('tr');
-		tr.className = 'align-middle';
+		tr.classList = "db";
 		tr.id = num;
 		var td = document.createElement('td');
+		td.classList = "db";
 		td.innerHTML = num;
 		tr.appendChild(td);
 		td = document.createElement('td');
+		td.classList = "db";
 		td.innerHTML = f;
 		tr.appendChild(td);
 		td = document.createElement('td');
+		td.classList = "db";
 		td.innerHTML = m;
 		tr.appendChild(td);
 		td = document.createElement('td');
+		td.classList = "db";
 		td.innerHTML = cap;
 		tr.appendChild(td);
 		td = document.createElement('td');
+		td.classList = "db";
 		td.innerHTML = user;
 		tr.appendChild(td);
 		td = document.createElement('td');
+		td.classList = "db";
 		var span = document.createElement('span');
 		if(status == "Active") {
 			span.className = 'badge fs-6 fw-normal bg-tint-success text-success';
@@ -796,7 +802,7 @@ class ViewBuilder {
 			ViewBuilder.removeUser(location);
 		} else {
 			r.innerHTML = name;
-			s[0].className = 'badge fs-6 fw-normal bg-tint-danger text-danger';
+			s[0].className = 'badge fs-6 fw-normal bg-tint-success text-success';
 			s[0].innerHTML = "Active"
 		}
 	}
