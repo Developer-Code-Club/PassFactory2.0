@@ -458,6 +458,44 @@ console.log("LENGTH->" + ss.length + " ->" + year);
 		}
 		return id;
 	}
+	static async getOpenTransitCountByRoom() {	
+		var totals=[];
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			/* DB Code */
+			var sql="Call GetOpenTransitCountByRoom();";
+			var info = await conn.query(sql);
+			info = info[0];
+			for ( var i=0; i < info.length; i++ ) {
+				totals.push({room: info[i].Location, total: info[i].Total});
+			}		
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
+		return totals;
+	}
+	static async getOpenTransitsForStudents() {	
+		var totals=[];
+		try {
+			var conn= await ProdDataReader.theDBHandler.connection();
+			/* DB Code */
+			var sql="Call GetOpenTransitsForStudents();";
+			var info = await conn.query(sql);
+			info = info[0];
+			for ( var i=0; i < info.length; i++ ) {
+				totals.push({room: info[i].Location, studentId: info[i].StudentId, transitId: info[i].Id});
+			}		
+		} catch ( err ) {
+			console.log("there was an error->" + err.stack);
+			throw err;
+		} finally {
+			await ProdDataReader.theDBHandler.releaseit(conn);	
+		}
+		return totals;
+	}
 	static async getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing) {
 		
 		await ProdDataReader.initialize();

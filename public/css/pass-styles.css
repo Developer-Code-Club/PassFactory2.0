@@ -79,3 +79,15 @@
     background-color: #E1E0E7; 
 	font-weight: bold;
 }
+
+/* for dashboard */
+.dashboard-blink-on {
+	background-color: orange;
+}
+.dashboard-blink-off {
+	background-color: white;
+}
+.dashboard-card {
+	border-radius: .2rem;
+	border-color: black;
+}

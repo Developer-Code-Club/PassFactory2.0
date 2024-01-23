@@ -115,6 +115,12 @@ class DataLoader {
 	static async getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing) {
 		return await ProdDataReader.getReportData(dt,locationId,block1,block2,blockLunch,block3,block4,block5,includePassing);
 	}
+	static async getOpenTransitCountByRoom() {
+		return await ProdDataReader.getOpenTransitCountByRoom();
+	}
+	static async getOpenTransitsForStudents() {
+		return await ProdDataReader.getOpenTransitsForStudents();
+	}
 	static async getTempUserData() {
 		return await ProdDataReader.getTempUserData();
 	}

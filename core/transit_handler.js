@@ -26,6 +26,9 @@ class TransitHandler {
 			}
 		}
 	}
+	async getTransitSummaryByRoom() {
+		return Array.from(this.theTransits);
+	}
 	async addTransit(studentId,byUserId,locationId,theEvent,note) {
 		var tt=new Transit(studentId);
 		var id= await DataLoader.addTransitDB(studentId,true,note);

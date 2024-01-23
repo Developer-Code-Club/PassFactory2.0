@@ -236,7 +236,7 @@ class ViewBuilder {
 		var dl = document.getElementById("ci_faculty_list");
 		for ( var i=0; i < list.length; i++ ) {
 			if ( list[i][1].id == null || list[i][1].id.length == 0 ) {
-				console.log("SKIPPING FACULTY->" + JSON.stringify(list[i][1]));
+			//	console.log("SKIPPING FACULTY->" + JSON.stringify(list[i][1]));
 			} else {
 				var o = document.createElement("option");
 				o.value = list[i][1].name
@@ -329,10 +329,8 @@ class ViewBuilder {
 	}
 	static getUserId() {
 		var inputValue = document.getElementById('ci_faculty_id').value;
-		console.log("inputValue->" + inputValue);
 		var option = document.querySelector("#" + 'ci_faculty_list' + " option[value='" + inputValue + "']");
 		if ( option == null ) { return null; }
-		console.log("ooooo->" + option.rr + "->" + option.getAttribute("tempUserId") + " ->" + option.getAttribute("facultyId"));
 		return option.rr;
 	}
 	static isUserTemp() {
@@ -565,187 +563,205 @@ class ViewBuilder {
 		ViewBuilder.setRoomCapacity();
 		
 	}
-
-	static setUpDashboard(location, maleOccupancy, femaleOccupancy, faculty, transitId, maleCapacity, femaleCapacity) {
-		//console.log("student->" + studentId + " transit->" + transitId);
-		//var s = Controller.studentsList.get(parseInt(studentId));
-		var newJsonData = JSON.stringify({location:location, maleOccupancy: maleOccupancy, femaleOccupancy:femaleOccupancy, faculty: faculty, maleCapacity:maleCapacity, femaleCapacity:femaleCapacity});
-		var rowid =  "Dashrow-" + transitId;
-		if($("#ci-dash-status").find('tr').length == Controller.roomList.size){
-			var tr = $("#ci-dash-status").find('#' + rowid.replace(/([!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, "\\$1"));
-			var oldJsonData = tr.attr('locationData');
-
-			if(newJsonData != oldJsonData){
-				
-				//using if faculty is array
-				//tr.find('td:eq(0)').text(faculty.join(' | '));
-
-				tr.find('td:eq(0)').text(faculty);
-
-				tr.find('td:eq(1)').text(location);
-
-				var spanMale = tr.find('td:eq(2) span');
-				spanMale.text(maleOccupancy);
-
-				if(maleOccupancy >=maleCapacity){
-
-					spanMale.removeClass();
-					//span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
-
-					// Add classes to the span inside the td
-					spanMale.addClass("badge badge-pill badge-danger px-3 ml-2 mt-2");
-
-		
-				}
-				else{
-					spanMale.removeClass();
-					//span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
-					spanMale.addClass("badge badge-pill badge-success px-3 ml-2 mt-2");
-
-				}
-
-
-				var spanFemale = tr.find('td:eq(3) span');
-				spanFemale.text(femaleOccupancy);
-
-				if(femaleOccupancy >=femaleCapacity){
-
-					spanFemale.removeClass();
-					//span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
-
-					// Add classes to the span inside the td
-					spanFemale.addClass("badge badge-pill badge-danger px-3 ml-2 mt-2");
-
-		
-				}
-				else{
-					spanFemale.removeClass();
-					//spFemalelassList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
-					spanFemale.addClass("badge badge-pill badge-success px-3 ml-2 mt-2");
-
-				}
-
-				if(faculty.length == 0){
-					tr.addClass("table-warning");
-					//tr.classList.add("table-warning");
-				}
-				else{
-					tr.removeClass("table-warning");
-					//tr.classList.remove("table-warning");
-				}
-
-				//tr.find('td:eq(2)').text(maleOccupancy);
-				//tr.find('td:eq(3)').text(femaleOccupancy);
-				
-				
-				tr.addClass('table-secondary', 1000);
-				
-				setTimeout(function() {
-					tr.removeClass('table-secondary');
-				  }.bind(tr), 1000); 
-
-				
-				tr.attr("locationData",newJsonData);
-
-				//tr.setAttribute("locationData",newJsonData);
-
-
-			}
+	static async blinkCell(elementId) {
+		console.log("blinking->" + elementId);
+		const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
+		var el = document.getElementById(elementId);
+		for ( var i=1; i <= 5; i++ ){
+			console.log("blink on");
+			el.classList.remove("dashboard-blink-off");
+			el.classList.add("dashboard-blink-on");
+			await sleep(1500);
+			console.log("blink off");
+			el.classList.add("dashboard-blink-off");
+			el.classList.remove("dashboard-blink-on");
+			await sleep(1500);
 		}
+	}
+	/*
+	 * facultyList is an array of faculty users signed in for lav.
+	 */
+	static setUpDashboard(row) {
 
-
-
-		else{
-		
-			var tab = document.getElementById("ci-dash-status");
-			//$("#ci-dash-status").find("tr:gt(0)").remove();
-			
-			var tr = document.createElement("tr");
-			tr.id = "Dashrow-" + transitId;
-			tab.appendChild(tr);
-			
-
-			tr.setAttribute("locationData",newJsonData);
-			
+		//mcole - this function works on rows.  So, I changed this to see if the row was there.
+		var findRow = document.getElementById("dashrow-" + hashCode(row.num) );
+		if ( findRow != null ) {
+			var oldData = JSON.parse(findRow.getAttribute("row"));
+			if ( oldData.maleCount != row.maleCount ) {
+				var td = document.getElementById("dashrow-" + hashCode(row.num) + "-mo");
+				td.innerHTML= row.maleCount + "(" + row.maleCapacity + ")";
+				ViewBuilder.blinkCell(td.id);
+			}
+			if ( oldData.femaleCount != row.femaleCount ) {
+				var td = document.getElementById("dashrow-" + hashCode(row.num) + "-fo");
+				td.innerHTML= row.femaleCount + "(" + row.femaleCapacity + ")";
+				ViewBuilder.blinkCell(td.id);
+			}
+			if ( JSON.stringify(oldData.users) != JSON.stringify(row.users) ) {
+				var td = document.getElementById("dashrow-" + hashCode(row.num) + "-users");
+				if ( row.users == null || row.users.length == 0 ) {
+					td.innerHTML = "Noone Signed In";
+				} else {
+					var fNames = "";
+					for ( var ii=0; ii < row.users.length; ii++ ) {
+						var nameAt = Controller.facultyList.get(row.users[ii]);
+						if ( ii > 0 ) { fNames += "\n"; }
+						fNames += nameAt.name;
+					}
+					td.innerHTML = fNames;
+					ViewBuilder.blinkCell(td.id);
+				}
+			}
+		//row did not exist we are creating it.
+		} else {
+			//mcole - This is the table for the dashboard.
+			var tab = document.getElementById("dashboard-tablebody");
+			findRow = document.createElement("tr");
+			findRow.setAttribute("row",JSON.stringify(row));
+			//mcole - this is the uniqueID for the row.  This is important.
+			findRow.id = "dashrow-" + hashCode(row.num) ;
+			tab.appendChild(findRow);
 
 			var td = document.createElement("td");
-			// td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
-			// console.log("CREATED->" + tr.id  + "<----------------");
-			// tr.appendChild(td);
-			td = document.createElement("td");
-			td.innerHTML = faculty.join(' | ');
-			tr.appendChild(td);
-
-			td = document.createElement("td");
-			td.innerHTML = location;
-			tr.appendChild(td);
+			td.innerHTML=row.num;
+			findRow.appendChild(td);
 			
+			td = document.createElement("td");
+			td.id = "dashrow-" + hashCode(row.num) + "-users";
+			if ( row.users == null || row.users.length == 0 ) {
+				td.innerHTML = "Noone Signed In";
+			} else {
+				var fNames = "";
+				for ( var ii=0; ii < row.users.length; ii++ ) {
+					var nameAt = Controller.facultyList.get(row.users[ii]);
+					if ( ii > 0 ) { fNames += "\n"; }
+					fNames += nameAt.name;
+				}		
+				td.innerHTML = fNames;
+			}
+			findRow.appendChild(td);
+			
+			td = document.createElement("td");
+			td.innerHTML = row.maleCount + "(" + row.maleCapacity + ")" ;
+			//mcole - this is the male occupancy column id.
+			td.id = "dashrow-" + hashCode(row.num) + "-mo";
+			findRow.appendChild(td);
+
 
 			td = document.createElement("td");
-			var span = document.createElement("span");
-			
-			span.innerHTML = maleOccupancy;
-			//span.innerHTML = maleCapacity + " <span class='badge badge-light'>"+ maleOccupancy + "</span>";
-
-
-			if(maleOccupancy >=maleCapacity){
-				span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
-
-			}
-			else{
-				span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
-			}
-			td.appendChild(span);
-			span = document.createElement("span");
-
-			tr.appendChild(td);
-
-
-			td = document.createElement("td");
-			span = document.createElement("span");
-			
-			span.innerHTML = femaleOccupancy;
-
-			if(femaleOccupancy >=femaleCapacity){
-				span.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");
-
-			}
-			else{
-				span.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2");
-			}
-			td.appendChild(span);
-			tr.appendChild(td);
-
-
-			// td = document.createElement("td");
-			// td.innerHTML = maleOccupancy;
-			// if(maleOccupancy >=maleCapacity){
-			// 	td.style.color = "red";
-			// }
-			// else{
-			// 	td.style.color = "green";
-			// }
-			// tr.appendChild(td);
-
-
-			// td = document.createElement("td");
-			// td.innerHTML=femaleOccupancy;
-			// if(femaleOccupancy >=femaleCapacity){
-			// 	td.style.color = "red";
-			// }
-			// else{
-			// 	td.style.color = "green";
-			// }
-			// tr.appendChild(td);
-
-
-			if(faculty.length == 0){
-				tr.classList.add("table-warning");
-			}
+			td.innerHTML = row.femaleCount + "(" + row.femaleCapacity + ")";
+			//mcole - this is the female occupancy column id.
+			td.id = "dashrow-" + hashCode(row.num) + "-fo";
+			findRow.appendChild(td);
 		}
 
 	}
-	
+	static async buildDashboard(rooms) {
+		var dashboardCardAreaEl=document.getElementById("dashboard-card-area");
+		var row;
+		if ( dashboardCardAreaEl.children.length == 0 ) {
+		
+			for (var i=0; i < rooms.length; i++ )  {
+				if ( i % 4 == 0 ) {
+					row = document.createElement("div"); row.classList.add("row","m-2");
+					dashboardCardAreaEl.appendChild(row);
+				}
+				var col=document.createElement("div"); col.classList.add("col-sm-3");
+				row.appendChild(col);
+				var el=ViewBuilder.buildDashboardCard(rooms[i]);
+				col.appendChild(el);
+			}
+		} else {
+			for (var i=0; i < rooms.length; i++ )  {
+				ViewBuilder.updateDashboardCard(rooms[i]);
+			}
+		}
+	}
+	static buildDashboardCard(row) {
+		var card = document.createElement("div"); card.classList.add("card","dashboard-card");
+		card.id="dashboard-card-" + hashCode(row.num);
+		card.setAttribute("row",JSON.stringify(row));
+		var cardHeader=document.createElement("div"); cardHeader.classList.add("text-center","card-header","m-1","p-0");
+		var roomEl=document.createElement("label"); 
+		roomEl.innerHTML="<b>" + row.num + "</b>" ;
+		cardHeader.appendChild(roomEl);
+		card.appendChild(cardHeader);
+		var cardBody = document.createElement("div"); cardBody.classList.add("card-body","container");
+		card.appendChild(cardBody);
+		var bodyRow=document.createElement("div"); bodyRow.classList.add("row");
+		cardBody.appendChild(bodyRow);
+		var cbCol1=document.createElement("div");cbCol1.classList.add("col-sm-6");
+		var cbCol2=document.createElement("div");cbCol2.classList.add("col-sm-6");
+		bodyRow.appendChild(cbCol1);
+		bodyRow.appendChild(cbCol2);
+		var td=document.createElement("label");
+		td.id = "dashrow-" + hashCode(row.num) + "-users";
+		if ( row.users == null || row.users.length == 0 ) {
+			td.innerHTML = "Noone Signed In";
+		} else {
+			var fNames = "";
+			for ( var ii=0; ii < row.users.length; ii++ ) {
+				var nameAt = Controller.facultyList.get(row.users[ii]);
+	console.log("looking for->" +row.users[ii]);
+				if ( ii > 0 ) { fNames += ","; }
+				fNames += nameAt.name;
+			}
+			td.innerHTML=fNames;
+		}
+		cbCol1.appendChild(td);
+		
+		var mc = document.createElement("label");
+		mc.innerHTML = "M - " + row.maleCount + "(" + row.maleCapacity + ")" ;
+		//mcole - this is the male occupancy column id.
+		mc.id = "dashrow-" + hashCode(row.num) + "-mo";
+		cbCol2.appendChild(mc);
+
+		cbCol2.appendChild(document.createElement("br"));
+		var fc = document.createElement("label");
+		fc.innerHTML = "F - " + row.femaleCount + "(" + row.femaleCapacity + ")";
+		//mcole - this is the female occupancy column id.
+		fc.id = "dashrow-" + hashCode(row.num) + "-fo";
+		cbCol2.appendChild(fc);
+		
+		return card;
+	}
+	static updateDashboardCard(row) {
+		var card =document.getElementById("dashboard-card-" + hashCode(row.num));
+		var oldRow = JSON.parse(card.getAttribute("row"));
+		
+		var user = document.getElementById("dashrow-" + hashCode(row.num) + "-users");
+		var cardChanged = false;
+		if ( JSON.stringify(row.users) != JSON.stringify(oldRow.users)) { 
+			cardChanged=true;
+			if ( row.users == null || row.users.length == 0 ) {
+				td.innerHTML = "Noone Signed In";
+			} else {
+				var fNames = "";
+				for ( var ii=0; ii < row.users.length; ii++ ) {
+					var nameAt = Controller.facultyList.get(row.users[ii]);
+					if ( ii > 0 ) { fNames += ","; }
+					fNames += nameAt.name;
+				}
+				user.innerHTML=fNames;
+			}
+		}
+		
+		if ( row.maleCount != oldRow.maleCount ) {
+			cardChanged=true;
+			var mc = document.getElementById("dashrow-" + hashCode(row.num) + "-mo");
+			mc.innerHTML = "M - " + row.maleCount + "(" + row.maleCapacity + ")" ;
+		}
+		if ( row.femaleCount != oldRow.femaleCount ) {
+			cardChanged=true;
+			var fc = document.getElementById("dashrow-" + hashCode(row.num) + "-fo");
+			fc.innerHTML = "F - " + row.femaleCount + "(" + row.femaleCapacity + ")" ;
+		}
+		
+		if ( cardChanged ) {
+			ViewBuilder.blinkCell(card.id);
+		}
+		return ;
+	}
 	static async noteChange(e) {
 		var iNote=document.getElementById(e.srcElement.id);
 		var note=iNote.value;
@@ -898,7 +914,9 @@ class ViewBuilder {
 	static dualRoomSetup() {
 		document.getElementById("room1-config-label").innerHTML=Controller.dualRoom.room1;
 		document.getElementById("room2-config-label").innerHTML=Controller.dualRoom.room2;
-		$('#dualRoomModal').modal('show');
+console.log("HACK FIX LATER");
+//mcole - not sure why not working or why being called.
+//		$('#dualRoomModal').modal('show');
 	}
 	static clickedRoomDefault(e,room) {
 		//it is either room 1 or 2.  no other option.
@@ -999,7 +1017,7 @@ class ViewBuilder {
 
 	static dbScanIn(location, n, scan) {
 		alert("dbScanIn");
-		Controller.refreshDashboard();
+		//Controller.refreshDashboard();
 		var tr = document.getElementById(location);
 		console.log(n);
 		var cell = n == "M" ? 2 : 1;
@@ -1011,4 +1029,11 @@ class ViewBuilder {
 			tr.cells[cell].innerHTML = count-=1;
 		}
 	}
+}
+hashCode = function(s) {
+	console.log("hasing->" + s);
+  return s.split("").reduce(function(a, b) {
+    a = ((a << 5) - a) + b.charCodeAt(0);
+    return a & a;
+  }, 0);
 }

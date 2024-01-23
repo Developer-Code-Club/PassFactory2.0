@@ -222,6 +222,49 @@ BEGIN
 END//
 DELIMITER ;	
 
+DROP PROCEDURE IF EXISTS GetOpenTransitCountByRoom;
+
+DELIMITER //
+CREATE PROCEDURE GetOpenTransitCountByRoom ()
+BEGIN
+	SELECT 
+		l.Location AS Location,
+		COUNT(l.Location) AS Total
+	FROM 
+		Transit_Leg_PIT AS l,
+		transit_pit AS t
+	WHERE
+		t.Id = l.TransitId
+	AND
+		t.IsOpen = TRUE 
+	AND 
+		l.CreateDate >= CURDATE()
+	GROUP BY
+		l.Location
+	;
+END//
+DELIMITER ;	
+
+DROP PROCEDURE IF EXISTS GetOpenTransitsForStudents;
+
+DELIMITER //
+CREATE PROCEDURE GetOpenTransitsForStudents ()
+BEGIN
+SELECT 
+		t.Id AS Id,
+		t.StudentId AS StudentId,
+		l.Location AS Location
+	FROM 
+		Transit_Leg_PIT AS l, 
+		Transit_PIT AS t 
+	WHERE  
+		l.TransitId = t.Id 
+	AND 
+		t.IsOpen = TRUE
+	AND 
+		l.CreateDate >= CURDATE() ;	
+END//
+DELIMITER ;	
 
 DROP TABLE Temp_User_PIT;
 

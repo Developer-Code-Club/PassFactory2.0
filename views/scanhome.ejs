@@ -130,7 +130,8 @@ table, th, td {
 					
 
 
-					<div id="ci-dash-area">						
+					<div id="ci-dash-area">	
+<label>THISISDASHAREA</label>					
 						<br>
 
 						<div style="padding-top: 80px;">
@@ -249,20 +250,8 @@ table, th, td {
 			</div>
 			<div class="tab-pane fade" id="dashboard" role="tabpanel" aria-labelledby="dasboard-tab">
 				<button onclick=Controller.sendGetDashboard()>dashboard</button>
-				<table class="table mb-0">
-					<thead class="small text-uppercase bg-body text-muted">
-						<tr>
-							<th>Room ID</th>
-							<th>F</th>
-							<th>M</th>
-							<th>Capacity</th>
-							<th>Staff</th>
-							<th>Status</th>
-						</tr>
-					</thead>
-					<tbody id="tablebody">
-					</tbody>
-				</table>
+				<div id="dashboard-card-area" class="container w-100">
+				</div>
 			</div>
 			
 		</div>
