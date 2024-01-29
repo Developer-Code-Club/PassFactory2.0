@@ -492,7 +492,13 @@ class ViewBuilder {
 		var td = document.createElement("td");
 		
 		td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
+		td.setAttribute("data-toggle", "popover");
+		td.setAttribute("title", "Popover title");
+		td.setAttribute("data-content", "And here's some amazing content. It's very engaging. Right?");	
+		
+		
 		tr.id = "studentrow-" + transitId;
+		
 		console.log("CREATED->" + tr.id  + "<----------------");
 		tr.appendChild(td);
 		td = document.createElement("td");
@@ -561,7 +567,7 @@ class ViewBuilder {
 		favToolTip.textContent="Click to force checkout.";
 		checkOutIcon.appendChild(favToolTip);		
 		ViewBuilder.setRoomCapacity();
-		
+		$('[data-toggle="popover"]').popover();
 	}
 	static async blinkCell(elementId) {
 		console.log("blinking->" + elementId);
