@@ -493,8 +493,8 @@ class ViewBuilder {
 		
 		td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
 		td.setAttribute("data-toggle", "popover");
-		td.setAttribute("title", "Popover title");
-		td.setAttribute("data-content", "And here's some amazing content. It's very engaging. Right?");	
+		tr.setAttribute("title", "Popover title");
+		tr.setAttribute("data-content", "And here's some amazing content. It's very engaging. Right?");	
 		
 		
 		tr.id = "studentrow-" + transitId;
@@ -567,7 +567,7 @@ class ViewBuilder {
 		favToolTip.textContent="Click to force checkout.";
 		checkOutIcon.appendChild(favToolTip);		
 		ViewBuilder.setRoomCapacity();
-		$('[data-toggle="popover"]').popover();
+		
 	}
 	static async blinkCell(elementId) {
 		console.log("blinking->" + elementId);
@@ -702,17 +702,26 @@ class ViewBuilder {
 		bodyRow.appendChild(cbCol2);
 		var td=document.createElement("label");
 		td.id = "dashrow-" + hashCode(row.num) + "-users";
+		var fNames ="";
+		var fNamesEl = document.createElement("label");
 		if ( row.users == null || row.users.length == 0 ) {
-			td.innerHTML = "Noone Signed In";
+			fNames= "Noone Signed In";
 		} else {
-			var fNames = "";
+			fNames = "";
 			for ( var ii=0; ii < row.users.length; ii++ ) {
 				var nameAt = Controller.facultyList.get(row.users[ii]);
 	console.log("looking for->" +row.users[ii]);
 				if ( ii > 0 ) { fNames += ","; }
-				fNames += nameAt.name;
+				fNames += ( nameAt.name + "(" + nameAt.id + ")");
 			}
-			td.innerHTML=fNames;
+		}
+		fNamesEl.innerHTML=fNames;
+		td.appendChild(fNamesEl);
+		if ( row.users.length >= 1 ) {
+			var img = document.createElement("img");
+			img.src = "./images/pictures/staff/" + nameAt.id + ".jpg";
+			img.classList.add("img-fluid","w-50");
+			td.appendChild(img);
 		}
 		cbCol1.appendChild(td);
 		
@@ -746,7 +755,7 @@ class ViewBuilder {
 				for ( var ii=0; ii < row.users.length; ii++ ) {
 					var nameAt = Controller.facultyList.get(row.users[ii]);
 					if ( ii > 0 ) { fNames += ","; }
-					fNames += nameAt.name;
+					fNames += ( nameAt.name + "(" + nameAt.id + ")");
 				}
 				user.innerHTML=fNames;
 			}

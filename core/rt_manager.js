@@ -261,7 +261,7 @@ console.log("found user->" + msg.userName);
 		}
 	}
 	static async getDashboardData() { 
-		var rooms = Array.from(RTManager.schoolFactory.theRoomHandler.theRooms.values()).filter(room => room.type === 'LAV-STD' || room.type === 'LAV-DUAL');
+		var rooms = await Array.from(RTManager.schoolFactory.theRoomHandler.theRooms.values()).filter(room => room.type === 'LAV-STD' || room.type === 'LAV-DUAL');
 		var retRoomMap=new Map();
 		for ( var i=0; i < rooms.length; i++ ) {
 			rooms[i].maleCount=0;
@@ -286,7 +286,7 @@ console.log("found user->" + msg.userName);
 				console.log("ERRRRRRRRPOR room not found->" + roomSum[i].room);
 			}
 		}
-		var users = Array.from(RTManager.roomMap);
+		var users = await Array.from(RTManager.roomMap);
 		for ( var i=0; i < users.length; i++ ) {
 			var ret=retRoomMap.get(users[i][0]);
 			if ( ret != null ) {
@@ -297,9 +297,9 @@ console.log("found user->" + msg.userName);
 		}
 		var response = {
 			func: 'dashboard',
-			roomSummary: Array.from(retRoomMap.values())
+			roomSummary: await Array.from(retRoomMap.values())
 		};
-		
+		console.log("SENDING DASHBOARD->\n" + JSON.stringify(response));
 		return response;
 	}
 	static startConnectionCleanupProcess() {
