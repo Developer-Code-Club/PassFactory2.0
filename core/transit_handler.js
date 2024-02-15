@@ -4,7 +4,7 @@
 const DataLoader = require('./data_loader');
 const Transit = require('./transit');
 const RTMessage = require('./rt_message');
-
+const RTManager = require('./rt_manager');
 
 class TransitHandler {
 
@@ -71,22 +71,51 @@ class TransitHandler {
 		console.log("got TRANSIT->" + JSON.stringify(t));
 		var ret=new RTMessage();
 		var dt = new Date();
+		var transitType="";
 		if ( t == null ) {
-			var id = await this.addTransitAndLeg(msg.studentId,msg.userName,msg.location,"checkIn",msg.note);
+			transitType="checkIn"
+			var id = await this.addTransitAndLeg(msg.studentId,msg.userName,msg.location,transitType,msg.note);
 			ret.initializeScanIn(msg.userName,msg.location,msg.studentId,dt);
 			ret.id = id;
 		} else {
 			console.log("TTT->" + JSON.stringify(t));
 			if ( t.isTransitOpen() ) {
-				await this.addTransitLeg(t,msg.userName,msg.location,"checkOut",msg.note);
+				transitType="checkOut";
+				await this.addTransitLeg(t,msg.userName,msg.location,transitType,msg.note);
 				ret.initializeScanOut(msg.id,msg.userName,msg.location,msg.studentId,dt)
 				
 			} else {
-				var id = await this.addTransitAndLeg(msg.studentId,msg.userName,msg.location,"checkIn",msg.note);
+				transitType="checkIn";
+				var id = await this.addTransitAndLeg(msg.studentId,msg.userName,msg.location,transitType,msg.note);
 				ret.initializeScanIn(msg.userName,msg.location,msg.studentId,dt);
 				ret.id = id;
 			}	
 		}
+		/*
+		 * update old database.
+		 */
+		var student=RTManager.schoolFactory.theStudentHandler.theStudents.get(msg.studentId);
+		var dtStr=dt.getFullYear() + "-" + ( dt.getMonth() + 1 ) + "-" + dt.getDate();
+		var days = ["Sunday", "Monday", "Tuesday", "Wednesday","Thursday", "Friday","Saturday"];
+		var wkDayStr = days[dt.getDay()];
+		var tm = dt.toLocaleTimeString();
+		var f = RTManager.schoolFactory.theFacultyHandler.theFaculty.get(msg.userName);
+		if ( f == null ) {
+			for (var i=0; i < RTManager.tempUsers.length; i++ ) {
+				if ( RTManager.tempUsers[i].id == msg.userName ) {
+					f = RTManager.tempUsers[i];
+					break;
+				}
+			}
+		}
+		var fName = msg.userName;
+		if ( f != null )  { fName = f.name ; }
+		console.log("USER->" + JSON.stringify(f));
+		if ( t != null  && t.theTransitLegs.length > 0 ) {
+			console.log("TRANSIT CHECKIN->" + t.theTransitLegs[0].theDateTime.toLocaleTimeString());
+		}
+		console.log("ADDED TRANSIT transitType->" + transitType +  "student->" + msg.studentId + " studentName->" + student.name + " date->" + dtStr + " weekday->" + wkDayStr + " loc->" + msg.location + " time->" + tm + " user->" + fName);
+
 //		console.log("LAV\n" + JSON.stringify(Array.from(this.theTransits)));
 		return ret;
 	}

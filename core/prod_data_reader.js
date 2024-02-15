@@ -544,16 +544,11 @@ console.log("LENGTH->" + ss.length + " ->" + year);
 			await ProdDataReader.theDBHandler.releaseit(conn);	
 		}
 		var ret = Array.from(m.values());
-		console.log("ret->" + JSON.stringify(ret));
 		var filtered = [];
 		
-		console.log("RETLENG->" + ret.length);
 		for ( var i=0; i < ret.length; i++ ) {
-			console.log("iiiiiiiii->" + i);
-console.log("retttttt->" + JSON.stringify(ret[i]));
 //			console.log("xxtime->" + ret[i].checkIn.getHours() + " ->" + ret[i].checkIn.getMinutes());
 			var bNum = BlockCalculator.checkBlockStdDayPassing(ret[i].checkIn);
-			console.log("xxbNum->" + bNum + " ->" + block1);
 			if ( bNum == 0 ) {
 				if ( block1 ) { ret[i].block="0";filtered.push(ret[i]); }
 			} else if ( bNum == 1 ) {
@@ -574,7 +569,6 @@ console.log("retttttt->" + JSON.stringify(ret[i]));
 				if ( block5 ) { ret[i].block="5"; filtered.push(ret[i]); }
 			}
 		}
-		console.log("filtered->" + JSON.stringify(filtered));
 		return filtered;
 	}
 	static async addTransitAndLegDB(studentId,byUserId,locationId,theEvent,note) {

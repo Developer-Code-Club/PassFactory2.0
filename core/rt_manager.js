@@ -11,6 +11,7 @@ class RTManager {
 	//this is the hashmap which is storing all the students locally
 	static userCounter=0;
 	static userMap=new Map();
+	static tempUsers=[];
 	static theTransitHandler=null;
 	static roomMap=new Map();
 	static schoolFactory=null;
@@ -90,11 +91,9 @@ class RTManager {
 								RTManager.roomMap.set(msg.location,roomList);
 							}
 							//mcole: refreshing the users dashboard.
-							RTManager.refreshUsersDashboard();
+							await RTManager.refreshUsersDashboard();
 							
-console.log("added user->" + " ->" + connection.myuser);
 						} else {	//user was already signed in.
-console.log("found user->" + msg.userName);
 							connection.myuser=msg.userName;
 							RTManager.removeUserFromMemory(connection.myuser);
 							RTManager.userMap.set(msg.userName,connection);
@@ -129,7 +128,7 @@ console.log("found user->" + msg.userName);
 							}						
 						}
 						//mcole: refreshing the users dashboard.
-						RTManager.refreshUsersDashboard();						
+						await RTManager.refreshUsersDashboard();						
 					} else {
 						console.log("EMPTY USERNAME->" + JSON.stringify(msg));
 					}
@@ -166,7 +165,7 @@ console.log("found user->" + msg.userName);
 							console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 						}
 						//mcole: refreshing the users dashboard.
-						RTManager.refreshUsersDashboard();
+						await RTManager.refreshUsersDashboard();
 					} catch (e) {
 						console.log(e);
 					}
@@ -184,7 +183,7 @@ console.log("found user->" + msg.userName);
 						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}
 					//mcole: refreshing the users dashboard.
-					RTManager.refreshUsersDashboard();
+					await RTManager.refreshUsersDashboard();
 				} else if ( msg.func == "getStudentList" ) {
 					//mcole: no setup func. 
 					connection.lastUsedTimeStamp=new Date();
@@ -205,7 +204,6 @@ console.log("found user->" + msg.userName);
 					var userAt = RTManager.userMap.get(msg.userName);
 					var ret = Array.from(RTManager.schoolFactory.theFacultyHandler.theFaculty);
 					if ( userAt != null ) {
-						console.log("sending->" + JSON.stringify(ret));
 						msg.func="facultyList";
 						msg.message=ret;
 						userAt.send(JSON.stringify(msg));
@@ -224,11 +222,9 @@ console.log("found user->" + msg.userName);
 						console.log("ERROR: something wrong with this msg->" + JSON.stringify(msg));
 					}
 				} else if ( msg.func == "getDashboard" ) {
-					console.log("*********going to update dashboard");
 					var userAt = RTManager.userMap.get(msg.userName);
 					
 					RTManager.dashboardUsers.push(userAt);
-
 					userAt.send(JSON.stringify(await RTManager.getDashboardData()));
 				} else if ( msg.func == "heartBeat" ) { 
 					connection.send(JSON.stringify({ func:'heartBeat', type:'pong'}));
@@ -245,23 +241,27 @@ console.log("found user->" + msg.userName);
 			connection.on('close', async function(x) {
 				RTManager.removeUserFromMemory(connection.myuser);
 				console.log('connection closed->' + JSON.stringify(x) + " ->" + connection.myuser + " ->" + connection.foo);
+				await RTManager.refreshUsersDashboard();
 			});
 		});	
+		RTManager.tempUsers=DataLoader.getTempUserData();
 		RTManager.startConnectionCleanupProcess();
-		console.log("Leaving INitialize RTManger.");
 	}
 	/*
 	 * get the dashboard data.  The first call gets from db and stringifies once.
 	 * then loop and send to all users.
 	 */
 	static async refreshUsersDashboard() {
-		var db = JSON.stringify(await RTManager.getDashboardData());
-		for(let userAt of RTManager.dashboardUsers) {
-			userAt.send(db);
+		if ( RTManager.dashboardUsers.length > 0 ) {
+			var db = JSON.stringify(await RTManager.getDashboardData());
+			for(let userAt of RTManager.dashboardUsers) {
+				userAt.send(db);
+			}
 		}
 	}
 	static async getDashboardData() { 
-		var rooms = await Array.from(RTManager.schoolFactory.theRoomHandler.theRooms.values()).filter(room => room.type === 'LAV-STD' || room.type === 'LAV-DUAL');
+		var r = await Array.from(RTManager.schoolFactory.theRoomHandler.theRooms.values()).filter(room => room.type === 'LAV-STD' || room.type === 'LAV-DUAL');
+		var rooms = JSON.parse(JSON.stringify(r));
 		var retRoomMap=new Map();
 		for ( var i=0; i < rooms.length; i++ ) {
 			rooms[i].maleCount=0;
@@ -277,15 +277,19 @@ console.log("found user->" + msg.userName);
 			if ( rttl != null ) {
 				if ( s.gender == "M" ) {
 					rttl.maleCount++;
+
 				} else {
 					rttl.femaleCount++;
+
 				}
 				rttl.totalCount++;
+
 				retRoomMap.set(roomSum[i].room, rttl);
 			} else {
 				console.log("ERRRRRRRRPOR room not found->" + roomSum[i].room);
 			}
 		}
+		
 		var users = await Array.from(RTManager.roomMap);
 		for ( var i=0; i < users.length; i++ ) {
 			var ret=retRoomMap.get(users[i][0]);
@@ -299,7 +303,6 @@ console.log("found user->" + msg.userName);
 			func: 'dashboard',
 			roomSummary: await Array.from(retRoomMap.values())
 		};
-		console.log("SENDING DASHBOARD->\n" + JSON.stringify(response));
 		return response;
 	}
 	static startConnectionCleanupProcess() {
@@ -331,6 +334,13 @@ console.log("found user->" + msg.userName);
 					RTManager.roomMap.set(theRooms[i][0],theRooms[i][1]);
 					break;
 				}
+			}
+		}
+		for(var i=0; i < RTManager.dashboardUsers.length; i++ ) {
+			if ( userName == RTManager.dashboardUsers[i].myuser ) {
+				var n = RTManager.dashboardUsers.splice(i,1);
+				RTManager.dashboardUsers = n;
+				break;
 			}
 		}
 	}

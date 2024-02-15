@@ -749,7 +749,7 @@ class ViewBuilder {
 		if ( JSON.stringify(row.users) != JSON.stringify(oldRow.users)) { 
 			cardChanged=true;
 			if ( row.users == null || row.users.length == 0 ) {
-				td.innerHTML = "Noone Signed In";
+				user.innerHTML = "Noone Signed In";
 			} else {
 				var fNames = "";
 				for ( var ii=0; ii < row.users.length; ii++ ) {
@@ -1003,9 +1003,7 @@ console.log("HACK FIX LATER");
 	}
 
 	static clearDashboard() {
-		alert("clearDashboard");
-		var table = document.getElementById('tablebody');
-		table.innerHTML = "";
+		$('#dashboard-card-area').empty();
 	}
 
 	static newSignIn(name, location) {
