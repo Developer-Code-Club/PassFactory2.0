@@ -293,6 +293,20 @@ app.post("/get_report_data", (req, res)=>{
 		res.status(200).send(ret); 	
 	} )();
 });
+app.post("/get_report_data_w_blk", (req, res)=>{   
+	console.log("in get_report_data");
+	(async() =>  { 
+		var j = JSON.stringify(req.body);
+		console.log("data->" + j);
+		var data = JSON.parse(j);
+		var ret = await DataLoader.getReportData(data.repDate,data.location,data.block1,data.block2,data.blockLunch,data.block3,data.block4,data.block5, data.includePassing);
+		for ( var i=0; i < ret.length; i++ ) {
+			ret[i].blockNum = BlockCalculator.checkBlockStdDay(ret[i].checkIn);
+			ret[i].ABDay = BlockCalculator.ABDay;
+		}
+		res.status(200).send(ret); 	
+	} )();
+});
 app.get("/send_test_email", (req, res)=>{   
 	console.log("in send_test_email");
 	(async() =>  { 

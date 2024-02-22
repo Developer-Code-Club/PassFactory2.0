@@ -616,6 +616,33 @@ console.log("LENGTH->" + ss.length + " ->" + year);
 		}
 		return;
 	}
+	static async backwardsLog(transitType,id,name,dt,day,loc,timeIn,timeOut,by,comment) {
+console.log("in backwards log");
+		const rr = async()=> { 
+			var data={ 
+				id: id,
+				name : name, 
+				dt: dt, 
+				day: day, 
+				loc: loc, 
+				timeIn: timeIn, 
+				timeOut: timeOut, 
+				by: by, 
+				comment: comment };
+				console.log("sending->" + JSON.stringify(data));
+				
+			const response = await fetch(ProdMode.backwardsLogUrl +"/" + transitType, {
+				method : 'POST' ,
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify(data)
+			});
+		}
+		await rr();
+console.log("pastiit");
+	
+//	console.log("ret->" + JSON.stringify(ret));
+		return;
+	}
 } //end class ProdDataReader
 
 module.exports = ProdDataReader;

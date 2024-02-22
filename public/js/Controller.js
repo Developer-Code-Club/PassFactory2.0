@@ -436,7 +436,8 @@ console.log("Transit got->" + transitId);
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 			content.innerHTML += "byUser: " + msg.byUser + " ->IN" + msg.studentId  + " dt->"  + dtS +  " id->" + msg.id+ '<br />';			
-			ViewBuilder.inStudentToTable(msg.studentId,dtS,msg.id,msg.location);			
+			ViewBuilder.inStudentToTable(msg.studentId,dtS,msg.id,msg.location,msg.ABDay,msg.blockNum,true);
+			console.log("scan in");
 		} else if ( msg.func == "scanConfirmOut" ) {
 			var dt=new Date(msg.theDateTime);
 			var dtS = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -560,7 +561,7 @@ console.log("Transit got->" + transitId);
 			var res=await DataLoader.initializePostLogin(dtStr,Controller.dualRoom.room1);
 			for ( var i=0; i < res.length; i++ ) {
 				console.log("loading->" + JSON.stringify(res[i]));
-				ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id,res[i].location);
+				ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id,res[i].location,res[i].ABDay,res[i].blockNum,false);
 				if ( res[i].checkOut != null ) {
 					ViewBuilder.outStudentToTable(res[i].studentId, res[i].id, res[i].checkOut);
 				}
@@ -568,7 +569,7 @@ console.log("Transit got->" + transitId);
 			var res=await DataLoader.initializePostLogin(dtStr,Controller.dualRoom.room2);
 			for ( var i=0; i < res.length; i++ ) {
 				console.log("loading->" + JSON.stringify(res[i]));
-				ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id,res[i].location);
+				ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id,res[i].location,res[i].ABDay,res[i].blockNum,false);
 				if ( res[i].checkOut != null ) {
 					ViewBuilder.outStudentToTable(res[i].studentId, res[i].id, res[i].checkOut);
 				}
@@ -582,7 +583,7 @@ console.log("Transit got->" + transitId);
 			var res=await DataLoader.initializePostLogin(dtStr,l);
 			for ( var i=0; i < res.length; i++ ) {
 				console.log("loading->" + JSON.stringify(res[i]));
-				ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id,res[i].location);
+				ViewBuilder.inStudentToTable(res[i].studentId,res[i].checkIn,res[i].id,res[i].location,res[i].ABDay,res[i].blockNum,false);
 				if ( res[i].checkOut != null ) {
 					ViewBuilder.outStudentToTable(res[i].studentId, res[i].id, res[i].checkOut);
 				}

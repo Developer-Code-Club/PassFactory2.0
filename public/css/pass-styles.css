@@ -59,7 +59,40 @@
   top: -40px;
   right: 115%;
  }
- 
+ .xpitTooltip:hover .xpitTooltipText {
+   visibility: visible;
+ }
+ .xpitTooltip { 
+  position: relative;
+  display: inline-block;
+}
+
+.xpitTooltip .xpitTooltipText {
+  visibility: hidden;
+  background-color: #E2E4E6;
+  font-size: 10px;
+  color: black;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 0;
+  position: absolute;
+  z-index: 1;
+  top: -40px;
+  right: -450%;
+ }
+ .xpitTooltip .xpitTooltipText2 {
+  visibility: visible;
+  background-color: #E2E4E6;
+  font-size: 10px;
+  color: black;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 0;
+  position: absolute;
+  z-index: 1;
+  top: -40px;
+  right: -450%;
+ }
  /* makes hover of a nav-link blue. */
 .pit-link:hover {
    color: blue;

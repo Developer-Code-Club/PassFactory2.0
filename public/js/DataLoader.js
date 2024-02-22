@@ -263,7 +263,7 @@ class DataLoader {
 	static async initializePostLogin(dt,loc) {	
 		const rr = async()=> { 
 			var p={ repDate:dt, location: loc, block1:true, block2:true, lunch:true, block3:true, block4:true, block5:true, includePassing:true};
-			const response = await fetch('/get_report_data', {
+			const response = await fetch('/get_report_data_w_blk', {
 				method : 'POST' ,
 				headers: {'Content-Type': 'application/json'},
 				body: JSON.stringify(p)

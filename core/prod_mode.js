@@ -30,6 +30,16 @@ class ProdMode {
 				ProdMode.persitRefData = false;
 			}
 		}
+		
+		//This will log data in the old reporting database and new database
+		//If the backwards log url exists, it is assumed that wanting to log it is true.
+		var backwardsLogUrl = process.env.BACKWARDS_LOG_URL;  
+		console.log("BACKWARDS_LOG_URL Environment Variable = " + backwardsLogUrl);
+		if ( backwardsLogUrl != null  && backwardsLogUrl.length > 0 ) {
+			ProdMode.backwardsLogUrl = backwardsLogUrl;
+			ProdMode.backwardsLog = true;
+		}
+		
 	}	
 	
 	/*
@@ -42,6 +52,9 @@ class ProdMode {
 	 */
 	static productionMode = "TEST";
 	static persistRefData = false;
+	static backwardsLog = false;
+	static backwardsLogUrl ="";
+	
 	
 	static setProductionModeTest() {
 		ProdMode.productionMode="TEST";

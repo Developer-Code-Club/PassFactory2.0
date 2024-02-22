@@ -26,6 +26,7 @@ class Transit {
 	addTransitLeg(inId,byUserId,inLocationId,inEvent,inDateTime) {
 		var tl = new TransitLeg(inId,byUserId,inLocationId,inEvent,inDateTime);
 		this.theTransitLegs.push(tl);
+		console.log("added leg->" + JSON.stringify(tl));
 	}
 	
 }

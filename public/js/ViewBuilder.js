@@ -475,7 +475,7 @@ class ViewBuilder {
 		room2Lav.setAttribute("lav-count", room2Ct);
 	}
 	
-	static inStudentToTable(studentId,atTime,transitId,roomName) {
+	static inStudentToTable(studentId,atTime,transitId,roomName,ABDay,blockNum,popup) {
 		var room;
 		if ( roomName != null ) {
 			room = Controller.roomList.get(roomName);
@@ -491,10 +491,33 @@ class ViewBuilder {
 		tab.appendChild(tr);
 		var td = document.createElement("td");
 		
-		td.innerHTML=Controller.studentsList.get(parseInt(studentId)).name + " (" + studentId + ")";
-		td.setAttribute("data-toggle", "popover");
-		tr.setAttribute("title", "Popover title");
-		tr.setAttribute("data-content", "And here's some amazing content. It's very engaging. Right?");	
+		var l = document.createElement("label");
+		td.appendChild(l);
+		var student = Controller.studentsList.get(parseInt(studentId));
+		l.innerHTML=student.name + " (" + studentId + ")";
+		l.classList.add("xpitTooltip");
+			
+		var xToolTip = document.createElement("p");
+		if ( popup ) {
+			xToolTip.classList.add("xpitTooltipText2");
+		} else {
+			xToolTip.classList.add("xpitTooltipText");
+		}
+		var cont=document.createElement("div"); cont.classList.add("container","m-0","p-0"); xToolTip.appendChild(cont);
+		var row=document.createElement("div");  row.classList.add("row","m-0","p-0"); cont.appendChild(row);
+		var col1=document.createElement("div"); col1.classList.add("col-sm-6"); row.appendChild(col1);
+		var col2=document.createElement("div"); col2.classList.add("col-sm-6"); row.appendChild(col2);
+
+		var d=ViewBuilder.getFromClass(student,ABDay,blockNum);
+		col1.appendChild(d);
+		
+		var img = document.createElement("img");
+			img.src = "./images/pictures/students/" + studentId + ".jpg";
+			img.classList.add("img-fluid","w-50");
+			col2.appendChild(img);
+		l.appendChild(xToolTip);	
+		
+		
 		
 		
 		tr.id = "studentrow-" + transitId;
@@ -567,7 +590,116 @@ class ViewBuilder {
 		favToolTip.textContent="Click to force checkout.";
 		checkOutIcon.appendChild(favToolTip);		
 		ViewBuilder.setRoomCapacity();
+		if ( popup ) {
+			ViewBuilder.showit(xToolTip);
+		}
+	}
+	static getFromClass(student,ABDay,blockNum) {
+		var d=document.createElement("div"); d.classList.add("container");
 		
+		var aOrb;
+		if ( ABDay == "A" ) {
+			aOrb=student.theSchedule.ADayBlocks;
+		} else if ( ABDay == "B") {
+			aOrb=student.theSchedule.BDayBlocks;
+		} 
+	
+		var nameLN = document.createElement("label"); nameLN.classList.add("float-left");
+		nameLN.innerHTML= "Name:";
+		var nameL = document.createElement("label"); nameL.classList.add("float-left");
+		nameL.innerHTML= student.name;
+		var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
+		var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
+		var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);	
+		col1.appendChild(nameLN);
+		col2.appendChild(nameL);
+		
+		if ( aOrb ) {
+			if ( blockNum == 1 || blockNum == 2 || blockNum == 3 || blockNum == 4 ) {
+				var blockLN = document.createElement("label");  blockLN.classList.add("float-left");
+				blockLN.innerHTML = "Block:";
+		
+				var blockL = document.createElement("label");  blockL.classList.add("float-left");
+				blockL.innerHTML = aOrb[blockNum].scheduleDisplay;
+	
+				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
+				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
+				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
+				col1.appendChild(blockLN);
+				col2.appendChild(blockL);
+		
+				
+				var roomLN = document.createElement("label"); roomLN.classList.add("float-left");
+				roomLN.innerHTML = "Room:";
+				var roomL = document.createElement("label"); roomL.classList.add("float-left");
+				roomL.innerHTML = aOrb[blockNum].room;
+				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
+				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
+				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
+				col1.appendChild(roomLN);
+				col2.appendChild(roomL);
+				
+				var classLN = document.createElement("label"); classLN.classList.add("float-left");
+				classLN.innerHTML = "Class:";
+				var classL = document.createElement("label"); classL.classList.add("float-left");
+				classL.innerHTML = aOrb[blockNum].description;
+				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
+				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
+				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
+				col1.appendChild(classLN);
+				col2.appendChild(classL);
+
+				var teacherLN = document.createElement("label"); teacherLN.classList.add("float-left");
+				teacherLN.innerHTML = "Teacher:";
+				var teacherL = document.createElement("label"); teacherL.classList.add("float-left");
+				teacherL.innerHTML = aOrb[blockNum].rawSource.primaryStaff.nameView;
+				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
+				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
+				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
+				col1.appendChild(teacherLN);
+				col2.appendChild(teacherL);
+				
+				
+			} else if ( blockNum == 2.5 ) {
+				var classLN = document.createElement("label");classLN.classList.add("float-left");
+				classLN.innerHTML = "Class:";
+				var classL = document.createElement("label");classL.classList.add("float-left");
+				classL.innerHTML = "Lunch";
+				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
+				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
+				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
+				col1.appendChild(classLN);
+				col2.appendChild(classL);
+			} else {
+				var classLN = document.createElement("label");classLN.classList.add("float-left");
+				classLN.innerHTML = "Class:";
+				var classL = document.createElement("label");classL.classList.add("float-left");
+				classL.innerHTML = "Non Class Time";
+				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
+				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
+				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
+				col1.appendChild(classLN);
+				col2.appendChild(classL);
+			}	
+		} else {
+			var classLN = document.createElement("label");classLN.classList.add("float-left");
+			classLN.innerHTML = "Class:";
+			var classL = document.createElement("label");classL.classList.add("float-left");
+			classL.innerHTML = "No Other Info";				
+			var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
+			var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
+			var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
+			col1.appendChild(classLN);
+			col2.appendChild(classL);			
+		}	
+		
+		return d;
+	}
+	static async showit(el) {
+		const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
+		await sleep(2000);
+		el.classList.remove("xpitTooltipText2");
+		el.classList.add("xpitTooltipText");
 	}
 	static async blinkCell(elementId) {
 		console.log("blinking->" + elementId);
@@ -584,6 +716,26 @@ class ViewBuilder {
 			await sleep(1500);
 		}
 	}
+	static async showStudentDetails(studentId) {
+		const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
+		var l = document.getElementById("details-area");
+		l.innerHTML=studentId;
+//		var n = document.getElementById("popupStudent");
+		
+//		var c = n.cloneNode();
+//		var dt = Date.now();
+//		dt="";
+//		c.id = "popupStudent2" + dt;
+//		console.log("c->" + c.id);
+//		await document.getElementById("student-modal-home").appendChild(c);
+//		$('#popupStudent').modal("show");
+		await sleep(4000);
+		l.innerHTML="clear";
+//		$('#popupStudent').modal("hide");
+//		c.parentNode.removeChild(c);
+	}
+
+		
 	/*
 	 * facultyList is an array of faculty users signed in for lav.
 	 */
