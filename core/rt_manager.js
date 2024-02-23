@@ -251,6 +251,8 @@ class RTManager {
 	 * get the dashboard data.  The first call gets from db and stringifies once.
 	 * then loop and send to all users.
 	 */
+
+	//sending the data to all the dashboard people
 	static async refreshUsersDashboard() {
 		if ( RTManager.dashboardUsers.length > 0 ) {
 			var db = JSON.stringify(await RTManager.getDashboardData());
@@ -259,6 +261,7 @@ class RTManager {
 			}
 		}
 	}
+	//retruning the data structure for the 
 	static async getDashboardData() { 
 		var r = await Array.from(RTManager.schoolFactory.theRoomHandler.theRooms.values()).filter(room => room.type === 'LAV-STD' || room.type === 'LAV-DUAL');
 		var rooms = JSON.parse(JSON.stringify(r));
@@ -270,6 +273,7 @@ class RTManager {
 			rooms[i].users=[];
 			retRoomMap.set(rooms[i].num, rooms[i]);
 		}
+
 		var roomSum = await DataLoader.getOpenTransitsForStudents();
 		for ( var i=0; i < roomSum.length; i++ ) {
 			var s = RTManager.schoolFactory.theStudentHandler.theStudents.get(roomSum[i].studentId);

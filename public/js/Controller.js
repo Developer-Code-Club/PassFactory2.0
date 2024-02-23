@@ -625,6 +625,23 @@ console.log("Transit got->" + transitId);
 		console.log("Builddashboard->" + JSON.stringify(msg));
 		var rooms = msg.roomSummary;
 		ViewBuilder.buildDashboard(rooms);
+	}	
+
+	static haveFacultyPicture(image_url){
+
+		var http = new XMLHttpRequest();
+	
+		http.open('HEAD', image_url, false);
+		try {
+			http.send();
+			
+		} catch (error) {
+			console.log("haveFacultyPicture -> in error");
+			return false;
+		}
+	
+		return http.status != 404;
+	
 	}
 	
 	static async getFacultyNames(ids) {

@@ -8,7 +8,7 @@ const mysql = require("mysql2");
 var connection_prod = mysql.createConnection({
     host     : 'localhost',
     user     : 'root',
-    password : '@A2gbasket',
+    password : '',
     database : 'passit'
 });
 */

@@ -368,6 +368,8 @@ class ViewBuilder {
 		document.getElementById("dashboard-tab-item").classList.add("d-none");
 
 		document.getElementById("signin-tab").click();
+
+		
 		
 	}
 		
@@ -701,11 +703,11 @@ class ViewBuilder {
 		el.classList.remove("xpitTooltipText2");
 		el.classList.add("xpitTooltipText");
 	}
-	static async blinkCell(elementId) {
+	static async blinkCell(elementId, count) {
 		console.log("blinking->" + elementId);
 		const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 		var el = document.getElementById(elementId);
-		for ( var i=1; i <= 5; i++ ){
+		for ( var i=1; i <= count; i++ ){
 			console.log("blink on");
 			el.classList.remove("dashboard-blink-off");
 			el.classList.add("dashboard-blink-on");
@@ -746,14 +748,40 @@ class ViewBuilder {
 		if ( findRow != null ) {
 			var oldData = JSON.parse(findRow.getAttribute("row"));
 			if ( oldData.maleCount != row.maleCount ) {
-				var td = document.getElementById("dashrow-" + hashCode(row.num) + "-mo");
-				td.innerHTML= row.maleCount + "(" + row.maleCapacity + ")";
-				ViewBuilder.blinkCell(td.id);
+
+				var pill = document.getElementById("dashrow-" + hashCode(row.num) + "-mo");
+				
+				if(row.maleCount >= row.maleCapacity){
+					pill.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");	
+				}
+				else{
+					pill.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2")
+				}
+
+				// pill.innerHTML = row.maleCount + "(" + row.maleCapacity + ")";
+				pill.innerHTML = row.maleCount;
+
+				// var td = document.getElementById("dashrow-" + hashCode(row.num) + "-mo");
+				// td.innerHTML= row.maleCount + "(" + row.maleCapacity + ")";
+
+				ViewBuilder.blinkCell(td.id, 2);
 			}
 			if ( oldData.femaleCount != row.femaleCount ) {
-				var td = document.getElementById("dashrow-" + hashCode(row.num) + "-fo");
-				td.innerHTML= row.femaleCount + "(" + row.femaleCapacity + ")";
-				ViewBuilder.blinkCell(td.id);
+				// var td = document.getElementById("dashrow-" + hashCode(row.num) + "-fo");
+				// td.innerHTML= row.femaleCount + "(" + row.femaleCapacity + ")";
+				ViewBuilder.blinkCell(td.id, 2);
+
+				var pill = document.getElementById("dashrow-" + hashCode(row.num) + "-fo");
+				
+				if(row.femaleCount >= row.femaleCapacity){
+					pill.classList.add("badge", "badge-pill", "badge-danger", "px-3", "ml-2", "mt-2");	
+				}
+				else{
+					pill.classList.add("badge", "badge-pill", "badge-success", "px-3", "ml-2", "mt-2")
+				}
+
+				//pill.innerHTML= row.femaleCount + "(" + row.femaleCapacity + ")";
+				pill.innerHTML = row.femaleCount;
 			}
 			if ( JSON.stringify(oldData.users) != JSON.stringify(row.users) ) {
 				var td = document.getElementById("dashrow-" + hashCode(row.num) + "-users");
@@ -767,7 +795,7 @@ class ViewBuilder {
 						fNames += nameAt.name;
 					}
 					td.innerHTML = fNames;
-					ViewBuilder.blinkCell(td.id);
+					ViewBuilder.blinkCell(td.id, 3);
 				}
 			}
 		//row did not exist we are creating it.
@@ -814,6 +842,7 @@ class ViewBuilder {
 		}
 
 	}
+	//
 	static async buildDashboard(rooms) {
 		var dashboardCardAreaEl=document.getElementById("dashboard-card-area");
 		var row;
@@ -836,99 +865,165 @@ class ViewBuilder {
 		}
 	}
 	static buildDashboardCard(row) {
-		var card = document.createElement("div"); card.classList.add("card","dashboard-card");
-		card.id="dashboard-card-" + hashCode(row.num);
-		card.setAttribute("row",JSON.stringify(row));
-		var cardHeader=document.createElement("div"); cardHeader.classList.add("text-center","card-header","m-1","p-0");
-		var roomEl=document.createElement("label"); 
-		roomEl.innerHTML="<b>" + row.num + "</b>" ;
-		cardHeader.appendChild(roomEl);
-		card.appendChild(cardHeader);
-		var cardBody = document.createElement("div"); cardBody.classList.add("card-body","container");
-		card.appendChild(cardBody);
-		var bodyRow=document.createElement("div"); bodyRow.classList.add("row");
-		cardBody.appendChild(bodyRow);
-		var cbCol1=document.createElement("div");cbCol1.classList.add("col-sm-6");
-		var cbCol2=document.createElement("div");cbCol2.classList.add("col-sm-6");
-		bodyRow.appendChild(cbCol1);
-		bodyRow.appendChild(cbCol2);
-		var td=document.createElement("label");
-		td.id = "dashrow-" + hashCode(row.num) + "-users";
-		var fNames ="";
-		var fNamesEl = document.createElement("label");
-		if ( row.users == null || row.users.length == 0 ) {
-			fNames= "Noone Signed In";
-		} else {
-			fNames = "";
-			for ( var ii=0; ii < row.users.length; ii++ ) {
-				var nameAt = Controller.facultyList.get(row.users[ii]);
-	console.log("looking for->" +row.users[ii]);
-				if ( ii > 0 ) { fNames += ","; }
-				fNames += ( nameAt.name + "(" + nameAt.id + ")");
-			}
-		}
-		fNamesEl.innerHTML=fNames;
-		td.appendChild(fNamesEl);
-		if ( row.users.length >= 1 ) {
-			var img = document.createElement("img");
-			img.src = "./images/pictures/staff/" + nameAt.id + ".jpg";
-			img.classList.add("img-fluid","w-50");
-			td.appendChild(img);
-		}
-		cbCol1.appendChild(td);
-		
-		var mc = document.createElement("label");
-		mc.innerHTML = "M - " + row.maleCount + "(" + row.maleCapacity + ")" ;
-		//mcole - this is the male occupancy column id.
-		mc.id = "dashrow-" + hashCode(row.num) + "-mo";
-		cbCol2.appendChild(mc);
+		// the card element
+		var card = document.createElement("div");
+		card.classList.add("card", "shadow", "mb-4", "bg-white", "rounded-lg");
+		card.id = "dashboard-card-" + hashCode(row.num);
+		card.setAttribute("row", JSON.stringify(row));
 
-		cbCol2.appendChild(document.createElement("br"));
-		var fc = document.createElement("label");
-		fc.innerHTML = "F - " + row.femaleCount + "(" + row.femaleCapacity + ")";
-		//mcole - this is the female occupancy column id.
-		fc.id = "dashrow-" + hashCode(row.num) + "-fo";
-		cbCol2.appendChild(fc);
+		// card header 
+		var cardHeader = document.createElement("div");
+		cardHeader.classList.add("card-header", "text-white", "text-center", "py-2"); //"rounded-top"
+		cardHeader.classList.add(row.users == null || row.users.length == 0 ? "bg-danger" : "bg-success");
+		cardHeader.innerHTML = `<strong>` + row.num + `</strong>`;
+		cardHeader.style.borderTopLeftRadius = "20px";
+		cardHeader.style.borderTopRightRadius = "20px";
+
+		card.appendChild(cardHeader);
+
+		var cardBody = document.createElement("div");
+		cardBody.id = "dashboard-textbody-"+hashCode(row.num);
+		cardBody.classList.add("card-body", "p-4", "text-center");
+		card.appendChild(cardBody);
+
+		// user info section
+		var userInfoSection = document.createElement("div");
+		userInfoSection.classList.add("user-info-section", "mb-3");
+		cardBody.appendChild(userInfoSection);
+
+		// user list 
+		var userListLabel = document.createElement("h5");
+		userListLabel.classList.add("mb-2", "text-dark");
+		userListLabel.innerHTML = "Signed In:";
+		userInfoSection.appendChild(userListLabel);
+
+		var userList = document.createElement("p");
+		userList.classList.add("text-muted", "mb-0", "fw-bold");
+		var userListContent = "";
+		if (row.users == null || row.users.length == 0) {
+			userListContent = "Empty";
+		} else {
+			var nameAt = Controller.facultyList.get(row.users[0]);
+			userListContent += `${nameAt.name} (${nameAt.id})`;
+		}
+		userList.innerHTML = userListContent;
+		userInfoSection.appendChild(userList);
+
+		// Displaying user image 
+		var userImageContainer = document.createElement("div");
+		userImageContainer.classList.add("user-image-container", "my-3");
+		var userImage = document.createElement("img");
 		
+		var imgPlaceholder = "./images/pictures/staff/placeholder.jpg";
+
+
+		if(row.users.length && Controller.haveFacultyPicture("./images/pictures/staff/" + Controller.facultyList.get(row.users[0]).id + ".jpg")){
+			userImage.src = "./images/pictures/staff/" + Controller.facultyList.get(row.users[0]).id + ".jpg";
+		}
+		else{
+			userImage.src = imgPlaceholder;
+		}
+
+		userImage.classList.add("img-thumbnail", "rounded-circle");
+		userImage.style.width = "100px";
+		userImage.style.height = "110px";
+		userImageContainer.appendChild(userImage);
+		userInfoSection.appendChild(userImageContainer);
+		userImageContainer.style.display = row.users == null || row.users.length == 0 ? "none" : "block";
+
+
+		var countSection = document.createElement("div");
+		countSection.classList.add("count-section", "d-flex", "justify-content-around", "mt-3");
+		cardBody.appendChild(countSection);
+
+		//male count
+		var isDual = (row.type=='LAV-DUAL');
+		var maleCount = document.createElement("div");
+		maleCount.innerHTML = !isDual
+			? `<i class="fa fa-male text-primary" style="padding-right:5px; font-size:1.5em;"></i> <span class="badge ${row.maleCount >= row.maleCapacity ? 'badge-danger' : 'badge-success'} rounded-pill py-2 px-4" style="color:white; font-size: 1em;">${row.maleCount}</span>`
+			: `<i class="text-secondary" style="padding-right:5px; font-size:1em;">Lav</i> <span class="badge ${row.maleCount >= row.maleCapacity ? 'badge-danger' : 'badge-success'} rounded-pill py-2 px-4" style="color:white; font-size: 1em;">${row.maleCount}</span>`;
+
+		maleCount.classList.add("male-count", "d-flex", "align-items-center");
+		maleCount.setAttribute("data-toggle", "tooltip");
+		maleCount.setAttribute("data-placement", "bottom");
+		!isDual ? maleCount.setAttribute("title", "Male Count:") : maleCount.setAttribute("title", "Dual Count:");
+		countSection.appendChild(maleCount);
+
+		// female count 
+		var femaleCount = document.createElement("div");
+		femaleCount.innerHTML = !isDual 
+			? `<i class="fa fa-female text-danger" style= "padding-right:5px; font-size:1.5em"></i> <span class="badge ${row.femaleCount >= row.femaleCapacity ? 'badge-danger' : 'badge-success'} rounded-pill py-2 px-4" style="color:white; font-size: 1em;">${row.femaleCount}</span>`
+			: `<i class="text-secondary" style= "padding-right:5px; font-size:1em">Lav</i> <span class="badge ${row.femaleCount >= row.femaleCapacity ? 'badge-danger' : 'badge-success'} rounded-pill py-2 px-4" style="color:white; font-size: 1em;">${row.femaleCount}</span>`;
+		femaleCount.classList.add("female-count", "d-flex", "align-items-center");
+		femaleCount.setAttribute("data-toggle", "tooltip");
+		femaleCount.setAttribute("data-placement", "bottom");
+		!isDual ? femaleCount.setAttribute("title", "Female Count:") : femaleCount.setAttribute("title", "Dual Count:");
+		countSection.appendChild(femaleCount);
+
+		// needed for popover
+		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'));
+		var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+			return new bootstrap.Tooltip(tooltipTriggerEl);
+		});
+
 		return card;
 	}
+
 	static updateDashboardCard(row) {
-		var card =document.getElementById("dashboard-card-" + hashCode(row.num));
+		var card = document.getElementById("dashboard-card-" + hashCode(row.num));
+		var cardbody = document.getElementById("dashboard-textbody-"+hashCode(row.num));
 		var oldRow = JSON.parse(card.getAttribute("row"));
+	
+		// update the card header color based on user sign-in status
+		var cardHeader = card.querySelector(".card-header");
+		cardHeader.classList.toggle("bg-danger", row.users == null || row.users.length == 0);
+		cardHeader.classList.toggle("bg-success", !(row.users == null || row.users.length == 0));
 		
-		var user = document.getElementById("dashrow-" + hashCode(row.num) + "-users");
-		var cardChanged = false;
-		if ( JSON.stringify(row.users) != JSON.stringify(oldRow.users)) { 
-			cardChanged=true;
-			if ( row.users == null || row.users.length == 0 ) {
-				user.innerHTML = "Noone Signed In";
-			} else {
-				var fNames = "";
-				for ( var ii=0; ii < row.users.length; ii++ ) {
-					var nameAt = Controller.facultyList.get(row.users[ii]);
-					if ( ii > 0 ) { fNames += ","; }
-					fNames += ( nameAt.name + "(" + nameAt.id + ")");
-				}
-				user.innerHTML=fNames;
-			}
+		// update user list content
+		var userList = card.querySelector(".user-info-section > p");
+		var userListContent = "";
+		if (row.users == null || row.users.length == 0) {
+			userListContent = "Empty";
+		} else {
+			var nameAt = Controller.facultyList.get(row.users[0]);
+			userListContent += `${nameAt.name} (${nameAt.id})`;
 		}
+		userList.innerHTML = userListContent;
+	
+		// update the user image and its visibility
+		var userImageContainer = card.querySelector(".user-image-container");
+		var userImage = userImageContainer.querySelector("img");
+		var imgPlaceholder = "./images/pictures/staff/placeholder.jpg";
+
+
+		if(row.users.length && Controller.haveFacultyPicture("./images/pictures/staff/" + Controller.facultyList.get(row.users[0]).id + ".jpg")){
+			userImage.src = "./images/pictures/staff/" + Controller.facultyList.get(row.users[0]).id + ".jpg";
+		}
+		else{
+			userImage.src = imgPlaceholder;
+		}
+
+		//userImage.src = "./images/pictures/staff/" + (row.users.length ? nameAt.id : 'placeholder') + ".jpg";
+		userImageContainer.style.display = row.users == null || row.users.length == 0 ? "none" : "block";
 		
-		if ( row.maleCount != oldRow.maleCount ) {
-			cardChanged=true;
-			var mc = document.getElementById("dashrow-" + hashCode(row.num) + "-mo");
-			mc.innerHTML = "M - " + row.maleCount + "(" + row.maleCapacity + ")" ;
-		}
-		if ( row.femaleCount != oldRow.femaleCount ) {
-			cardChanged=true;
-			var fc = document.getElementById("dashrow-" + hashCode(row.num) + "-fo");
-			fc.innerHTML = "F - " + row.femaleCount + "(" + row.femaleCapacity + ")" ;
-		}
+		// update male count
+		var maleCountBadge = card.querySelector(".male-count > span");
+		maleCountBadge.innerHTML = row.maleCount;
+		maleCountBadge.classList.toggle("bg-danger", row.maleCount >= row.maleCapacity);
+		maleCountBadge.classList.toggle("bg-success", row.maleCount < row.maleCapacity);
 		
-		if ( cardChanged ) {
-			ViewBuilder.blinkCell(card.id);
+		// update female count
+		var femaleCountBadge = card.querySelector(".female-count > span");
+		femaleCountBadge.innerHTML = row.femaleCount;
+		femaleCountBadge.classList.toggle("bg-danger", row.femaleCount >= row.femaleCapacity);
+		femaleCountBadge.classList.toggle("bg-success", row.femaleCount < row.femaleCapacity);
+	
+		if (JSON.stringify(row) !== card.getAttribute("row")) {
+			ViewBuilder.blinkCell(cardbody.id, 2);
+			card.setAttribute("row", JSON.stringify(row)); // Update the row attribute with the new data
 		}
-		return ;
 	}
+	
 	static async noteChange(e) {
 		var iNote=document.getElementById(e.srcElement.id);
 		var note=iNote.value;
@@ -1155,7 +1250,9 @@ console.log("HACK FIX LATER");
 	}
 
 	static clearDashboard() {
-		$('#dashboard-card-area').empty();
+		alert("clearDashboard");
+		// var table = document.getElementById('tablebody');
+		// table.innerHTML = "";
 	}
 
 	static newSignIn(name, location) {
