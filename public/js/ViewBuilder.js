@@ -513,10 +513,18 @@ class ViewBuilder {
 		var d=ViewBuilder.getFromClass(student,ABDay,blockNum);
 		col1.appendChild(d);
 		
+
+		
 		var img = document.createElement("img");
+		if(Controller.haveFacultyPicture("./images/pictures/students/" + studentId + ".jpg")){
 			img.src = "./images/pictures/students/" + studentId + ".jpg";
-			img.classList.add("img-fluid","w-50");
-			col2.appendChild(img);
+		}
+		else {
+			img.src = "./images/pictures/students/placeholder.jpg";
+		}
+
+		img.classList.add("img-fluid","w-50");
+		col2.appendChild(img);
 		l.appendChild(xToolTip);	
 		
 		
