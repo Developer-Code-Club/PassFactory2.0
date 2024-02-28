@@ -531,6 +531,23 @@ console.log("Transit got->" + transitId);
 		Controller.buildScreenPostLogin(l);
 	}
 
+	// Same as above but takes email as name from JWT returned upon successful signin w/ Google
+	static async createTempLoginG(token) {
+		$('#loginUnknownUser').modal('hide');
+		var n=token.email;
+		var l = ViewBuilder.getLocation();
+		if ( l == null ) {
+			alert("You must select a valid location.");
+			return;
+		}
+		var rr=await DataLoader.addRTTempUser(n);
+		console.log("ret->"  + JSON.stringify(rr));
+
+		document.getElementById("ci_faculty_id").value = rr.name;
+		Controller.finalizeTempLogin(0-rr.id,l);
+		Controller.buildScreenPostLogin(l);
+	}
+
 	static async buildScreenPostLogin(l) {
 		console.log("in build screen post login");
 		$('#ci-rows').empty();
