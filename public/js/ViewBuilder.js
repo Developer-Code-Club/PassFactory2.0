@@ -505,17 +505,57 @@ class ViewBuilder {
 		} else {
 			xToolTip.classList.add("xpitTooltipText");
 		}
-		var cont=document.createElement("div"); cont.classList.add("container","m-0","p-0"); xToolTip.appendChild(cont);
-		var row=document.createElement("div");  row.classList.add("row","m-0","p-0"); cont.appendChild(row);
-		var col1=document.createElement("div"); col1.classList.add("col-sm-6"); row.appendChild(col1);
-		var col2=document.createElement("div"); col2.classList.add("col-sm-6"); row.appendChild(col2);
+		var cont=document.createElement("div"); cont.classList.add("card", "shadow", "mb-4", "bg-white", "rounded-lg"); xToolTip.appendChild(cont);
 
 		var d=ViewBuilder.getFromClass(student,ABDay,blockNum);
-		col1.appendChild(d);
-		
+		var name = document.createElement("div");
+		name.classList.add("card-header", "text-white", "text-center", "py-2", "bg-success"); 
+		name.innerHTML = `<strong>` + d[0] + `</strong>`;
+		name.style.borderTopLeftRadius = "20px";
+		name.style.borderTopRightRadius = "20px";
+		cont.appendChild(name);
 
-		
+		var body = document.createElement("div");
+		body.classList.add("card-body", "p-4", "text-center");
+		cont.appendChild(body);
+
+		var info = document.createElement("div");
+		info.classList.add("user-info-section", "mb-3","d-flex", "align-items-center");
+		body.appendChild(info);
+
+		var imgContainer = document.createElement("div"); imgContainer.classList.add("user-image-container", "mr-4");
 		var img = document.createElement("img");
+		if(Controller.haveFacultyPicture("./images/pictures/students/" + studentId + ".jpg")){
+			img.src = "./images/pictures/students/" + studentId + ".jpg";
+		}
+		else {
+			img.src = "./images/pictures/students/placeholder.jpg";
+		}
+		
+		img.classList.add("img-thumbnail", "rounded-circle");
+		img.style.width = "100px";
+		img.style.height = "100px";
+		imgContainer.appendChild(img);
+		info.appendChild(imgContainer);
+
+		var content = document.createElement("div");
+		content.classList.add("text-muted", "mb-0", "fw-bold");
+
+		if(d.length > 2) {
+			for(var i = 1; i < d.length; i++) {
+				var p = document.createElement("p"); p.classList.add("mb-1");
+				p.innerHTML = d[i];
+				content.appendChild(p);
+			}
+		} else if (d.length == 2) {
+			content.innerHTML = "Lunch";
+		} else {
+			content.innerHTML = "No Info";
+		}
+
+		info.appendChild(content);
+		
+		/*var img = document.createElement("img");
 		if(Controller.haveFacultyPicture("./images/pictures/students/" + studentId + ".jpg")){
 			img.src = "./images/pictures/students/" + studentId + ".jpg";
 		}
@@ -524,7 +564,7 @@ class ViewBuilder {
 		}
 
 		img.classList.add("img-fluid","w-50");
-		col2.appendChild(img);
+		col2.appendChild(img);*/
 		l.appendChild(xToolTip);	
 		
 		
@@ -605,8 +645,9 @@ class ViewBuilder {
 		}
 	}
 	static getFromClass(student,ABDay,blockNum) {
-		var d=document.createElement("div"); d.classList.add("container");
-		
+		/*var d=document.createElement("div"); d.classList.add("container");*/
+		var studentinfo = [];
+		studentinfo.push(student.name);
 		var aOrb;
 		if ( ABDay == "A" ) {
 			aOrb=student.theSchedule.ADayBlocks;
@@ -614,7 +655,7 @@ class ViewBuilder {
 			aOrb=student.theSchedule.BDayBlocks;
 		} 
 	
-		var nameLN = document.createElement("label"); nameLN.classList.add("float-left");
+		/*var nameLN = document.createElement("label"); nameLN.classList.add("float-left");
 		nameLN.innerHTML= "Name:";
 		var nameL = document.createElement("label"); nameL.classList.add("float-left");
 		nameL.innerHTML= student.name;
@@ -622,11 +663,15 @@ class ViewBuilder {
 		var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
 		var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);	
 		col1.appendChild(nameLN);
-		col2.appendChild(nameL);
+		col2.appendChild(nameL);*/
 		
 		if ( aOrb ) {
 			if ( blockNum == 1 || blockNum == 2 || blockNum == 3 || blockNum == 4 ) {
-				var blockLN = document.createElement("label");  blockLN.classList.add("float-left");
+				studentinfo.push(`Block: ${aOrb[blockNum].scheduleDisplay}`);
+				studentinfo.push(`Room: ${aOrb[blockNum].room}`);
+				studentinfo.push(`Description: ${aOrb[blockNum].description}`);
+				studentinfo.push(`Teacher: ${aOrb[blockNum].rawSource.primaryStaff.nameView}`);
+				/*var blockLN = document.createElement("label");  blockLN.classList.add("float-left");
 				blockLN.innerHTML = "Block:";
 		
 				var blockL = document.createElement("label");  blockL.classList.add("float-left");
@@ -667,11 +712,12 @@ class ViewBuilder {
 				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
 				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
 				col1.appendChild(teacherLN);
-				col2.appendChild(teacherL);
+				col2.appendChild(teacherL);*/
 				
 				
 			} else if ( blockNum == 2.5 ) {
-				var classLN = document.createElement("label");classLN.classList.add("float-left");
+				studentinfo.push(blockNum);
+				/*var classLN = document.createElement("label");classLN.classList.add("float-left");
 				classLN.innerHTML = "Class:";
 				var classL = document.createElement("label");classL.classList.add("float-left");
 				classL.innerHTML = "Lunch";
@@ -679,8 +725,8 @@ class ViewBuilder {
 				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
 				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
 				col1.appendChild(classLN);
-				col2.appendChild(classL);
-			} else {
+				col2.appendChild(classL);*/
+			} /*else {
 				var classLN = document.createElement("label");classLN.classList.add("float-left");
 				classLN.innerHTML = "Class:";
 				var classL = document.createElement("label");classL.classList.add("float-left");
@@ -700,10 +746,10 @@ class ViewBuilder {
 			var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
 			var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
 			col1.appendChild(classLN);
-			col2.appendChild(classL);			
-		}	
+			col2.appendChild(classL);*/			
+		}
 		
-		return d;
+		return studentinfo;
 	}
 	static async showit(el) {
 		const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
