@@ -6,6 +6,8 @@ class Controller {
 	static creds = null;
 	static socket = null;
 	static studentsList = null;
+	static facultyList = null;
+	static facultyListByEmail = null;
 	static roomList = null;
 	static heartbeats=0;
 	static heartbeatFunc=null;
@@ -84,9 +86,14 @@ class Controller {
 		Controller.isProcessing = false;
 
 		var f = await x.getRTFacultyList();
-		Controller.facultyList = new Map(f);
-		ViewBuilder.buildFacultyList(f);
 		
+		Controller.facultyList = new Map(f);
+		var facultyListByEmail = new Map();
+		for ( var i=0; i<f.length; i++ ) {
+			facultyListByEmail.set(f[i][1].email,f[i][1]);
+		}
+		Controller.facultyListByEmail = facultyListByEmail;	
+				
 		var r = await x.getRTRoomsList();
 		Controller.roomList = new Map();
 		for ( var i=0; i< r.length; i++ ) {
@@ -98,13 +105,6 @@ class Controller {
 		Controller.studentsList = new Map(s);
 		ViewBuilder.buildStudentsList(s);
 		
-		var tu = await x.getRTTempUserList();
-		for ( var i=0; i < tu.length; i++ ) {
-			Controller.facultyList.set(tu[i].id, tu[i]);
-		}
-
-		ViewBuilder.buildTempUserList(tu);
-
 		Controller.isProcessing = false;
 
 
@@ -252,33 +252,16 @@ console.log("Transit got->" + transitId);
 		var i = ViewBuilder.getUserId();
 		var l = ViewBuilder.getLocation();
 		var r=Controller.roomList.get(l);
-		var isFaculty = ViewBuilder.isUserFaculty();
-		var isTemp = ViewBuilder.isUserTemp();
 		/* check location first. */
 		if ( l == null ) {
 			alert("You must select a valid location.");
 			return;
 		}
-		if ( isFaculty == false &&  (document.getElementById("ci_faculty_id").value.length == 0) ) {
-			alert("You must enter a login name." ) ;
+		if ( i==null) {
+			alert("You must log in as a user.");
 			return;
 		}
-		var el = document.getElementById(e.srcElement.id);
-		if ( i == null ) {
-			var n=document.getElementById("ci_faculty_id").value;
-			document.getElementById("unknown-name").innerHTML = n;
-			$('#loginUnknownUser').modal('show');
-			return;
-		} else if ( i < 0 )  {
-			console.log("temp juser->" + i);
-			Controller.finalizeTempLogin(i,l);
-		} else if  ( i > 0 ) {
-			console.log("faculty->" + i);
-			Controller.finalizeFacultyLogin(i,l);
-			
-		} else {
-			alert("junknown");
-		}
+		Controller.finalizeFacultyLogin(i,l);
 	}
 	
 	/* 
@@ -291,14 +274,11 @@ console.log("Transit got->" + transitId);
 		ViewBuilder.openScanning();
 		Controller.buildScreenPostLogin(loc);
 	}
-	static finalizeTempLogin(user,loc) {
-		Controller.setWSLogin(user,loc);
-		ViewBuilder.openScanning();
-		Controller.buildScreenPostLogin(loc);
-	}
+	
 	static setWSLogin(user, loc) {
 		console.log("In setWSLogin -> " + Controller.socket);
-		var server="ws://localhost:1337";
+	//	var server="ws://localhost:1337";
+		var server="ws://" + windows.location.hostname + ":1337";
 		if ( Controller.socket != null ) {
 			Controller.sendClose();
 			alert("Closed existing Connection");
@@ -509,43 +489,22 @@ console.log("Transit got->" + transitId);
 		ViewBuilder.signOutCleanUp();
 		Controller.socket = null;    
 	}
-	/*
-	 * Here are callback from the login process.  They are called from login modals.
-	 */
-	static cancelUnknownLogin(e) {
-		$('#loginUnknownUser').modal('hide');
-	}
-	static async createTempLogin(e) {
-		$('#loginUnknownUser').modal('hide');
-		var n=document.getElementById("ci_faculty_id").value;
-		var l = ViewBuilder.getLocation();
-		if ( l == null ) {
-			alert("You must select a valid location.");
-			return;
-		}
-		var rr=await DataLoader.addRTTempUser(n);
-		console.log("ret->"  + JSON.stringify(rr));
 
-		document.getElementById("ci_faculty_id").value = rr.name;
-		Controller.finalizeTempLogin(0-rr.id,l);
-		Controller.buildScreenPostLogin(l);
-	}
-
-	// Same as above but takes email as name from JWT returned upon successful signin w/ Google
-	static async createTempLoginG(token) {
-		$('#loginUnknownUser').modal('hide');
+	//accepts the login attempt from gmail
+	static async setLoginG(token) {
+		console.log("in setLoginG");
 		var n=token.email;
-		var l = ViewBuilder.getLocation();
-		if ( l == null ) {
-			alert("You must select a valid location.");
+		
+		var u = Controller.facultyListByEmail.get(n);
+		console.log("found->" + JSON.stringify(u));
+		
+		if ( u == null ) {
+			alert("Unknown User " + token.name );
 			return;
 		}
-		var rr=await DataLoader.addRTTempUser(n);
-		console.log("ret->"  + JSON.stringify(rr));
-
-		document.getElementById("ci_faculty_id").value = rr.name;
-		Controller.finalizeTempLogin(0-rr.id,l);
-		Controller.buildScreenPostLogin(l);
+		document.getElementById("faculty-name").innerHTML = u.name;
+		document.getElementById("faculty-name").setAttribute("userId", u.id);
+		
 	}
 
 	static async buildScreenPostLogin(l) {
@@ -615,7 +574,7 @@ console.log("Transit got->" + transitId);
 		document.getElementById("scan-tab-item").classList.remove("d-none");
 		document.getElementById("report-tab-item").classList.remove("d-none");
 		document.getElementById("dashboard-tab-item").classList.remove("d-none");
-		document.getElementById("ci-user-header").innerHTML=document.getElementById("ci_faculty_id").value;
+		document.getElementById("ci-user-header").innerHTML=document.getElementById("faculty-name").innerHTML;
 		document.getElementById("ci-location-header").innerHTML=document.getElementById("ci_rooms_id").value;
 		document.getElementById("location-checker-tab").click();
 	

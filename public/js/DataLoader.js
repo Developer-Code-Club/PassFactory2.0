@@ -185,8 +185,8 @@ class DataLoader {
 		
 		return ret;
 	}
-	async getRTTempUserList() {	
-		const rr = async()=> { 
+	
+	async getRTTempUserList() {		const rr = async()=> { 
 			const response = await fetch('/get_rt_temp_users', {
 				method : 'POST' ,
 				headers: {'Content-Type': 'application/json'}

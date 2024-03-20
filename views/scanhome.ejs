@@ -131,99 +131,64 @@ table, th, td {
 					<div id="ci-logs">
 					
 
-
-					<div id="ci-dash-area">	
-<label>THISISDASHAREA</label>					
-						<br>
-
-						<div style="padding-top: 80px;">
-							<div class="row">
-
-							  <div class="col-7">
-
-								<label>
-									<!-- <a class="btn btn-primary" data-bs-toggle="collapse" href="#" role="button" aria-expanded="false" aria-controls="collapseExample" onclick="Controller.buildDashboard()">
-										Display All Locations
-									</a> -->
-			
-									<label class="pit-link" onclick="Controller.buildDashboardARNAV(true)">Display All Locations</label>
-
-									<label class="pit-link" onclick="Controller.buildDashboardARNAV(false)">Refresh Dashboard</label>
-			
-									<label class="pit-link" onclick="ViewBuilder.toggleLogs(event)">Toggle Logs</label>
-
-									<label class="pit-link" onclick="Controller.sendGetDashboard()">DASHBOARD CREATE CONNECTION</label>
-
-
-									
-									
-									<!-- <button type="button" onclick=toggle() id="btn-main" class="btn btn-primary btn-sm">Display All Locations</button> -->
-								</label>
-								
-								<div id="table-animation">
-									<table id="ci-dash-status" class="table table-sm table-striped d-none" >
-										<thead id="ci-dash-header">
-											<tr class="table-primary">
-												<th style="width:40%" scope="col">Staff Name</th>
-												<th style="width:40%" scope="col">Location</th>
-												<th style="width:10%" scope="col">Num Boys</th>
-												<th style="width:10%" scope="col">Num Girls</th>
-											</tr>
-										</thead>
-										<tbody id="ci-dash-rows">
-										</tbody>
-									</table>
-								</div>
-							  </div>
-							  <div class="col-5">
-								<div id="ci-logs" style="padding-top: 50px;" >
-								</div>
-							  </div>
-							</div></div>
-
-
-						
-					</div>
 					
 						
 				</div>
 			  </section>
 			</div>
 			<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">					
-				<label>Logged By:</label>
-				<input id="ci_faculty_id" list="ci_faculty_list" name="ci_faculty_id">
-				<datalist id="ci_faculty_list">
-				</datalist>
-				<i class="fa fa-info-circle pitInfo pitTooltip">
-					<span class="pitTooltipText">Login by selecting who you are.  It will search the Faculty and Guest User List for you.</span>
-				</i>
 				<br>
-				<label>Location:</label>
-				<input id="ci_rooms_id" list="ci_rooms_list" name="ci_rooms_id">
-				<datalist id="ci_rooms_list">
-				</datalist>
-				<br>
-				<button id="ci-open-test" onclick="Controller.loginAttempt(event)">Sign In</button>
-				<br>
-				<div> <!-- G Sign-in button -->
-					<div id="g_id_onload"
-						data-client_id="907259101671-cliqecs90vrk7l8ofead1s0e1m1qs92l.apps.googleusercontent.com"
-						data-context="signin"
-						data-ux_mode="popup"
-						data-callback="handleCredentialResponse"
-						data-auto_prompt="false">
-					</div>
+				<div class="container">
+					<div class="row">
+						<div class="col-sm-2">
+							<label>Logged By:</label>
+							<i class=" fa fa-info-circle pitInfo pitTooltip">
+								<span class="pitTooltipText">Login using your HCRHS gmail account.</span>
+							</i>
+						</div>
+						<div class="col-sm-4">
+							<span> <!-- G Sign-in button -->
+								<span id="g_id_onload"
+									data-client_id="907259101671-cliqecs90vrk7l8ofead1s0e1m1qs92l.apps.googleusercontent.com"
+									data-context="signin"
+									data-ux_mode="popup"
+									data-callback="handleCredentialResponse"
+									data-auto_prompt="false">
+								</span>
 
-					<div class="g_id_signin"
-						data-type="standard"
-						data-shape="rectangular"
-						data-theme="outline"
-						data-text="signin_with"
-						data-size="large"
-						data-logo_alignment="left">
+								<span class="g_id_signin"
+									data-type="standard"
+									data-shape="rectangular"
+									data-theme="outline"
+									data-text="signin_with"
+									data-size="large"
+									data-logo_alignment="left">
+								</span>
+							</span>
+						</div>
+						<div class="col-sm-6">
+							<label id="faculty-name"></label>
+						</div>
 					</div>
-				</div>
-
+					<br>
+					<div class="row">
+						<div class="col-sm-2">
+							<label>Location:</label>
+						</div>
+						<div class="col-sm-10">
+							<input id="ci_rooms_id" list="ci_rooms_list" name="ci_rooms_id">
+							<datalist id="ci_rooms_list">
+							</datalist>
+						</div>
+					</div>
+					<br><br>
+					<div class="row">
+						<div class="col-sm-4">
+				
+							<button id="ci-open-test" onclick="Controller.loginAttempt(event)">Sign In</button>
+						</div>
+					</div>
+				</div>	
 			</div>
 			<div class="tab-pane fade" id="roomBlockReport" role="tabpanel" aria-labelledby="room-block-report-tab">
 				<section id="room-block-report-sec">
@@ -378,7 +343,7 @@ function sendCheckInFunc(e) {
 	function decodeJwtResponse(data){
 		var jwt = parseJwt(data);
 		console.log("JWT returned from " + jwt.name + ", " + jwt.email + ": " + JSON.stringify(jwt));
-		Controller.createTempLoginG(jwt);
+		Controller.setLoginG(jwt);
 	}
 
 

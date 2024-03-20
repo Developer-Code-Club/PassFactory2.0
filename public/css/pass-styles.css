@@ -75,7 +75,7 @@
   position: absolute;
   z-index: 1;
   top: -40px;
-  right: -450%;
+  right: -150px;
  }
  .xpitTooltip .xpitTooltipText2 {
   visibility: visible;
@@ -85,7 +85,7 @@
   position: absolute;
   z-index: 1;
   top: -40px;
-  right: -450%;
+  right: -150px;
  }
  /* makes hover of a nav-link blue. */
 .pit-link:hover {

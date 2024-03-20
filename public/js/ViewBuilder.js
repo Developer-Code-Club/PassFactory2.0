@@ -247,18 +247,7 @@ class ViewBuilder {
 			}
 		}
 	}
-	static buildTempUserList(list) {
-		/* SHORT TERM HACK TO ADD TEMP USERS TO DROPDOWN */
-		var dl = document.getElementById("ci_faculty_list");
-		for ( var i=0; i < list.length; i++ ) {
-			var o = document.createElement("option");
-			o.value = list[i].name
-			o.setAttribute("tempUserId",list[i].id);
-			o.id = "temp-user-" + list[i].id;
-			o.rr = 0 - list[i].id
-			dl.appendChild(o);
-		}
-	}
+	
 	static buildRoomsList(list) {
 		var dl = document.getElementById("ci_rooms_list");
 		var drl = document.getElementById("ci_rep_rooms_list");
@@ -283,7 +272,7 @@ class ViewBuilder {
 		var dl = document.getElementById("ci_students_list");
 		for ( var i=0; i < list.length; i++ ) {
 			var o = document.createElement("option");
-			o.value = list[i][1].name
+			o.value = list[i][1].name.replace("'","");
 			o.setAttribute("studentId",list[i][1].id);
 			o.id = "students-" + list[i][1].id;
 			o.rr = list[i][1].id;
@@ -292,9 +281,9 @@ class ViewBuilder {
 	}
 	
 	static is_valid_datalist_value(idDataList, inputValue) {
-		var option = document.querySelector("#" + idDataList + " option[value='" + inputValue + "']");
+		var s = inputValue.replace("'","");
+		var option = document.querySelector("#" + idDataList + " option[value='" + s + "']");
 		if ( option == null ) { return null; }
-		console.log("ooooo->" + option.getAttribute("tempUserId") + " ->" + option.getAttribute("facultyId"));
 		return option.rr;
 	}
 	/* 
@@ -323,34 +312,13 @@ class ViewBuilder {
 		}
 		return "";
 	}
-	static getFacultyId() {
-		var x = ViewBuilder.is_valid_datalist_value('ci_faculty_list', document.getElementById('ci_faculty_id').value);		
-		return x;
-	}
 	static getUserId() {
-		var inputValue = document.getElementById('ci_faculty_id').value;
-		var option = document.querySelector("#" + 'ci_faculty_list' + " option[value='" + inputValue + "']");
-		if ( option == null ) { return null; }
-		return option.rr;
+		var n = document.getElementById("faculty-name");
+		return parseInt(n.getAttribute("userId"));
 	}
-	static isUserTemp() {
-		var inputValue = document.getElementById('ci_faculty_id').value;
-		var option = document.querySelector("#" + 'ci_faculty_list' + " option[value='" + inputValue + "']");
-		if ( option == null ) { return null; }
-		if ( option.getAttribute("tempUserId") != null ) {
-			return true;
-		}
-		return false;
-	}
-	static isUserFaculty() {
-		var inputValue = document.getElementById('ci_faculty_id').value;
-		var option = document.querySelector("#" + 'ci_faculty_list' + " option[value='" + inputValue + "']");
-		if ( option == null ) { return false; }
-		if ( option.getAttribute("facultyId") != null ) {
-			return true;
-		}
-		return false;
-	}
+	
+	
+	
 	static signOutCleanUp() { 
 		document.getElementById("ci-logged-in-header").classList.add("d-none");
 		document.getElementById("ci-open-test").classList.remove("d-none");
@@ -373,11 +341,6 @@ class ViewBuilder {
 		
 	}
 		
-	
-	static getTempUserId(name) {
-		var x = ViewBuilder.is_valid_datalist_value('ci_temp_user_list', name);		
-		return x;
-	}
 	static getRepLocation() {
 		var x = ViewBuilder.is_valid_datalist_value('ci_rep_rooms_list', document.getElementById('ci_rep_rooms_id').value);		
 		return x;
@@ -485,7 +448,6 @@ class ViewBuilder {
 			room =  Controller.roomList.get(ViewBuilder.getLocation());
 		}
 		var s = Controller.studentsList.get(parseInt(studentId));
-//		ViewBuilder.checkRoomCapacity(s.gender);
 		
 		var tab = document.getElementById("ci-rows");
 		var tr = document.createElement("tr");
@@ -555,16 +517,6 @@ class ViewBuilder {
 
 		info.appendChild(content);
 		
-		/*var img = document.createElement("img");
-		if(Controller.haveFacultyPicture("./images/pictures/students/" + studentId + ".jpg")){
-			img.src = "./images/pictures/students/" + studentId + ".jpg";
-		}
-		else {
-			img.src = "./images/pictures/students/placeholder.jpg";
-		}
-
-		img.classList.add("img-fluid","w-50");
-		col2.appendChild(img);*/
 		l.appendChild(xToolTip);	
 		
 		
@@ -655,98 +607,35 @@ class ViewBuilder {
 			aOrb=student.theSchedule.BDayBlocks;
 		} 
 	
-		/*var nameLN = document.createElement("label"); nameLN.classList.add("float-left");
-		nameLN.innerHTML= "Name:";
-		var nameL = document.createElement("label"); nameL.classList.add("float-left");
-		nameL.innerHTML= student.name;
-		var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
-		var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
-		var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);	
-		col1.appendChild(nameLN);
-		col2.appendChild(nameL);*/
+		
 		
 		if ( aOrb ) {
 			if ( blockNum == 1 || blockNum == 2 || blockNum == 3 || blockNum == 4 ) {
-				studentinfo.push(`Block: ${aOrb[blockNum].scheduleDisplay}`);
-				studentinfo.push(`Room: ${aOrb[blockNum].room}`);
-				studentinfo.push(`Description: ${aOrb[blockNum].description}`);
-				studentinfo.push(`Teacher: ${aOrb[blockNum].rawSource.primaryStaff.nameView}`);
-				/*var blockLN = document.createElement("label");  blockLN.classList.add("float-left");
-				blockLN.innerHTML = "Block:";
-		
-				var blockL = document.createElement("label");  blockL.classList.add("float-left");
-				blockL.innerHTML = aOrb[blockNum].scheduleDisplay;
-	
-				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
-				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
-				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
-				col1.appendChild(blockLN);
-				col2.appendChild(blockL);
-		
-				
-				var roomLN = document.createElement("label"); roomLN.classList.add("float-left");
-				roomLN.innerHTML = "Room:";
-				var roomL = document.createElement("label"); roomL.classList.add("float-left");
-				roomL.innerHTML = aOrb[blockNum].room;
-				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
-				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
-				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
-				col1.appendChild(roomLN);
-				col2.appendChild(roomL);
-				
-				var classLN = document.createElement("label"); classLN.classList.add("float-left");
-				classLN.innerHTML = "Class:";
-				var classL = document.createElement("label"); classL.classList.add("float-left");
-				classL.innerHTML = aOrb[blockNum].description;
-				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
-				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
-				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
-				col1.appendChild(classLN);
-				col2.appendChild(classL);
-
-				var teacherLN = document.createElement("label"); teacherLN.classList.add("float-left");
-				teacherLN.innerHTML = "Teacher:";
-				var teacherL = document.createElement("label"); teacherL.classList.add("float-left");
-				teacherL.innerHTML = aOrb[blockNum].rawSource.primaryStaff.nameView;
-				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
-				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
-				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
-				col1.appendChild(teacherLN);
-				col2.appendChild(teacherL);*/
-				
+				if ( aOrb[blockNum].scheduleDisplay != null ) {
+					studentinfo.push(`Block: ${aOrb[blockNum].scheduleDisplay}`);
+				} else {
+					studentinfo.push('Block: Unknown');
+				}
+				if ( aOrb[blockNum].room != null ) {
+					studentinfo.push(`Room: ${aOrb[blockNum].room}`);
+				} else {
+					studentinfo.push('Room: Unknown');
+				}
+				if ( aOrb[blockNum].description != null ) {
+					studentinfo.push(`Description: ${aOrb[blockNum].description}`);
+				} else {
+					studentinfo.push('Description: Unknown');
+				}
+				if ( aOrb[blockNum].rawSource.primaryStaff.nameView != null ) {
+					studentinfo.push(`Teacher: ${aOrb[blockNum].rawSource.primaryStaff.nameView}`);
+				} else {
+					studentinfo.push('Teacher: Unknown');
+				}		
 				
 			} else if ( blockNum == 2.5 ) {
 				studentinfo.push(blockNum);
-				/*var classLN = document.createElement("label");classLN.classList.add("float-left");
-				classLN.innerHTML = "Class:";
-				var classL = document.createElement("label");classL.classList.add("float-left");
-				classL.innerHTML = "Lunch";
-				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
-				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
-				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
-				col1.appendChild(classLN);
-				col2.appendChild(classL);*/
-			} /*else {
-				var classLN = document.createElement("label");classLN.classList.add("float-left");
-				classLN.innerHTML = "Class:";
-				var classL = document.createElement("label");classL.classList.add("float-left");
-				classL.innerHTML = "Non Class Time";
-				var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
-				var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
-				var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
-				col1.appendChild(classLN);
-				col2.appendChild(classL);
-			}	
-		} else {
-			var classLN = document.createElement("label");classLN.classList.add("float-left");
-			classLN.innerHTML = "Class:";
-			var classL = document.createElement("label");classL.classList.add("float-left");
-			classL.innerHTML = "No Other Info";				
-			var row=document.createElement("div"); row.classList.add("row");d.appendChild(row);
-			var col1=document.createElement("div"); col1.classList.add("col-sm-4");row.appendChild(col1);
-			var col2=document.createElement("div"); col2.classList.add("col-sm-8");row.appendChild(col2);		
-			col1.appendChild(classLN);
-			col2.appendChild(classL);*/			
+				
+			} 	
 		}
 		
 		return studentinfo;

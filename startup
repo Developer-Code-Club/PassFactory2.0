@@ -1,0 +1,4 @@
+export PRODUCTION_MODE="PROD"
+#export BACKWARDS_LOG_URL="http://hcrhs-logs:8080"
+node pass_server > logfile 2>&1 &
+echo "DONE"
