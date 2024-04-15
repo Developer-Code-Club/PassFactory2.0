@@ -261,6 +261,16 @@ console.log("Transit got->" + transitId);
 			alert("You must log in as a user.");
 			return;
 		}
+		var u = Controller.facultyList.get(i);
+	
+		
+		if ( u == null ) {
+			alert("Unknown Faculty User Id " + i );
+			return;
+		}
+		
+		document.getElementById("faculty-name").innerHTML = u.name;
+		document.getElementById("faculty-name").setAttribute("userId", u.id);
 		Controller.finalizeFacultyLogin(i,l);
 	}
 	
@@ -277,14 +287,18 @@ console.log("Transit got->" + transitId);
 	
 	static setWSLogin(user, loc) {
 		console.log("In setWSLogin -> " + Controller.socket);
+		console.log("user is->" + JSON.stringify(user));
 	//	var server="ws://localhost:1337";
-		var server="ws://" + windows.location.hostname + ":1337";
+	console.log("window->" + window.location.hostname);
+		var server="ws://" + window.location.hostname + ":1337";
 		if ( Controller.socket != null ) {
 			Controller.sendClose();
 			alert("Closed existing Connection");
 		}
+		console.log("creating socket");
 		Controller.socket = new WebSocket(server);
 		Controller.socket.onopen = function () {
+			console.log("OPPPPEN");
 			Controller.creds={func:'signin',userName:user, tempUser:user,location:loc};
 			Controller.creds.user = user;
 			Controller.creds.location = loc;
@@ -293,6 +307,7 @@ console.log("Transit got->" + transitId);
 		Controller.socket.onmessage = Controller.receiveMessage;
 		Controller.socket.onerror = function (error) {
 			alert('WebSocket error: ' + error);
+			console.log(error.stack);
 			return;
 		};
 		var heartbeat_msg="heartBeat";

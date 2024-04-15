@@ -1,4 +1,5 @@
 var http = require('http');  
+var https = require('https');  
 
 const express = require("express");
 const app = express();
@@ -387,5 +388,3 @@ var thePassFactory = new PassFactory();
 var http_port = 8002; 
 
 http.createServer(app).listen(http_port);
-
-

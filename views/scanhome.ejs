@@ -141,15 +141,32 @@ table, th, td {
 				<div class="container">
 					<div class="row">
 						<div class="col-sm-2">
+							<label>Logged By (scanid):</label>
+							<i class=" fa fa-info-circle pitInfo pitTooltip">
+								<span class="pitTooltipText">Scan your id to login here.</span>
+							</i>
+						</div>
+						
+						<div class="col-sm-4">
+							<input type="text" id="faculty-signin"></input>
+						</div>
+						<div class="col-sm-6">
+							<label id="faculty-name"></label>
+						</div>
+					</div>
+					<br>
+<!--
+					<div class="row">
+						
+						<div class="col-sm-2">
 							<label>Logged By:</label>
 							<i class=" fa fa-info-circle pitInfo pitTooltip">
 								<span class="pitTooltipText">Login using your HCRHS gmail account.</span>
 							</i>
 						</div>
 						<div class="col-sm-4">
-							<span> <!-- G Sign-in button -->
 								<span id="g_id_onload"
-									data-client_id="907259101671-cliqecs90vrk7l8ofead1s0e1m1qs92l.apps.googleusercontent.com"
+									data-client_id="723989704874-1ncvatqatnd4efu4oqfs99alkt06npqu.apps.googleusercontent.com"
 									data-context="signin"
 									data-ux_mode="popup"
 									data-callback="handleCredentialResponse"
@@ -170,6 +187,7 @@ table, th, td {
 							<label id="faculty-name"></label>
 						</div>
 					</div>
+-->
 					<br>
 					<div class="row">
 						<div class="col-sm-2">
@@ -252,8 +270,9 @@ table, th, td {
 var theController = new Controller();
 theController.initializeRTData();
 
-
-
+/*
+	data-client_id="907259101671-cliqecs90vrk7l8ofead1s0e1m1qs92l.apps.googleusercontent.com"
+*/
  /*
 function openTestFunc(e) {
 	console.log("in open test func");

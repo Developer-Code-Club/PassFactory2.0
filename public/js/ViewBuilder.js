@@ -313,8 +313,8 @@ class ViewBuilder {
 		return "";
 	}
 	static getUserId() {
-		var n = document.getElementById("faculty-name");
-		return parseInt(n.getAttribute("userId"));
+		var n = document.getElementById("faculty-signin");
+		return parseInt(n.value);
 	}
 	
 	
@@ -607,29 +607,33 @@ class ViewBuilder {
 			aOrb=student.theSchedule.BDayBlocks;
 		} 
 	
-		
+		console.log("aOrb->" + JSON.stringify(aOrb[blockNum]));
+		console.log("block->" + blockNum ) ;
+		console.log("ab->" + ABDay);
 		
 		if ( aOrb ) {
 			if ( blockNum == 1 || blockNum == 2 || blockNum == 3 || blockNum == 4 ) {
-				if ( aOrb[blockNum].scheduleDisplay != null ) {
-					studentinfo.push(`Block: ${aOrb[blockNum].scheduleDisplay}`);
-				} else {
-					studentinfo.push('Block: Unknown');
-				}
-				if ( aOrb[blockNum].room != null ) {
-					studentinfo.push(`Room: ${aOrb[blockNum].room}`);
-				} else {
-					studentinfo.push('Room: Unknown');
-				}
-				if ( aOrb[blockNum].description != null ) {
-					studentinfo.push(`Description: ${aOrb[blockNum].description}`);
-				} else {
-					studentinfo.push('Description: Unknown');
-				}
-				if ( aOrb[blockNum].rawSource.primaryStaff.nameView != null ) {
-					studentinfo.push(`Teacher: ${aOrb[blockNum].rawSource.primaryStaff.nameView}`);
-				} else {
-					studentinfo.push('Teacher: Unknown');
+				if ( aOrb[blockNum-1] != null ) {
+					if ( aOrb[blockNum-1].scheduleDisplay != null ) {
+						studentinfo.push(`Block: ${aOrb[blockNum-1].scheduleDisplay}`);
+					} else {
+						studentinfo.push('Block: Unknown');
+					}
+					if ( aOrb[blockNum-1].room != null ) {
+						studentinfo.push(`Room: ${aOrb[blockNum-1].room}`);
+					} else {
+						studentinfo.push('Room: Unknown');
+					}
+					if ( aOrb[blockNum-1].description != null ) {
+						studentinfo.push(`Description: ${aOrb[blockNum-1].description}`);
+					} else {
+						studentinfo.push('Description: Unknown');
+					}
+					if ( aOrb[blockNum-1].rawSource.primaryStaff.nameView != null ) {
+						studentinfo.push(`Teacher: ${aOrb[blockNum-1].rawSource.primaryStaff.nameView}`);
+					} else {
+						studentinfo.push('Teacher: Unknown');
+					}
 				}		
 				
 			} else if ( blockNum == 2.5 ) {
